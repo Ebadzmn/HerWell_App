@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'core/app_route.dart';
 import 'core/app_colors.dart';
 import 'splashscreen/presentation/splash_screen.dart';
+import 'core/bindings/initial_binding.dart';
 
 void main() {
   runApp(const MyApp());
@@ -46,6 +47,7 @@ class MyApp extends StatelessWidget {
           ),
           themeMode: ThemeMode.system,
           initialRoute: AppRoute.splash,
+          initialBinding: InitialBinding(),
           getPages: AppRoute.routes,
         );
       },

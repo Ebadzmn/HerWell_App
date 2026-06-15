@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_route.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/network/api_client.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -33,10 +35,27 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _controller.forward();
+    _checkAuthState();
+  }
 
-    Future.delayed(const Duration(seconds: 3), () {
+  Future<void> _checkAuthState() async {
+    await Future.delayed(const Duration(seconds: 3));
+    
+    final prefs = await SharedPreferences.getInstance();
+    final hasCompletedOnboarding = prefs.getBool('hasCompletedOnboarding') ?? false;
+    final accessToken = prefs.getString('access_token');
+    
+    if (!hasCompletedOnboarding) {
+      Get.offAllNamed(AppRoute.onboarding);
+    } else if (accessToken == null || accessToken.isEmpty) {
       Get.offAllNamed(AppRoute.login);
-    });
+    } else {
+      // Set token for authenticated user before navigating
+      final apiClient = Get.find<ApiClient>();
+      apiClient.setToken(accessToken);
+      
+      Get.offAllNamed(AppRoute.navbar);
+    }
   }
 
   @override
