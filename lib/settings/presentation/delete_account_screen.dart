@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../core/app_colors.dart';
+import '../../auth/controller/auth_controller.dart';
 
 class DeleteAccountScreen extends StatelessWidget {
   const DeleteAccountScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final AuthController authController = Get.put(AuthController());
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -50,13 +54,15 @@ class DeleteAccountScreen extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            SizedBox(
+            Obx(() => SizedBox(
               width: double.infinity,
               height: 52,
               child: ElevatedButton(
-                onPressed: () {
-                  // TODO: Implement delete account logic
-                },
+                onPressed: authController.isLoading.value
+                    ? null
+                    : () {
+                        authController.deleteAccount();
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.error,
                   foregroundColor: Colors.white,
@@ -64,12 +70,14 @@ class DeleteAccountScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: const Text(
-                  'Delete My Account',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                ),
+                child: authController.isLoading.value
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        'Delete My Account',
+                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                      ),
               ),
-            ),
+            )),
             const SizedBox(height: 30),
           ],
         ),

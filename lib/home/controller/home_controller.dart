@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../../core/network/api_client.dart';
 
 class HomeController extends GetxController {
   var selectedDate = DateTime.now().obs;
@@ -12,7 +13,29 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    fetchCycleData();
     calculatePhase();
+  }
+
+  Future<void> fetchCycleData() async {
+    try {
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.get('/cycle/cycle-data');
+      if (response.isSuccess && response.data != null && response.data is List && (response.data as List).isNotEmpty) {
+        final cycleData = response.data[0]; // Get the latest cycle data
+        if (cycleData['cycle_length'] != null) {
+          cycleLength.value = cycleData['cycle_length'];
+        }
+        if (cycleData['cycle_start_date'] != null) {
+          try {
+            periodStartDate.value = DateTime.parse(cycleData['cycle_start_date']);
+          } catch (_) {}
+        }
+        calculatePhase();
+      }
+    } catch (e) {
+      debugPrint("Failed to fetch cycle data: $e");
+    }
   }
 
   void selectDate(DateTime date) {

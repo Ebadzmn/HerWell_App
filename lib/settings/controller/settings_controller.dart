@@ -1,4 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import '../../core/network/api_client.dart';
+import '../../home/controller/home_controller.dart';
 
 class SettingsController extends GetxController {
   final cycleLength = 28.obs;
@@ -9,4 +13,163 @@ class SettingsController extends GetxController {
   final lastPeriodYear = 2026.obs;
 
   final isDarkMode = false.obs;
+
+  // Profile fields
+  final username = ''.obs;
+  final email = ''.obs;
+  final name = ''.obs;
+  final cycleDataId = ''.obs;
+  final contraceptionType = 'none'.obs;
+  final fitnessGoal = 'general_fitness'.obs;
+  final isLoading = false.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchProfileAndCycleData();
+  }
+
+  Future<void> fetchProfileAndCycleData() async {
+    try {
+      isLoading.value = true;
+      final ApiClient apiClient = Get.find<ApiClient>();
+      
+      // Fetch user profile info
+      final userResponse = await apiClient.get('/auth/me');
+      if (userResponse.isSuccess && userResponse.data != null) {
+        username.value = userResponse.data['username'] ?? '';
+        email.value = userResponse.data['email'] ?? '';
+        name.value = userResponse.data['name'] ?? '';
+      }
+
+      // Fetch cycle data
+      final cycleResponse = await apiClient.get('/cycle/cycle-data');
+      if (cycleResponse.isSuccess && cycleResponse.data != null && cycleResponse.data is List && (cycleResponse.data as List).isNotEmpty) {
+        final cycleData = cycleResponse.data[0]; // latest cycle data
+        cycleDataId.value = cycleData['id'] ?? '';
+        cycleLength.value = cycleData['cycle_length'] ?? 28;
+        periodDuration.value = cycleData['period_length'] ?? 5;
+        contraceptionType.value = cycleData['contraception_type'] ?? 'none';
+        fitnessGoal.value = cycleData['fitness_goal'] ?? 'general_fitness';
+        
+        if (cycleData['cycle_start_date'] != null) {
+          try {
+            final parsedDate = DateTime.parse(cycleData['cycle_start_date']);
+            lastPeriodDay.value = parsedDate.day;
+            lastPeriodMonth.value = DateFormat('MMM').format(parsedDate);
+            lastPeriodYear.value = parsedDate.year;
+          } catch (_) {}
+        }
+      }
+    } catch (e) {
+      debugPrint("Failed to fetch settings: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> updateCycleData() async {
+    if (cycleDataId.value.isEmpty) return;
+    try {
+      final ApiClient apiClient = Get.find<ApiClient>();
+      
+      final monthMap = {
+        'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+        'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+      };
+      final monthNum = monthMap[lastPeriodMonth.value] ?? 1;
+      final dateStr = "${lastPeriodYear.value}-${monthNum.toString().padLeft(2, '0')}-${lastPeriodDay.value.toString().padLeft(2, '0')}";
+
+      final response = await apiClient.put(
+        '/cycle/cycle-data/${cycleDataId.value}',
+        data: {
+          "cycle_length": cycleLength.value,
+          "period_length": periodDuration.value,
+          "cycle_start_date": dateStr,
+        },
+      );
+
+      if (response.isSuccess) {
+        // Optimistically update HomeController cycle data
+        try {
+          if (Get.isRegistered<HomeController>()) {
+            Get.find<HomeController>().fetchCycleData();
+          }
+        } catch (_) {}
+      } else {
+        Get.snackbar(
+          'Error',
+          response.message.isNotEmpty ? response.message : 'Failed to update cycle data',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      debugPrint("Failed to update cycle data: $e");
+    }
+  }
+
+  Future<void> updateFitnessGoal(String goalId) async {
+    fitnessGoal.value = goalId;
+    if (cycleDataId.value.isEmpty) return;
+    try {
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.put(
+        '/cycle/cycle-data/${cycleDataId.value}',
+        data: {
+          "fitness_goal": goalId,
+        },
+      );
+      if (response.isSuccess) {
+        try {
+          if (Get.isRegistered<HomeController>()) {
+            Get.find<HomeController>().fetchCycleData();
+          }
+        } catch (_) {}
+      } else {
+        Get.snackbar(
+          'Error',
+          response.message.isNotEmpty ? response.message : 'Failed to update fitness goal',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      debugPrint("Failed to update fitness goal: $e");
+    }
+  }
+
+  Future<void> updateContraceptionType(String value) async {
+    contraceptionType.value = value;
+    if (cycleDataId.value.isEmpty) return;
+    try {
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.put(
+        '/cycle/cycle-data/${cycleDataId.value}',
+        data: {
+          "contraception_type": value,
+        },
+      );
+      if (response.isSuccess) {
+        try {
+          if (Get.isRegistered<HomeController>()) {
+            Get.find<HomeController>().fetchCycleData();
+          }
+        } catch (_) {}
+      } else {
+        Get.snackbar(
+          'Error',
+          response.message.isNotEmpty ? response.message : 'Failed to update contraception type',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      debugPrint("Failed to update contraception type: $e");
+    }
+  }
 }
+

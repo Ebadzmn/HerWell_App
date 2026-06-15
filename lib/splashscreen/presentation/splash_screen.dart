@@ -45,16 +45,32 @@ class _SplashScreenState extends State<SplashScreen>
     final hasCompletedOnboarding = prefs.getBool('hasCompletedOnboarding') ?? false;
     final accessToken = prefs.getString('access_token');
     
-    if (!hasCompletedOnboarding) {
-      Get.offAllNamed(AppRoute.onboarding);
-    } else if (accessToken == null || accessToken.isEmpty) {
-      Get.offAllNamed(AppRoute.login);
+    if (accessToken == null || accessToken.isEmpty) {
+      if (!hasCompletedOnboarding) {
+        Get.offAllNamed(AppRoute.onboarding);
+      } else {
+        Get.offAllNamed(AppRoute.login);
+      }
     } else {
-      // Set token for authenticated user before navigating
+      // Set token and verify it via /auth/me
       final apiClient = Get.find<ApiClient>();
       apiClient.setToken(accessToken);
       
-      Get.offAllNamed(AppRoute.navbar);
+      final response = await apiClient.get('/auth/me');
+      if (response.isSuccess) {
+        if (hasCompletedOnboarding) {
+          Get.offAllNamed(AppRoute.navbar);
+        } else {
+          Get.offAllNamed(AppRoute.onboarding);
+        }
+      } else {
+        // Token is invalid/expired
+        await prefs.remove('access_token');
+        await prefs.remove('refresh_token');
+        await prefs.remove('user_data');
+        apiClient.clearToken();
+        Get.offAllNamed(AppRoute.login);
+      }
     }
   }
 

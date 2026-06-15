@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_route.dart';
+import '../controller/community_controller.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -12,6 +13,7 @@ class CommunityScreen extends StatefulWidget {
 }
 
 class _CommunityScreenState extends State<CommunityScreen> {
+  final CommunityController controller = Get.put(CommunityController());
   String _selectedCategory = 'all';
   final List<String> _categories = [
     'all',
@@ -151,8 +153,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
                           children: _categories.map((cat) {
                             final isActive = _selectedCategory == cat;
                             return GestureDetector(
-                              onTap: () =>
-                                  setState(() => _selectedCategory = cat),
+                              onTap: () {
+                                setState(() => _selectedCategory = cat);
+                                controller.fetchPosts(category: cat);
+                              },
                               child: Container(
                                 margin: const EdgeInsets.only(right: 8),
                                 padding: const EdgeInsets.symmetric(
@@ -203,32 +207,40 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
-                      _buildPostCard(
-                        username: 'Sarah M.',
-                        category: 'workout',
-                        timeAgo: '2h ago',
-                        content:
-                            'Just finished a great follicular phase workout! Energy levels are 🔥',
-                        likes: 24,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildPostCard(
-                        username: 'Emma W.',
-                        category: 'nutrition',
-                        timeAgo: '4h ago',
-                        content:
-                            'Tried the iron-rich lentil soup recipe today. It was delicious and perfect for my period week! 🥣',
-                        likes: 18,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildPostCard(
-                        username: 'Jessica L.',
-                        category: 'support',
-                        timeAgo: '6h ago',
-                        content:
-                            'Anyone else feeling extra tired during the luteal phase? Struggling to stay motivated today. 😴',
-                        likes: 32,
-                      ),
+                      Obx(() {
+                        if (controller.isLoading.value) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40),
+                              child: CircularProgressIndicator(color: AppColors.primary),
+                            ),
+                          );
+                        }
+                        if (controller.posts.isEmpty) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40),
+                              child: Text('No posts found in this category'),
+                            ),
+                          );
+                        }
+                        return Column(
+                          children: controller.posts.map((post) {
+                            final timeAgo = DateFormat('jm').format(post.createdAt);
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _buildPostCard(
+                                id: post.id,
+                                username: post.authorName ?? 'Anonymous',
+                                category: post.category,
+                                timeAgo: timeAgo,
+                                content: post.content,
+                                likes: post.likes,
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      }),
                       const SizedBox(height: 100),
                     ],
                   ),
@@ -242,6 +254,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
   }
 
   void _showCreatePostDialog() {
+    final postContentController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -255,6 +268,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
+              controller: postContentController,
               maxLines: 4,
               decoration: InputDecoration(
                 hintText: "What's on your mind?",
@@ -274,7 +288,17 @@ class _CommunityScreenState extends State<CommunityScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () async {
+              if (postContentController.text.trim().isEmpty) {
+                Get.snackbar('Error', 'Please enter some content');
+                return;
+              }
+              final postCategory = _selectedCategory == 'all' ? 'general' : _selectedCategory;
+              final success = await controller.createPost(postContentController.text, postCategory);
+              if (success) {
+                Navigator.pop(context);
+              }
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.textPrimary,
               foregroundColor: Colors.white,
@@ -290,6 +314,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
   }
 
   Widget _buildPostCard({
+    required String id,
     required String username,
     required String category,
     required String timeAgo,
@@ -297,7 +322,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
     required int likes,
   }) {
     return GestureDetector(
-      onTap: () => Get.toNamed(AppRoute.postDetail),
+      onTap: () async {
+        await controller.fetchPostDetails(id);
+        Get.toNamed(AppRoute.postDetail);
+      },
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -371,11 +399,16 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 _buildActionButton(
                   Icons.favorite_border_rounded,
                   likes.toString(),
+                  onTap: () => controller.likePost(id, likes),
                 ),
                 const SizedBox(width: 20),
                 _buildActionButton(
                   Icons.chat_bubble_outline_rounded,
                   'Comment',
+                  onTap: () async {
+                    await controller.fetchPostDetails(id);
+                    Get.toNamed(AppRoute.postDetail);
+                  },
                 ),
                 const Spacer(),
                 const Icon(Icons.flag_outlined, size: 18, color: Colors.grey),
@@ -428,16 +461,19 @@ class _CommunityScreenState extends State<CommunityScreen> {
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: AppColors.textMuted),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-        ),
-      ],
+  Widget _buildActionButton(IconData icon, String label, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: AppColors.textMuted),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+          ),
+        ],
+      ),
     );
   }
 }

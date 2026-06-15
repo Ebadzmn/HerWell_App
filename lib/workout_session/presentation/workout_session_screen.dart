@@ -8,6 +8,7 @@ class WorkoutSessionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(WorkoutSessionController());
+    final notesController = TextEditingController();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final cardBgColor = isDark ? const Color(0xFF0F0F0F) : Colors.white;
@@ -231,7 +232,8 @@ class WorkoutSessionScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: isDark ? Colors.white.withOpacity(0.1) : Colors.transparent),
                           ),
-                          child: TextField(
+                           child: TextField(
+                            controller: notesController,
                             maxLines: 2,
                             style: TextStyle(color: textColor, fontSize: 14),
                             decoration: InputDecoration(
@@ -247,11 +249,18 @@ class WorkoutSessionScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   
                   // Complete Workout Button
-                  SizedBox(
+                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Get.back();
+                    child: Obx(() => ElevatedButton(
+                      onPressed: controller.isLoading.value ? () {} : () async {
+                        final success = await controller.saveWorkoutSession(
+                          workoutName: 'Endorphin Boost Walk/Jog',
+                          durationMinutes: 35.0,
+                          notes: notesController.text,
+                        );
+                        if (success) {
+                          Get.back();
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF8C735B), // Muted brown button
@@ -260,11 +269,11 @@ class WorkoutSessionScreen extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         elevation: 0,
                       ),
-                      child: const Text(
-                        'Complete Workout',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      child: Text(
+                        controller.isLoading.value ? 'Saving...' : 'Complete Workout',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                    ),
+                    )),
                   ),
                   const SizedBox(height: 40),
                 ],

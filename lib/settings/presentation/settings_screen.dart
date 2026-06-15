@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../controller/settings_controller.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_route.dart';
@@ -53,18 +54,20 @@ class SettingsScreen extends StatelessWidget {
                   children: [
                     Stack(
                       children: [
-                        const CircleAvatar(
+                        Obx(() => CircleAvatar(
                           radius: 28,
-                          backgroundColor: Color(0xFFD49A9B),
+                          backgroundColor: const Color(0xFFD49A9B),
                           child: Text(
-                            'm',
-                            style: TextStyle(
+                            controller.username.value.isNotEmpty
+                                ? controller.username.value[0].toUpperCase()
+                                : 'M',
+                            style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
                           ),
-                        ),
+                        )),
                         Positioned(
                           bottom: -2,
                           right: -2,
@@ -93,29 +96,33 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 16),
                     Expanded(
-                      child: Column(
+                      child: Obx(() => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
-                            'mxguxnnfbzlenetvlf',
-                            style: TextStyle(
+                            controller.username.value.isNotEmpty
+                                ? controller.username.value
+                                : 'mxguxnnfbzlenetvlf',
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFF3A2E28),
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
-                            'mxguxnnfbzlenetvlf@onidm.net',
-                            style: TextStyle(
+                            controller.email.value.isNotEmpty
+                                ? controller.email.value
+                                : 'mxguxnnfbzlenetvlf@onidm.net',
+                            style: const TextStyle(
                               fontSize: 11,
                               color: Color(0xFF8B7355),
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
-                      ),
+                      )),
                     ),
                   ],
                 ),
@@ -138,65 +145,68 @@ class SettingsScreen extends StatelessWidget {
               ),
 
               // Contraception Card
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1B1B22),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Text('💊', style: TextStyle(fontSize: 20)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              GestureDetector(
+                onTap: () => _showContraceptionPicker(context),
+                child: Obx(() => Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1B1B22),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Text('💊', style: TextStyle(fontSize: 20)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              getContraceptionLabel(controller.contraceptionType.value),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            const Text(
+                              'Contraception type',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFFA09FA6),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Row(
                         children: const [
                           Text(
-                            'Combined Pill',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Contraception type',
+                            'EDIT',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Color(0xFFA09FA6),
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFFE8927C),
                             ),
+                          ),
+                          SizedBox(width: 4),
+                          Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Color(0xFFE8927C),
+                            size: 16,
                           ),
                         ],
                       ),
-                    ),
-                    Row(
-                      children: const [
-                        Text(
-                          'EDIT',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFFE8927C),
-                          ),
-                        ),
-                        SizedBox(width: 4),
-                        Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Color(0xFFE8927C),
-                          size: 16,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                )),
               ),
 
               const SizedBox(height: 16),
 
               // Training Goal Card
-              Container(
+              Obx(() => Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -215,16 +225,35 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    _buildTrainingGoalItem('Build strength & muscle',
-                        isSelected: true),
-                    _buildTrainingGoalItem('Improve endurance / cardio fitness'),
-                    _buildTrainingGoalItem('Lose body fat'),
-                    _buildTrainingGoalItem('General health & wellbeing'),
-                    _buildTrainingGoalItem('Athletic performance / competition',
-                        isLast: true),
+                    _buildTrainingGoalItem(
+                      'Build strength & muscle',
+                      isSelected: controller.fitnessGoal.value == 'build_strength',
+                      onTap: () => controller.updateFitnessGoal('build_strength'),
+                    ),
+                    _buildTrainingGoalItem(
+                      'Improve endurance / cardio fitness',
+                      isSelected: controller.fitnessGoal.value == 'improve_endurance',
+                      onTap: () => controller.updateFitnessGoal('improve_endurance'),
+                    ),
+                    _buildTrainingGoalItem(
+                      'Lose body fat',
+                      isSelected: controller.fitnessGoal.value == 'lose_fat',
+                      onTap: () => controller.updateFitnessGoal('lose_fat'),
+                    ),
+                    _buildTrainingGoalItem(
+                      'General health & wellbeing',
+                      isSelected: controller.fitnessGoal.value == 'general_health',
+                      onTap: () => controller.updateFitnessGoal('general_health'),
+                    ),
+                    _buildTrainingGoalItem(
+                      'Athletic performance / competition',
+                      isSelected: controller.fitnessGoal.value == 'athletic_performance',
+                      onTap: () => controller.updateFitnessGoal('athletic_performance'),
+                      isLast: true,
+                    ),
                   ],
                 ),
-              ),
+              )),
 
               const SizedBox(height: 16),
 
@@ -290,36 +319,39 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _buildTrainingGoalItem(String title,
-      {bool isSelected = false, bool isLast = false}) {
-    return Column(
-      children: [
-        const Divider(height: 1, thickness: 1, color: Color(0xFFF6F3F0)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected
-                        ? const Color(0xFF3A2E28)
-                        : const Color(0xFF9E9287),
+      {bool isSelected = false, bool isLast = false, VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          const Divider(height: 1, thickness: 1, color: Color(0xFFF6F3F0)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected
+                          ? const Color(0xFF3A2E28)
+                          : const Color(0xFF9E9287),
+                    ),
                   ),
                 ),
-              ),
-              if (isSelected)
-                const Icon(
-                  Icons.check,
-                  size: 18,
-                  color: Color(0xFFE8927C),
-                ),
-            ],
+                if (isSelected)
+                  const Icon(
+                    Icons.check,
+                    size: 18,
+                    color: Color(0xFFE8927C),
+                  ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -376,6 +408,9 @@ class SettingsScreen extends StatelessWidget {
           max: 40,
           onChanged: (v) {
             controller.cycleLength.value = v.toInt();
+          },
+          onChangeEnd: (v) {
+            controller.updateCycleData();
           },
         ),
         Padding(
@@ -435,6 +470,9 @@ class SettingsScreen extends StatelessWidget {
           onChanged: (v) {
             controller.periodDuration.value = v.toInt();
           },
+          onChangeEnd: (v) {
+            controller.updateCycleData();
+          },
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -460,56 +498,59 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              flex: 1,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                decoration: BoxDecoration(
-                  color: boxBgColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: boxBorderColor, width: 1),
-                ),
-                child: Text(
-                  '${controller.lastPeriodDay.value}',
-                  style: TextStyle(fontSize: 16, color: boxTextColor),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 1,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                decoration: BoxDecoration(
-                  color: boxBgColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: boxBorderColor, width: 1),
-                ),
-                child: Text(
-                  controller.lastPeriodMonth.value,
-                  style: TextStyle(fontSize: 16, color: boxTextColor),
+        GestureDetector(
+          onTap: () => _selectStartDate(context),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: boxBgColor,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: boxBorderColor, width: 1),
+                  ),
+                  child: Text(
+                    '${controller.lastPeriodDay.value}',
+                    style: TextStyle(fontSize: 16, color: boxTextColor),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 1,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                decoration: BoxDecoration(
-                  color: boxBgColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: boxBorderColor, width: 1),
-                ),
-                child: Text(
-                  '${controller.lastPeriodYear.value}',
-                  style: TextStyle(fontSize: 16, color: boxTextColor),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: boxBgColor,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: boxBorderColor, width: 1),
+                  ),
+                  child: Text(
+                    controller.lastPeriodMonth.value,
+                    style: TextStyle(fontSize: 16, color: boxTextColor),
+                  ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: boxBgColor,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: boxBorderColor, width: 1),
+                  ),
+                  child: Text(
+                    '${controller.lastPeriodYear.value}',
+                    style: TextStyle(fontSize: 16, color: boxTextColor),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 24),
       ],
@@ -521,6 +562,7 @@ class SettingsScreen extends StatelessWidget {
     required double min,
     required double max,
     required ValueChanged<double> onChanged,
+    ValueChanged<double>? onChangeEnd,
   }) {
     return SliderTheme(
       data: SliderThemeData(
@@ -537,6 +579,7 @@ class SettingsScreen extends StatelessWidget {
         min: min,
         max: max,
         onChanged: onChanged,
+        onChangeEnd: onChangeEnd,
       ),
     );
   }
@@ -889,30 +932,152 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _buildDeleteAccountButton() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFCDBEAE)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Icon(Icons.delete_outline, color: Color(0xFFC0473A), size: 18),
-          SizedBox(width: 8),
-          Text(
-            'Delete account',
-            style: TextStyle(
-              color: Color(0xFFC0473A),
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
+    return InkWell(
+      onTap: () {
+        Get.toNamed(AppRoute.deleteAccount);
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFCDBEAE)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.delete_outline, color: Color(0xFFC0473A), size: 18),
+            SizedBox(width: 8),
+            Text(
+              'Delete account',
+              style: TextStyle(
+                color: Color(0xFFC0473A),
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  // Helper integration functions
+  String getContraceptionLabel(String type) {
+    switch (type) {
+      case 'pill':
+        return 'Combined Pill';
+      case 'mirena':
+        return 'Hormonal IUD';
+      case 'implant':
+        return 'Implant';
+      case 'injection':
+        return 'Injection';
+      case 'mini':
+        return 'Mini Pill';
+      case 'none':
+      default:
+        return 'No hormonal contraception';
+    }
+  }
+
+  void _showContraceptionPicker(BuildContext context) {
+    final options = [
+      {'id': 'pill', 'title': 'Combined Pill'},
+      {'id': 'mirena', 'title': 'Hormonal IUD'},
+      {'id': 'implant', 'title': 'Implant'},
+      {'id': 'injection', 'title': 'Injection'},
+      {'id': 'mini', 'title': 'Mini Pill'},
+      {'id': 'none', 'title': 'No hormonal contraception'},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 16),
+              const Text(
+                'Select Contraception Type',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF3A2E28),
+                ),
+              ),
+              const Divider(),
+              ...options.map((opt) {
+                return ListTile(
+                  title: Text(
+                    opt['title']!,
+                    style: const TextStyle(color: Color(0xFF3A2E28)),
+                  ),
+                  trailing: controller.contraceptionType.value == opt['id']
+                      ? const Icon(Icons.check, color: Color(0xFFE8927C))
+                      : null,
+                  onTap: () {
+                    controller.updateContraceptionType(opt['id']!);
+                    Navigator.pop(context);
+                  },
+                );
+              }).toList(),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _selectStartDate(BuildContext context) async {
+    final monthMap = {
+      'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+      'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+    };
+    final monthNum = monthMap[controller.lastPeriodMonth.value] ?? 1;
+    final currentDate = DateTime(
+      controller.lastPeriodYear.value,
+      monthNum,
+      controller.lastPeriodDay.value,
+    );
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: currentDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFFE8927C),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF3A2E28),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFE8927C),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      controller.lastPeriodDay.value = picked.day;
+      controller.lastPeriodMonth.value = DateFormat('MMM').format(picked);
+      controller.lastPeriodYear.value = picked.year;
+      controller.updateCycleData();
+    }
   }
 }
 
