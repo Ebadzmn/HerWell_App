@@ -5,6 +5,8 @@ import '../controller/auth_controller.dart';
 class SignupScreen extends StatelessWidget {
   SignupScreen({super.key});
 
+  final _nameController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -54,6 +56,20 @@ class SignupScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
+              _buildLabel('Name'),
+              _buildTextField(
+                controller: _nameController,
+                hint: 'Jane Doe',
+                prefixIcon: Icons.person_outline,
+              ),
+              const SizedBox(height: 20),
+              _buildLabel('Username'),
+              _buildTextField(
+                controller: _usernameController,
+                hint: 'fitness_jane',
+                prefixIcon: Icons.alternate_email,
+              ),
+              const SizedBox(height: 20),
               _buildLabel('Email'),
               _buildTextField(
                 controller: _emailController,
@@ -80,7 +96,9 @@ class SignupScreen extends StatelessWidget {
               Obx(() => _buildPrimaryButton(
                 text: controller.isLoading.value ? 'Loading...' : 'Create account',
                 onPressed: controller.isLoading.value ? () {} : () async {
-                  if (_emailController.text.isEmpty || 
+                  if (_nameController.text.isEmpty || 
+                      _usernameController.text.isEmpty || 
+                      _emailController.text.isEmpty || 
                       _passwordController.text.isEmpty || 
                       _confirmPasswordController.text.isEmpty) {
                     Get.snackbar('Error', 'Please fill in all fields',
@@ -96,7 +114,7 @@ class SignupScreen extends StatelessWidget {
                         colorText: Colors.white);
                     return;
                   }
-                  await controller.registerUser('User', _emailController.text, _passwordController.text);
+                  await controller.registerUser(_nameController.text, _usernameController.text, _emailController.text, _passwordController.text, _confirmPasswordController.text);
                 },
               )),
             ],

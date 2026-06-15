@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_route.dart';
+import '../../core/network/api_client.dart';
+import '../models/login_response_model.dart';
+import 'dart:convert';
 
 class AuthController extends GetxController {
   final isLoading = false.obs;
@@ -10,30 +13,95 @@ class AuthController extends GetxController {
   final otp = ''.obs;
 
   Future<void> loginUser(String email, String password) async {
+    if (isLoading.value) return; // Prevent multiple requests
     try {
       isLoading.value = true;
-      await Future.delayed(const Duration(seconds: 1)); // Mock delay
       
-      final prefs = await SharedPreferences.getInstance();
-      final hasCompletedOnboarding = prefs.getBool('hasCompletedOnboarding') ?? false;
-      
-      if (hasCompletedOnboarding) {
-        Get.offAllNamed(AppRoute.navbar);
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.post(
+        '/auth/login',
+        data: {
+          "email": email.trim(),
+          "password": password,
+        },
+      );
+
+      if (response.isSuccess && response.data != null) {
+        final loginData = LoginResponseModel.fromJson(response.data);
+        
+        final prefs = await SharedPreferences.getInstance();
+        if (loginData.accessToken != null) {
+          await prefs.setString('access_token', loginData.accessToken!);
+          apiClient.setToken(loginData.accessToken!);
+        }
+        if (loginData.refreshToken != null) {
+          await prefs.setString('refresh_token', loginData.refreshToken!);
+        }
+        if (loginData.user != null) {
+          await prefs.setString('user_data', jsonEncode(loginData.user!.toJson()));
+        }
+
+        Get.snackbar('Success', response.message.isNotEmpty ? response.message : 'Login Successful',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.withOpacity(0.1));
+            
+        final hasCompletedOnboarding = prefs.getBool('hasCompletedOnboarding') ?? false;
+        
+        if (hasCompletedOnboarding) {
+          Get.offAllNamed(AppRoute.navbar);
+        } else {
+          Get.offAllNamed(AppRoute.onboarding);
+        }
       } else {
-        Get.offAllNamed(AppRoute.onboarding);
+        Get.snackbar('Error', response.message.isNotEmpty ? response.message : 'Login failed',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
       }
+    } catch (e) {
+      Get.snackbar('Error', 'An unexpected error occurred',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> registerUser(String name, String email, String password) async {
+  Future<void> registerUser(String name, String username, String email, String password, String confirmPassword) async {
+    if (isLoading.value) return; // Disable multiple submissions
     try {
       isLoading.value = true;
       this.email.value = email;
-      await Future.delayed(const Duration(seconds: 1)); // Mock delay
-      // Send OTP for registration
-      Get.toNamed(AppRoute.signupOtp);
+      
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.post(
+        '/auth/register',
+        data: {
+          "name": name.trim(),
+          "username": username.trim(),
+          "email": email.trim(),
+          "password": password,
+          "confirm_password": confirmPassword,
+        },
+      );
+
+      if (response.isSuccess) {
+        Get.snackbar('Success', response.message.isNotEmpty ? response.message : 'Registration Successful',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.withOpacity(0.1));
+        Get.offAllNamed(AppRoute.login);
+      } else {
+        Get.snackbar('Error', response.message.isNotEmpty ? response.message : 'Registration failed',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An unexpected error occurred',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
@@ -97,6 +165,28 @@ class AuthController extends GetxController {
       } else {
         Get.offAllNamed(AppRoute.onboarding);
       }
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      isLoading.value = true;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('access_token');
+      await prefs.remove('refresh_token');
+      await prefs.remove('user_data');
+      
+      final ApiClient apiClient = Get.find<ApiClient>();
+      apiClient.clearToken();
+      
+      Get.offAllNamed(AppRoute.login);
+    } catch (e) {
+      Get.snackbar('Error', 'Logout failed',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }

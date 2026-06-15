@@ -1,0 +1,54 @@
+Running `(cd /Users/ebad/.pub-cache/hosted/pub.dev/objective_c-9.4.1/; ANDROID_HOME=/Users/ebad/Library/Android/sdk TMPDIR=/var/folders/mb/dl2sk3px3r7fppzjrjfnfry40000gq/T/ PATH=/Applications/Xcode.app/Contents/SharedFrameworks/SwiftBuild.framework/Versions/A/PlugIns/SWBBuildService.bundle/Contents/PlugIns/SWBUniversalPlatformPlugin.bundle/Contents/Frameworks/SWBUniversalPlatform.framework/Resources:/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/bin:/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec:/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/usr/bin:/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/usr/local/bin:/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin:/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/local/bin:/Applications/Xcode.app/Contents/Developer/usr/bin:/Applications/Xcode.app/Contents/Developer/usr/local/bin:/Users/ebad/.antigravity-ide/antigravity-ide/bin:/Users/ebad/.antigravity/antigravity/bin:/Users/ebad/.codeium/windsurf/bin:/Users/ebad/.nvm/versions/node/v25.2.1/bin:/Users/ebad/development/flutter/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/pmk/env/global/bin:/Library/Apple/usr/bin:/opt/homebrew/bin:/Users/ebad/.pub-cache/bin:/Users/ebad/Library/Android/sdk/emulator:/Users/ebad/Library/Android/sdk/platform-tools:/Users/ebad/flutter/bin:/Users/ebad/flutter/bin/cache/dart-sdk/bin HOME=/Users/ebad /Users/ebad/development/flutter/bin/cache/dart-sdk/bin/dart --packages=/Users/ebad/herwellness_flutter/.dart_tool/package_config.json /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/objective_c/84fd4fa0ea/hook.dill --config=/Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/objective_c/84fd4fa0ea/input.json )`.
+INFO: 2026-06-16 04:19:39.542981: Using compiler /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang from BuildInput.cCompiler.cc.
+
+INFO: 2026-06-16 04:19:39.546271: Running: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios-simulator -mios-version-min=13 -c /Users/ebad/.pub-cache/hosted/pub.dev/objective_c-9.4.1/src/include/dart_api_dl.c -fpic -gline-tables-only -I src -o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/include/dart_api_dl.c.o
+
+INFO: 2026-06-16 04:19:39.547327: Running: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios-simulator -mios-version-min=13 -c /Users/ebad/.pub-cache/hosted/pub.dev/objective_c-9.4.1/src/objective_c.c -fpic -gline-tables-only -I src -o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/objective_c.c.o
+
+INFO: 2026-06-16 04:19:39.547445: Running: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios-simulator -mios-version-min=13 -x objective-c -fobjc-arc -c /Users/ebad/.pub-cache/hosted/pub.dev/objective_c-9.4.1/src/input_stream_adapter.m -fpic -gline-tables-only -I src -o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/input_stream_adapter.m.o
+
+INFO: 2026-06-16 04:19:39.547524: Running: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios-simulator -mios-version-min=13 -x objective-c -fobjc-arc -c /Users/ebad/.pub-cache/hosted/pub.dev/objective_c-9.4.1/src/objective_c.m -fpic -gline-tables-only -I src -o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/objective_c.m.o
+
+INFO: 2026-06-16 04:19:39.547674: Running: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios-simulator -mios-version-min=13 -x objective-c -fobjc-arc -c /Users/ebad/.pub-cache/hosted/pub.dev/objective_c-9.4.1/src/ns_number.m -fpic -gline-tables-only -I src -o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/ns_number.m.o
+
+INFO: 2026-06-16 04:19:39.547746: Running: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios-simulator -mios-version-min=13 -x objective-c -fobjc-arc -c /Users/ebad/.pub-cache/hosted/pub.dev/objective_c-9.4.1/src/protocol.m -fpic -gline-tables-only -I src -o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/protocol.m.o
+INFO: 2026-06-16 04:19:39.547820: Running: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios-simulator -mios-version-min=13 -x objective-c -fobjc-arc -c /Users/ebad/.pub-cache/hosted/pub.dev/objective_c-9.4.1/src/objective_c_bindings_generated.m -fpic -gline-tables-only -I src -o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/objective_c_bindings_generated.m.o
+
+INFO: 2026-06-16 04:19:39.583551: 
+INFO: 2026-06-16 04:19:39.583612: 
+INFO: 2026-06-16 04:19:39.583637: Generated /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/include/dart_api_dl.c.o
+
+INFO: 2026-06-16 04:19:39.592767: 
+INFO: 2026-06-16 04:19:39.592826: 
+INFO: 2026-06-16 04:19:39.592848: Generated /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/objective_c.c.o
+
+INFO: 2026-06-16 04:19:39.594660: 
+INFO: 2026-06-16 04:19:39.594713: 
+INFO: 2026-06-16 04:19:39.594750: Generated /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/observer.m.o
+
+INFO: 2026-06-16 04:19:39.599872: 
+INFO: 2026-06-16 04:19:39.599938: 
+INFO: 2026-06-16 04:19:39.599959: Generated /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/protocol.m.o
+
+INFO: 2026-06-16 04:19:39.655502: 
+INFO: 2026-06-16 04:19:39.655538: 
+INFO: 2026-06-16 04:19:39.655548: Generated /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/ns_number.m.o
+INFO: 2026-06-16 04:19:39.655584: 
+INFO: 2026-06-16 04:19:39.655594: 
+INFO: 2026-06-16 04:19:39.655602: Generated /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/objective_c.m.o
+
+INFO: 2026-06-16 04:19:39.681102: 
+INFO: 2026-06-16 04:19:39.681136: 
+INFO: 2026-06-16 04:19:39.681146: Generated /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/input_stream_adapter.m.o
+
+INFO: 2026-06-16 04:19:39.696092: 
+INFO: 2026-06-16 04:19:39.696127: 
+INFO: 2026-06-16 04:19:39.696136: Generated /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/objective_c_bindings_generated.m.o
+
+INFO: 2026-06-16 04:19:39.696401: Running: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -shared -Wl,-encryptable -undefined dynamic_lookup -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios-simulator -mios-version-min=13 /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/include/dart_api_dl.c.o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/objective_c.c.o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/input_stream_adapter.m.o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/objective_c.m.o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/observer.m.o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/ns_number.m.o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/protocol.m.o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/obj/src/objective_c_bindings_generated.m.o -o /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/objective_c.dylib
+
+INFO: 2026-06-16 04:19:39.719467: 
+INFO: 2026-06-16 04:19:39.719514: ld: warning: -undefined dynamic_lookup is deprecated on iOS-simulator
+
+INFO: 2026-06-16 04:19:39.719524: Generated /Users/ebad/herwellness_flutter/.dart_tool/hooks_runner/shared/objective_c/build/84fd4fa0ea/objective_c.dylib
+

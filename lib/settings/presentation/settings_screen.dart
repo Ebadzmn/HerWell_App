@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../controller/settings_controller.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_route.dart';
+import '../../auth/controller/auth_controller.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
@@ -858,7 +859,7 @@ class SettingsScreen extends StatelessWidget {
   Widget _buildSignOutButton() {
     return InkWell(
       onTap: () {
-        Get.offAllNamed(AppRoute.login);
+        Get.put(AuthController()).logout();
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
