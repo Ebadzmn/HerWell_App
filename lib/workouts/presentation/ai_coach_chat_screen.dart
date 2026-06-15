@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/app_colors.dart';
+import '../../core/network/api_client.dart';
 import '../../home/controller/home_controller.dart';
 
 class AICoachChatScreen extends StatefulWidget {
@@ -45,7 +46,7 @@ class _AICoachChatScreenState extends State<AICoachChatScreen> {
     });
   }
 
-  void _sendMessage(String text) {
+  void _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
 
     setState(() {
@@ -55,19 +56,48 @@ class _AICoachChatScreenState extends State<AICoachChatScreen> {
     });
     _scrollToBottom();
 
-    // Simulating AI response for now (since base44 integration is backend-heavy)
-    Future.delayed(const Duration(seconds: 1), () {
+    try {
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.post(
+        '/integration/ai/coach',
+        data: {
+          "prompt": "You are a professional AI coach for a women's wellness app named HerWellness. Answer the user's message in the context of cycle tracking, nutrition, or workouts. The user says: \"$text\". Respond strictly with a JSON object containing a single key 'response'.",
+          "response_json_schema": {
+            "type": "OBJECT",
+            "properties": {
+              "response": { "type": "STRING" }
+            },
+            "required": ["response"]
+          }
+        },
+      );
+
+      if (response.isSuccess && response.data != null && response.data['response'] != null) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+            _messages.add({
+              'role': 'assistant',
+              'content': response.data['response'],
+            });
+          });
+          _scrollToBottom();
+        }
+      } else {
+        throw Exception("Invalid response from coach API");
+      }
+    } catch (e) {
       if (mounted) {
         setState(() {
           _isLoading = false;
           _messages.add({
             'role': 'assistant',
-            'content': "That's a great request! Based on your current phase, I recommend focusing on controlled movements. Would you like a specific exercise list?",
+            'content': "Sorry, I'm having trouble connecting right now. Please try again later.",
           });
         });
         _scrollToBottom();
       }
-    });
+    }
   }
 
   @override

@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/app_colors.dart';
 
+import 'package:intl/intl.dart';
+import '../../core/network/api_client.dart';
+import '../controller/home_controller.dart';
+
 class SymptomLoggerWidget extends StatefulWidget {
   final bool isModal;
   const SymptomLoggerWidget({super.key, this.isModal = false});
@@ -188,19 +192,53 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_selectedSymptoms.isEmpty) {
                       Get.snackbar('Selection Required', 'Please select at least one symptom');
                       return;
                     }
-                    // Log symptoms logic
-                    Navigator.pop(context);
-                    Get.snackbar(
-                      'Success',
-                      'Symptoms logged successfully',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.green.withOpacity(0.1),
-                    );
+                    try {
+                      final homeController = Get.find<HomeController>();
+                      final formattedDate = DateFormat('yyyy-MM-dd').format(homeController.selectedDate.value);
+
+                      final ApiClient apiClient = Get.find<ApiClient>();
+                      final response = await apiClient.post(
+                        '/cycle/symptom-logs',
+                        data: {
+                          "date": formattedDate,
+                          "symptoms": _selectedSymptoms.toList(),
+                          "severity": _severity,
+                          "notes": _notesController.text,
+                        },
+                      );
+
+                      if (response.isSuccess) {
+                        Navigator.pop(context);
+                        Get.snackbar(
+                          'Success',
+                          'Symptoms logged successfully',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.green.withOpacity(0.1),
+                          colorText: Colors.green[800],
+                        );
+                      } else {
+                        Get.snackbar(
+                          'Error',
+                          response.message.isNotEmpty ? response.message : 'Failed to log symptoms',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.redAccent,
+                          colorText: Colors.white,
+                        );
+                      }
+                    } catch (e) {
+                      Get.snackbar(
+                        'Error',
+                        'An unexpected error occurred',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.redAccent,
+                        colorText: Colors.white,
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,

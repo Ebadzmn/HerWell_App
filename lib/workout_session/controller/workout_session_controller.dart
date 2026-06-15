@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import '../../core/network/api_client.dart';
 
 class ExerciseSetModel {
   RxDouble weight;
@@ -29,6 +32,7 @@ class WorkoutSessionController extends GetxController {
 
   final totalVolume = '0 kg'.obs;
   final vsLastTime = '0%'.obs;
+  final isLoading = false.obs;
 
   void addSet(int exerciseIndex) {
     final sets = exercises[exerciseIndex].sets;
@@ -39,5 +43,79 @@ class WorkoutSessionController extends GetxController {
       weight: lastSet.weight.value, 
       reps: lastSet.reps.value
     ));
+  }
+
+  Future<bool> saveWorkoutSession({
+    required String workoutName,
+    required double durationMinutes,
+    required String notes,
+  }) async {
+    if (isLoading.value) return false;
+    try {
+      isLoading.value = true;
+      final formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+      // Calculate total volume
+      double volume = 0.0;
+      for (var ex in exercises) {
+        for (var set in ex.sets) {
+          volume += set.weight.value * set.reps.value;
+        }
+      }
+
+      // Map exercises list to JSON array
+      final exercisesJson = exercises.map((ex) => {
+        "name": ex.name,
+        "sets": ex.sets.map((set) => {
+          "weight": set.weight.value,
+          "reps": set.reps.value,
+        }).toList(),
+      }).toList();
+
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.post(
+        '/workout/workout-sessions',
+        data: {
+          "workout_name": workoutName,
+          "date": formattedDate,
+          "duration_minutes": durationMinutes,
+          "exercises": exercisesJson,
+          "total_volume": volume,
+          "notes": notes,
+          "completed": true,
+        },
+      );
+
+      if (response.isSuccess) {
+        Get.snackbar(
+          'Success',
+          'Workout saved successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green.withOpacity(0.1),
+          colorText: Colors.green[800],
+        );
+        return true;
+      } else {
+        Get.snackbar(
+          'Error',
+          response.message.isNotEmpty ? response.message : 'Failed to save workout',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+        return false;
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

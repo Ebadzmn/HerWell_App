@@ -3,6 +3,10 @@ import '../../core/app_colors.dart';
 import './symptom_logger_widget.dart';
 import 'package:get/get.dart';
 
+import 'package:intl/intl.dart';
+import '../../core/network/api_client.dart';
+import '../controller/home_controller.dart';
+
 class DailyLoggerWidget extends StatefulWidget {
   const DailyLoggerWidget({super.key});
 
@@ -55,18 +59,61 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
 
   void _handleSave() async {
     setState(() => _isSaving = true);
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) {
-      setState(() {
-        _isSaving = false;
-        _isSaved = true;
-      });
+    try {
+      final homeController = Get.find<HomeController>();
+      final formattedDate = DateFormat('yyyy-MM-dd').format(homeController.selectedDate.value);
+      final phase = homeController.currentPhase.value.toLowerCase();
+      final cycleDay = homeController.cycleDay.value;
+
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.post(
+        '/cycle/daily-logs',
+        data: {
+          "date": formattedDate,
+          "phase": phase,
+          "cycle_day": cycleDay,
+          "mood": _selectedMood,
+          "checkins": _selectedCheckins.toList(),
+          "notes": "",
+        },
+      );
+
+      if (response.isSuccess) {
+        if (mounted) {
+          setState(() {
+            _isSaving = false;
+            _isSaved = true;
+          });
+          Get.snackbar(
+            'Success',
+            'Today\'s check-in has been updated',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.withOpacity(0.1),
+            colorText: Colors.green[800],
+          );
+        }
+      } else {
+        if (mounted) {
+          setState(() => _isSaving = false);
+        }
+        Get.snackbar(
+          'Error',
+          response.message.isNotEmpty ? response.message : 'Failed to update check-in',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
       Get.snackbar(
-        'Success',
-        'Today\'s check-in has been updated',
+        'Error',
+        'An unexpected error occurred',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withOpacity(0.1),
-        colorText: Colors.green[800],
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
       );
     }
   }

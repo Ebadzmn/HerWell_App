@@ -12,6 +12,8 @@ class AuthController extends GetxController {
   final password = ''.obs;
   final otp = ''.obs;
 
+  final resetToken = ''.obs;
+
   Future<void> loginUser(String email, String password) async {
     if (isLoading.value) return; // Prevent multiple requests
     try {
@@ -108,12 +110,33 @@ class AuthController extends GetxController {
   }
 
   Future<void> forgotPassword(String email) async {
+    if (isLoading.value) return;
     try {
       isLoading.value = true;
-      this.email.value = email;
-      await Future.delayed(const Duration(seconds: 1)); // Mock delay
-      // Send OTP for forgot password
-      Get.toNamed(AppRoute.forgotPasswordOtp);
+      this.email.value = email.trim();
+      
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.post(
+        '/auth/forgot-password',
+        data: {"email": email.trim()},
+      );
+
+      if (response.isSuccess) {
+        Get.snackbar('Success', response.message.isNotEmpty ? response.message : 'OTP sent successfully',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.withOpacity(0.1));
+        Get.toNamed(AppRoute.forgotPasswordOtp);
+      } else {
+        Get.snackbar('Error', response.message.isNotEmpty ? response.message : 'Failed to request password reset',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An unexpected error occurred',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
@@ -130,23 +153,71 @@ class AuthController extends GetxController {
   }
 
   Future<void> verifyForgotPasswordOTP(String otp) async {
+    if (isLoading.value) return;
     try {
       isLoading.value = true;
-      await Future.delayed(const Duration(seconds: 1)); // Mock delay
-      Get.toNamed(AppRoute.resetPassword);
+      
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.post(
+        '/auth/verify-otp',
+        data: {
+          "email": email.value,
+          "otp": otp.trim(),
+        },
+      );
+
+      if (response.isSuccess && response.data != null && response.data['resetToken'] != null) {
+        resetToken.value = response.data['resetToken'];
+        Get.snackbar('Success', 'OTP verified successfully',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.withOpacity(0.1));
+        Get.toNamed(AppRoute.resetPassword);
+      } else {
+        Get.snackbar('Error', response.message.isNotEmpty ? response.message : 'Verification failed',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An unexpected error occurred',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> resetPassword(String newPassword) async {
+    if (isLoading.value) return;
     try {
       isLoading.value = true;
-      await Future.delayed(const Duration(seconds: 1)); // Mock delay
-      Get.snackbar('Success', 'Password reset successfully', 
+      
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.post(
+        '/auth/reset-password',
+        data: {
+          "resetToken": resetToken.value,
+          "newPassword": newPassword,
+        },
+      );
+
+      if (response.isSuccess) {
+        Get.snackbar('Success', 'Password reset successfully', 
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color(0xFFE8927C).withOpacity(0.1));
+        Get.offAllNamed(AppRoute.login);
+      } else {
+        Get.snackbar('Error', response.message.isNotEmpty ? response.message : 'Password reset failed',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An unexpected error occurred',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFFE8927C).withOpacity(0.1));
-      Get.offAllNamed(AppRoute.login);
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
@@ -187,6 +258,49 @@ class AuthController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> deleteAccount() async {
+    try {
+      isLoading.value = true;
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.delete('/auth/me');
+
+      if (response.isSuccess) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('access_token');
+        await prefs.remove('refresh_token');
+        await prefs.remove('user_data');
+        apiClient.clearToken();
+
+        Get.snackbar(
+          'Success',
+          'Account deleted successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green.withOpacity(0.1),
+          colorText: Colors.green[800],
+        );
+        Get.offAllNamed(AppRoute.login);
+      } else {
+        Get.snackbar(
+          'Error',
+          response.message.isNotEmpty ? response.message : 'Failed to delete account',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
     } finally {
       isLoading.value = false;
     }

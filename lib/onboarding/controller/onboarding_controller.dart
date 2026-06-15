@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_route.dart';
+import '../../core/network/api_client.dart';
 
 class OnboardingController extends GetxController {
   var currentStep = 1.obs;
@@ -55,13 +57,59 @@ class OnboardingController extends GetxController {
   }
 
   Future<void> completeOnboarding() async {
-    isLoading.value = true;
-    await Future.delayed(const Duration(seconds: 1)); // Mock delay for UI feel
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('hasCompletedOnboarding', true);
-    isLoading.value = false;
-    // After onboarding, go to home screen as requested
-    Get.offAllNamed(AppRoute.navbar);
+    if (isLoading.value) return;
+    try {
+      isLoading.value = true;
+
+      final now = DateTime.now();
+      final year = lastYear.value ?? now.year;
+      final month = lastMonth.value ?? now.month;
+      final day = lastDay.value ?? now.day;
+      final startDateStr = "${year.toString().padLeft(4, '0')}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
+
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.post(
+        '/cycle/cycle-data',
+        data: {
+          "cycle_start_date": startDateStr,
+          "cycle_length": cycleLength.value,
+          "period_length": periodLength.value,
+          "fitness_goal": fitnessGoal.value,
+          "contraception_type": contraception.value ?? "none",
+          "tracking_method": trackingMethod.value ?? "calendar",
+          "pill_progestogen": pillProgestogen.value,
+          "cycle_regular": cycleRegular.value,
+          "symptoms": selectedSymptoms.toList(),
+          "daily_checkins": dailyCheckins.toList(),
+          "preferred_workout_types": [],
+          "available_equipment": [],
+        },
+      );
+
+      if (response.isSuccess) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('hasCompletedOnboarding', true);
+        Get.offAllNamed(AppRoute.navbar);
+      } else {
+        Get.snackbar(
+          'Error',
+          response.message.isNotEmpty ? response.message : 'Failed to save onboarding data',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred during onboarding completion',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> registerUser() async {
