@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_route.dart';
+import '../../core/network/api_client.dart';
 
 class WorkoutLibraryScreen extends StatefulWidget {
   const WorkoutLibraryScreen({super.key});
@@ -48,15 +49,18 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
 
   Future<void> _loadWorkouts() async {
     try {
-      final String response = await rootBundle.loadString(
-        'assets/data/workouts.json',
-      );
-      final data = await json.decode(response);
-      setState(() {
-        _allWorkouts = data;
-        _isLoading = false;
-      });
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.get('/workout/library');
+      if (response.isSuccess && response.data != null && response.data is List) {
+        setState(() {
+          _allWorkouts = response.data;
+          _isLoading = false;
+        });
+      } else {
+        throw Exception("Failed to fetch workouts from server");
+      }
     } catch (e) {
+      debugPrint("Failed to load workouts from server, falling back to local fallback data: $e");
       // Fallback dummy data if asset is missing
       setState(() {
         _allWorkouts = [

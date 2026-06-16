@@ -15,6 +15,10 @@ class WorkoutSessionScreen extends StatelessWidget {
     final textColor = isDark ? Colors.white : Colors.black87;
     final hintColor = isDark ? Colors.grey : Colors.grey.shade600;
 
+    final workout = Get.arguments as Map?;
+    final workoutName = workout?['name'] ?? 'Endorphin Boost Walk/Jog';
+    final workoutDurationStr = workout?['duration_mins']?.toString() ?? '30-45';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF3EBE3), // Off-white warm background
       body: CustomScrollView(
@@ -46,18 +50,18 @@ class WorkoutSessionScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Endorphin Boost Walk/Jog',
-                      style: TextStyle(
+                    Text(
+                      workoutName,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 22,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      '30-45',
-                      style: TextStyle(
+                    Text(
+                      '$workoutDurationStr min',
+                      style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 14,
                       ),
@@ -254,8 +258,8 @@ class WorkoutSessionScreen extends StatelessWidget {
                     child: Obx(() => ElevatedButton(
                       onPressed: controller.isLoading.value ? () {} : () async {
                         final success = await controller.saveWorkoutSession(
-                          workoutName: 'Endorphin Boost Walk/Jog',
-                          durationMinutes: 35.0,
+                          workoutName: workoutName,
+                          durationMinutes: double.tryParse(workoutDurationStr) ?? 35.0,
                           notes: notesController.text,
                         );
                         if (success) {

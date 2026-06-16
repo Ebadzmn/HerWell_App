@@ -42,6 +42,42 @@ class OnboardingController extends GetxController {
   final selectedSymptoms = <String>[].obs;
   final fitnessGoal = RxString('build_muscle');
 
+  // Dynamic backend-seeded options
+  final dbContraceptions = <Map<String, dynamic>>[].obs;
+  final dbGoals = <Map<String, dynamic>>[].obs;
+  final dbSymptoms = <String>[].obs;
+  final dbDailyCheckins = <Map<String, dynamic>>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadOnboardingOptions();
+  }
+
+  Future<void> loadOnboardingOptions() async {
+    try {
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.get('/onboarding/options');
+      if (response.isSuccess && response.data != null) {
+        final data = response.data;
+        if (data['contraceptions'] != null) {
+          dbContraceptions.value = List<Map<String, dynamic>>.from(data['contraceptions']);
+        }
+        if (data['goals'] != null) {
+          dbGoals.value = List<Map<String, dynamic>>.from(data['goals']);
+        }
+        if (data['symptoms'] != null) {
+          dbSymptoms.value = List<String>.from((data['symptoms'] as List).map((s) => s['name'] as String));
+        }
+        if (data['checkins'] != null) {
+          dbDailyCheckins.value = List<Map<String, dynamic>>.from(data['checkins']);
+        }
+      }
+    } catch (e) {
+      debugPrint("Failed to load onboarding options: $e");
+    }
+  }
+
   void nextStep() {
     if (currentStep.value < totalSteps) {
       currentStep.value++;
