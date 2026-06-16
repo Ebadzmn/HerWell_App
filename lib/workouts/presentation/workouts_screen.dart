@@ -470,20 +470,35 @@ class WorkoutsScreen extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  controller.selectedIntensity.value = 'all';
-                  controller.selectedDuration.value = 'all';
-                  controller.selectedBodypart.value = 'all';
-                },
-                child: const Text(
-                  'Reset filters',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF8B7355),
-                    decoration: TextDecoration.underline,
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () => controller.fetchWorkouts(),
+                    child: const Text(
+                      'Refresh',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF8B7355),
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
-                ),
+                  TextButton(
+                    onPressed: () {
+                      controller.selectedIntensity.value = 'all';
+                      controller.selectedDuration.value = 'all';
+                      controller.selectedBodypart.value = 'all';
+                    },
+                    child: const Text(
+                      'Reset filters',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF8B7355),
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -499,7 +514,33 @@ class WorkoutsScreen extends StatelessWidget {
                 ),
               );
             }
+            final allWO = controller.allWorkouts;
             final list = controller.filteredWorkouts;
+            
+            if (allWO.isEmpty) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'No workouts loaded.',
+                        style: TextStyle(color: Colors.grey, fontSize: 13),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: () => controller.fetchWorkouts(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF8B7355),
+                        ),
+                        child: const Text('Load Workouts', style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+            
             if (list.isEmpty) {
               return const Center(
                 child: Padding(

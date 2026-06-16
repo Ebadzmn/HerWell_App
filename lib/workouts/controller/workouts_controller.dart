@@ -51,10 +51,13 @@ class WorkoutsController extends GetxController {
       final ApiClient apiClient = Get.find<ApiClient>();
       final response = await apiClient.get('/workout/library');
       if (response.isSuccess && response.data != null && response.data is List) {
+        debugPrint("✅ Fetched ${response.data.length} workouts");
         allWorkouts.assignAll(response.data);
+      } else {
+        debugPrint("❌ Fetch failed: no data or not a list");
       }
     } catch (e) {
-      debugPrint("Error fetching workouts: $e");
+      debugPrint("❌ Error fetching workouts: $e");
     } finally {
       isLoading.value = false;
     }
@@ -121,7 +124,10 @@ class WorkoutsController extends GetxController {
 
   List<dynamic> get filteredWorkouts {
     final phaseKey = currentPhaseKey;
-    return allWorkouts.where((w) {
+    debugPrint("🔍 Filtering: phase=$phaseKey, intensity=${selectedIntensity.value}, duration=${selectedDuration.value}, bodypart=${selectedBodypart.value}");
+    debugPrint("📊 Total workouts: ${allWorkouts.length}");
+    
+    final filtered = allWorkouts.where((w) {
       // 1. Phase check
       final phases = List<String>.from(w['phase'] ?? []);
       if (!phases.contains(phaseKey) && !phases.contains('all')) {
@@ -141,6 +147,9 @@ class WorkoutsController extends GetxController {
       }
       return true;
     }).toList();
+    
+    debugPrint("✅ Filtered workouts: ${filtered.length}");
+    return filtered;
   }
 
   void changeTab(int index) {
