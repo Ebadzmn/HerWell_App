@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_route.dart';
 import '../../core/network/api_client.dart';
+import '../../workouts/controller/workouts_controller.dart';
 
 class WorkoutLibraryScreen extends StatefulWidget {
   const WorkoutLibraryScreen({super.key});
@@ -41,9 +42,12 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
     'high': {'bg': const Color(0x26E05C4B), 'text': const Color(0xFFE05C4B)},
   };
 
+  late final WorkoutsController _workoutsController;
+
   @override
   void initState() {
     super.initState();
+    _workoutsController = Get.put(WorkoutsController());
     _loadWorkouts();
   }
 
@@ -623,6 +627,36 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Obx(() {
+                        final workoutId = workout['id']?.toString() ?? '';
+                        final isSaved = _workoutsController.savedWorkoutIds.contains(workoutId);
+                        return GestureDetector(
+                          onTap: () {
+                            if (workoutId.isNotEmpty) {
+                              _workoutsController.toggleSaveWorkout(workoutId);
+                            }
+                          },
+                          child: Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                              color: const Color(0xFF5C4A3A),
+                              size: 20,
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -795,28 +829,55 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    backgroundColor: phaseColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        side: BorderSide(color: phaseColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Text(
+                        'Close',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: phaseColor,
+                        ),
+                      ),
                     ),
-                    elevation: 0,
                   ),
-                  child: const Text(
-                    '✓ Got it',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Get.toNamed(AppRoute.workoutSession, arguments: workout);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        backgroundColor: phaseColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Start Workout',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
           ],
