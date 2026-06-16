@@ -91,7 +91,7 @@ class WorkoutsController extends GetxController {
           );
         }
       } else {
-        final response = await apiClient.post('/workout/saved', {'workoutId': workoutId});
+        final response = await apiClient.post('/workout/saved', data: {'workoutId': workoutId});
         if (response.isSuccess) {
           savedWorkoutIds.add(workoutId);
           Get.snackbar(
