@@ -5,10 +5,31 @@ import 'package:herwellness_flutter/onboarding/widgets/onboarding_steps_widget.d
 import '../../core/app_colors.dart';
 import '../controller/onboarding_controller.dart';
 
-class OnboardingScreen extends StatelessWidget {
-  OnboardingScreen({super.key});
+class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({super.key});
 
-  final OnboardingController controller = Get.put(OnboardingController());
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  late OnboardingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the controller properly
+    if (Get.isRegistered<OnboardingController>()) {
+      Get.delete<OnboardingController>();
+    }
+    controller = Get.put(OnboardingController());
+    debugPrint('✅ OnboardingController initialized');
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +82,7 @@ class OnboardingScreen extends StatelessWidget {
       case 9:
         return StepSummaryWidget();
       default:
+        debugPrint('❌ Unknown step: ${controller.currentStep.value}');
         return const SizedBox();
     }
   }
