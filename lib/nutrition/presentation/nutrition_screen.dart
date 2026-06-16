@@ -5,6 +5,7 @@ import '../widgets/macro_calculator_widget.dart';
 import '../widgets/food_library_widget.dart';
 import '../widgets/recipe_library_widget.dart';
 import '../../home/controller/home_controller.dart';
+import '../controller/nutrition_controller.dart';
 
 class NutritionScreen extends StatefulWidget {
   const NutritionScreen({super.key});
@@ -30,6 +31,7 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(NutritionController());
     final homeController = Get.find<HomeController>();
 
     return Scaffold(

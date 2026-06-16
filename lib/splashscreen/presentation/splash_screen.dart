@@ -4,6 +4,7 @@ import '../../core/app_colors.dart';
 import '../../core/app_route.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/network/api_client.dart';
+import '../../core/services/notification_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -58,6 +59,11 @@ class _SplashScreenState extends State<SplashScreen>
       
       final response = await apiClient.get('/auth/me');
       if (response.isSuccess) {
+        // Sync Firebase Cloud Messaging token with the backend
+        if (Get.isRegistered<NotificationService>()) {
+          Get.find<NotificationService>().syncFcmToken();
+        }
+
         if (hasCompletedOnboarding) {
           Get.offAllNamed(AppRoute.navbar);
         } else {
