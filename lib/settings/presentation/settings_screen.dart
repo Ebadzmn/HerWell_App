@@ -57,16 +57,21 @@ class SettingsScreen extends StatelessWidget {
                         Obx(() => CircleAvatar(
                           radius: 28,
                           backgroundColor: const Color(0xFFD49A9B),
-                          child: Text(
-                            controller.username.value.isNotEmpty
-                                ? controller.username.value[0].toUpperCase()
-                                : 'M',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
+                          backgroundImage: controller.avatarUrl.value.isNotEmpty
+                              ? NetworkImage(controller.avatarUrl.value)
+                              : null,
+                          child: controller.avatarUrl.value.isEmpty
+                              ? Text(
+                                  controller.username.value.isNotEmpty
+                                      ? controller.username.value[0].toUpperCase()
+                                      : 'M',
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : null,
                         )),
                         Positioned(
                           bottom: -2,

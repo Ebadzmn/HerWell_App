@@ -111,7 +111,11 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
     try {
       final homeController = Get.find<HomeController>();
       final formattedDate = DateFormat('yyyy-MM-dd').format(homeController.selectedDate.value);
-      final phase = homeController.currentPhase.value.toLowerCase();
+      
+      final phaseNum = homeController.getPhaseNumber();
+      const phaseMap = {1: 'menstrual', 2: 'follicular', 3: 'ovulatory', 4: 'luteal'};
+      final phase = phaseMap[phaseNum] ?? 'follicular';
+      
       final cycleDay = homeController.cycleDay.value;
 
       final ApiClient apiClient = Get.find<ApiClient>();
@@ -128,6 +132,9 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
       );
 
       if (response.isSuccess) {
+        // Refresh home controller logs
+        homeController.fetchRecentLogs();
+        
         if (mounted) {
           setState(() {
             _isSaving = false;

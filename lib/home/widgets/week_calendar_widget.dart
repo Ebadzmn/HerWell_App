@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/app_colors.dart';
 import '../controller/home_controller.dart';
+import 'package:intl/intl.dart';
 
 class WeekCalendarWidget extends StatelessWidget {
   const WeekCalendarWidget({super.key});
@@ -62,15 +63,39 @@ class WeekCalendarWidget extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  // Indicator dot placeholder (React app has phase dots here)
-                  Container(
-                    height: 6,
-                    width: 6,
-                    decoration: const BoxDecoration(
-                      color: Colors.transparent, // Update this when we have log data
-                      shape: BoxShape.circle,
-                    ),
-                  ),
+                  // Dynamic indicator dot based on logs data
+                  Obx(() {
+                    final dateStr = DateFormat('yyyy-MM-dd').format(day);
+                    final log = controller.recentLogs.firstWhere(
+                      (l) => l['date'] == dateStr,
+                      orElse: () => null,
+                    );
+                    
+                    Color dotColor = Colors.transparent;
+                    if (log != null) {
+                      final String? phase = log['phase'];
+                      if (phase != null && phase.isNotEmpty) {
+                        const phaseDots = {
+                          'menstrual': Color(0xFFC0392B),
+                          'follicular': Color(0xFFD4821A),
+                          'ovulatory': Color(0xFF1E8A4A),
+                          'luteal': Color(0xFF7B3FA8),
+                        };
+                        dotColor = phaseDots[phase.toLowerCase()] ?? Colors.transparent;
+                      } else if (log['mood'] != null) {
+                        dotColor = Colors.white.withOpacity(0.6);
+                      }
+                    }
+
+                    return Container(
+                      height: 6,
+                      width: 6,
+                      decoration: BoxDecoration(
+                        color: dotColor,
+                        shape: BoxShape.circle,
+                      ),
+                    );
+                  }),
                 ],
               );
             }),

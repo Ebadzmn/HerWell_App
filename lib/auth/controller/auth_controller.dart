@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_route.dart';
 import '../../core/network/api_client.dart';
+import '../../core/services/notification_service.dart';
 import '../models/login_response_model.dart';
 import 'dart:convert';
 
@@ -41,6 +42,11 @@ class AuthController extends GetxController {
         }
         if (loginData.user != null) {
           await prefs.setString('user_data', jsonEncode(loginData.user!.toJson()));
+        }
+
+        // Sync Firebase Cloud Messaging token with the backend
+        if (Get.isRegistered<NotificationService>()) {
+          Get.find<NotificationService>().syncFcmToken();
         }
 
         Get.snackbar('Success', response.message.isNotEmpty ? response.message : 'Login Successful',

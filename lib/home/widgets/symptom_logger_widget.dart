@@ -264,6 +264,7 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
                       );
 
                       if (response.isSuccess) {
+                        homeController.fetchRecentLogs();
                         Navigator.pop(context);
                         Get.snackbar(
                           'Success',

@@ -62,9 +62,13 @@ class WorkoutsController extends GetxController {
 
   Future<void> loadSavedWorkouts() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final ids = prefs.getStringList('saved_workout_ids') ?? [];
-      savedWorkoutIds.assignAll(ids);
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.get('/workout/saved');
+      if (response.isSuccess && response.data != null && response.data is List) {
+        final List<dynamic> savedWorkouts = response.data;
+        final ids = savedWorkouts.map((w) => w['id']?.toString() ?? '').where((id) => id.isNotEmpty).toList();
+        savedWorkoutIds.assignAll(ids);
+      }
     } catch (e) {
       debugPrint("Error loading saved workouts: $e");
     }
@@ -72,29 +76,34 @@ class WorkoutsController extends GetxController {
 
   Future<void> toggleSaveWorkout(String workoutId) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final ApiClient apiClient = Get.find<ApiClient>();
       if (savedWorkoutIds.contains(workoutId)) {
-        savedWorkoutIds.remove(workoutId);
-        Get.snackbar(
-          'Success',
-          'Workout removed from your collection!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFF8B7355),
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(16),
-        );
+        final response = await apiClient.delete('/workout/saved/$workoutId');
+        if (response.isSuccess) {
+          savedWorkoutIds.remove(workoutId);
+          Get.snackbar(
+            'Success',
+            'Workout removed from your collection!',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color(0xFF8B7355),
+            colorText: Colors.white,
+            margin: const EdgeInsets.all(16),
+          );
+        }
       } else {
-        savedWorkoutIds.add(workoutId);
-        Get.snackbar(
-          'Success',
-          'Workout saved to your collection!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFF8B7355),
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(16),
-        );
+        final response = await apiClient.post('/workout/saved', {'workoutId': workoutId});
+        if (response.isSuccess) {
+          savedWorkoutIds.add(workoutId);
+          Get.snackbar(
+            'Success',
+            'Workout saved to your collection!',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color(0xFF8B7355),
+            colorText: Colors.white,
+            margin: const EdgeInsets.all(16),
+          );
+        }
       }
-      await prefs.setStringList('saved_workout_ids', savedWorkoutIds);
     } catch (e) {
       debugPrint("Error toggling saved workout: $e");
     }
