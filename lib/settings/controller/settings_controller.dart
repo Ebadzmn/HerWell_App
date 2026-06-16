@@ -18,6 +18,7 @@ class SettingsController extends GetxController {
   final username = ''.obs;
   final email = ''.obs;
   final name = ''.obs;
+  final avatarUrl = ''.obs;
   final cycleDataId = ''.obs;
   final contraceptionType = 'none'.obs;
   final fitnessGoal = 'general_fitness'.obs;
@@ -40,6 +41,7 @@ class SettingsController extends GetxController {
         username.value = userResponse.data['username'] ?? '';
         email.value = userResponse.data['email'] ?? '';
         name.value = userResponse.data['name'] ?? '';
+        avatarUrl.value = userResponse.data['avatarUrl'] ?? '';
       }
 
       // Fetch cycle data
