@@ -42,19 +42,11 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		SVECVTCMkYreaTR+LH0DqHqQzwc=
+		SkHXgcKOo7flZDfkXuAvejUYbpU=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
 		41h69HjJUkX19km5aL+8v0iOLI8=
-		</data>
-		<key>image_picker_ios_privacy.bundle/Info.plist</key>
-		<data>
-		g/orKI5TOP58O4cUKzhswMaAaJk=
-		</data>
-		<key>image_picker_ios_privacy.bundle/PrivacyInfo.xcprivacy</key>
-		<data>
-		/LX0ZlwxwIAIhjZaDB8EiH5KpXA=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -127,20 +119,6 @@
 			<key>hash2</key>
 			<data>
 			QbbazDjgbVxW0Wl6rCdFV17tvKtu5ePBoDheD7Xckwc=
-			</data>
-		</dict>
-		<key>image_picker_ios_privacy.bundle/Info.plist</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			N3YLf4bhTXXmhwlwVVdkkmrWD4kAnUWO86BSq5GVN3U=
-			</data>
-		</dict>
-		<key>image_picker_ios_privacy.bundle/PrivacyInfo.xcprivacy</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			bS2g2NkwIn1CjB2TY7CtbjoS4sm2jFzilxWKdBL8jDE=
 			</data>
 		</dict>
 	</dict>
