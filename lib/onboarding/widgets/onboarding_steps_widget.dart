@@ -728,10 +728,10 @@ class StepDailyCheckinsWidget extends StatelessWidget {
     return Obx(() {
       final options = controller.dbDailyCheckins.isNotEmpty
           ? controller.dbDailyCheckins
-              .map((c) => {
+              .map<Map<String, String>>((c) => {
                     'id': c['label'].toString().toLowerCase().split(' ')[0],
-                    'icon': c['icon'],
-                    'title': c['label'],
+                    'icon': c['icon'].toString(),
+                    'title': c['label'].toString(),
                   })
               .toList()
           : [
@@ -771,43 +771,40 @@ class StepDailyCheckinsWidget extends StatelessWidget {
               return _buildCheckinOption(context, opt, isSelected);
             },
           ),
+          const SizedBox(height: 24),
+          Container(
+            width: double.infinity,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEAE5DE),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFFD4C5B9), width: 1),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                border: Border(
+                  left: BorderSide(color: Color(0xFFE8927C), width: 4),
+                ),
+              ),
+              child: const Text(
+                'Logging sleep, energy, and training performance gives us the most accurate picture of where you are hormonally.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF3A2E28),
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 40),
+          OnboardingComponents.buildPrimaryButton(
+            text: 'Continue',
+            onPressed: controller.nextStep,
+          ),
         ],
       );
     });
-  }
-        const SizedBox(height: 24),
-        Container(
-          width: double.infinity,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: const Color(0xFFEAE5DE),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFFD4C5B9), width: 1),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              border: Border(
-                left: BorderSide(color: Color(0xFFE8927C), width: 4),
-              ),
-            ),
-            child: const Text(
-              'Logging sleep, energy, and training performance gives us the most accurate picture of where you are hormonally.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF3A2E28),
-                height: 1.5,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 40),
-        OnboardingComponents.buildPrimaryButton(
-          text: 'Continue',
-          onPressed: controller.nextStep,
-        ),
-      ],
-    );
   }
 }
 
