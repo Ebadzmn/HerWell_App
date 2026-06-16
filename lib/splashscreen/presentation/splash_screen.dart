@@ -47,11 +47,7 @@ class _SplashScreenState extends State<SplashScreen>
     final accessToken = prefs.getString('access_token');
     
     if (accessToken == null || accessToken.isEmpty) {
-      if (!hasCompletedOnboarding) {
-        Get.offAllNamed(AppRoute.onboarding);
-      } else {
-        Get.offAllNamed(AppRoute.login);
-      }
+      Get.offAllNamed(AppRoute.login);
     } else {
       // Set token and verify it via /auth/me
       final apiClient = Get.find<ApiClient>();
@@ -64,7 +60,20 @@ class _SplashScreenState extends State<SplashScreen>
           Get.find<NotificationService>().syncFcmToken();
         }
 
-        if (hasCompletedOnboarding) {
+        bool userHasCycleData = false;
+        if (!hasCompletedOnboarding) {
+          try {
+            final cycleResponse = await apiClient.get('/cycle/cycle-data');
+            if (cycleResponse.isSuccess && cycleResponse.data is List && (cycleResponse.data as List).isNotEmpty) {
+              userHasCycleData = true;
+              await prefs.setBool('hasCompletedOnboarding', true);
+            }
+          } catch (e) {
+            debugPrint('Error checking cycle data in splash: $e');
+          }
+        }
+
+        if (hasCompletedOnboarding || userHasCycleData) {
           Get.offAllNamed(AppRoute.navbar);
         } else {
           Get.offAllNamed(AppRoute.onboarding);

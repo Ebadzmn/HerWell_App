@@ -53,11 +53,25 @@ class AuthController extends GetxController {
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.green.withOpacity(0.1));
             
-        final hasCompletedOnboarding = prefs.getBool('hasCompletedOnboarding') ?? false;
+        bool userHasCycleData = false;
+        try {
+          final cycleResponse = await apiClient.get('/cycle/cycle-data');
+          if (cycleResponse.isSuccess && cycleResponse.data is List && (cycleResponse.data as List).isNotEmpty) {
+            userHasCycleData = true;
+            await prefs.setBool('hasCompletedOnboarding', true);
+          }
+        } catch (e) {
+          debugPrint('Error checking cycle data during login: $e');
+        }
+
+        final hasCompletedOnboarding = prefs.getBool('hasCompletedOnboarding') ?? userHasCycleData;
+        debugPrint('✅ Login successful. hasCompletedOnboarding: $hasCompletedOnboarding');
         
         if (hasCompletedOnboarding) {
+          debugPrint('🏠 Navigating to navbar');
           Get.offAllNamed(AppRoute.navbar);
         } else {
+          debugPrint('📋 Navigating to onboarding');
           Get.offAllNamed(AppRoute.onboarding);
         }
       } else {
