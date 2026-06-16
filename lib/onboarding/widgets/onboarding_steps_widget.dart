@@ -184,43 +184,45 @@ class StepContraceptionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final options = [
-      {'id': 'pill', 'title': 'Combined Pill'},
-      {'id': 'mirena', 'title': 'Hormonal IUD'},
-      {'id': 'implant', 'title': 'Implant'},
-      {'id': 'injection', 'title': 'Injection'},
-      {'id': 'mini', 'title': 'Mini Pill'},
-      {'id': 'none', 'title': 'No hormonal contraception'},
-    ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        OnboardingComponents.buildEyebrow('STEP 1 OF 7'),
-        const SizedBox(height: 12),
-        OnboardingComponents.buildTitle('What\'s your\ncurrent situation?'),
-        OnboardingComponents.buildSub(
-          'This shapes everything — your hormonal environment, how we predict your phases, and what guidance makes sense for you.',
-        ),
-        ...options.map(
-          (opt) => Obx(
-            () => OnboardingComponents.buildToggleOption(
+    return Obx(() {
+      final options = controller.dbContraceptions.isNotEmpty
+          ? controller.dbContraceptions
+              .map((c) => {'id': c['key'], 'title': c['title']})
+              .toList()
+          : [
+              {'id': 'pill', 'title': 'Combined Pill'},
+              {'id': 'mirena', 'title': 'Hormonal IUD'},
+              {'id': 'implant', 'title': 'Implant'},
+              {'id': 'injection', 'title': 'Injection'},
+              {'id': 'mini', 'title': 'Mini Pill'},
+              {'id': 'none', 'title': 'No hormonal contraception'},
+            ];
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OnboardingComponents.buildEyebrow('STEP 1 OF 7'),
+          const SizedBox(height: 12),
+          OnboardingComponents.buildTitle('What\'s your\ncurrent situation?'),
+          OnboardingComponents.buildSub(
+            'This shapes everything — your hormonal environment, how we predict your phases, and what guidance makes sense for you.',
+          ),
+          ...options.map(
+            (opt) => OnboardingComponents.buildToggleOption(
               label: opt['title']!,
               selected: controller.contraception.value == opt['id'],
               onSelect: () => controller.contraception.value = opt['id']!,
             ),
           ),
-        ),
-        const SizedBox(height: 32),
-        Obx(
-          () => OnboardingComponents.buildPrimaryButton(
+          const SizedBox(height: 32),
+          OnboardingComponents.buildPrimaryButton(
             text: 'Continue',
             onPressed: (controller.contraception.value?.isEmpty ?? true)
                 ? null
                 : controller.nextStep,
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 }
 
@@ -723,46 +725,56 @@ class StepDailyCheckinsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final options = [
-      {'id': 'sleep', 'icon': '😴', 'title': 'Sleep quality'},
-      {'id': 'energy', 'icon': '⚡', 'title': 'Energy level'},
-      {'id': 'training', 'icon': '🏋️', 'title': 'Training performance'},
-      {'id': 'mood', 'icon': '😤', 'title': 'Mood & motivation'},
-      {'id': 'bloating', 'icon': '🤢', 'title': 'Bloating / GI'},
-      {'id': 'cravings', 'icon': '🍫', 'title': 'Cravings'},
-      {'id': 'hydration', 'icon': '💧', 'title': 'Hydration'},
-      {'id': 'hrv', 'icon': '❤️', 'title': 'Resting HR / HRV'},
-      {'id': 'bbt', 'icon': '🌡️', 'title': 'Basal body temp'},
-      {'id': 'flow', 'icon': '🩸', 'title': 'Flow / bleeding'},
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        OnboardingComponents.buildEyebrow('STEP 5 OF 7'),
-        const SizedBox(height: 12),
-        OnboardingComponents.buildTitle('Daily check-ins'),
-        OnboardingComponents.buildSub(
-          'Which signals do you want to log each day? These help us spot your patterns over time.',
-        ),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            mainAxisExtent: 56, // exactly 56px height per option
+    return Obx(() {
+      final options = controller.dbDailyCheckins.isNotEmpty
+          ? controller.dbDailyCheckins
+              .map((c) => {
+                    'id': c['label'].toString().toLowerCase().split(' ')[0],
+                    'icon': c['icon'],
+                    'title': c['label'],
+                  })
+              .toList()
+          : [
+              {'id': 'sleep', 'icon': '😴', 'title': 'Sleep quality'},
+              {'id': 'energy', 'icon': '⚡', 'title': 'Energy level'},
+              {'id': 'training', 'icon': '🏋️', 'title': 'Training performance'},
+              {'id': 'mood', 'icon': '😤', 'title': 'Mood & motivation'},
+              {'id': 'bloating', 'icon': '🤢', 'title': 'Bloating / GI'},
+              {'id': 'cravings', 'icon': '🍫', 'title': 'Cravings'},
+              {'id': 'hydration', 'icon': '💧', 'title': 'Hydration'},
+              {'id': 'hrv', 'icon': '❤️', 'title': 'Resting HR / HRV'},
+              {'id': 'bbt', 'icon': '🌡️', 'title': 'Basal body temp'},
+              {'id': 'flow', 'icon': '🩸', 'title': 'Flow / bleeding'},
+            ];
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OnboardingComponents.buildEyebrow('STEP 5 OF 7'),
+          const SizedBox(height: 12),
+          OnboardingComponents.buildTitle('Daily check-ins'),
+          OnboardingComponents.buildSub(
+            'Which signals do you want to log each day? These help us spot your patterns over time.',
           ),
-          itemCount: options.length,
-          itemBuilder: (context, index) {
-            final opt = options[index];
-            return Obx(() {
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              mainAxisExtent: 56, // exactly 56px height per option
+            ),
+            itemCount: options.length,
+            itemBuilder: (context, index) {
+              final opt = options[index];
               final isSelected = controller.dailyCheckins.contains(opt['id']);
               return _buildCheckinOption(context, opt, isSelected);
-            });
-          },
-        ),
+            },
+          ),
+        ],
+      );
+    });
+  }
         const SizedBox(height: 24),
         Container(
           width: double.infinity,
@@ -805,114 +817,120 @@ class StepSymptomsGoalsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final symptoms = [
-      'PMS mood changes',
-      'Cramping',
-      'Fatigue',
-      'Bloating',
-      'Cravings',
-      'Headaches',
-      'Breast tenderness',
-      'Anxiety / low mood',
-      'Sleep disruption',
-      'Brain fog',
-      'Skin breakouts',
-      'None / minimal',
-    ];
+    return Obx(() {
+      final symptoms = controller.dbSymptoms.isNotEmpty
+          ? controller.dbSymptoms
+          : [
+              'PMS mood changes',
+              'Cramping',
+              'Fatigue',
+              'Bloating',
+              'Cravings',
+              'Headaches',
+              'Breast tenderness',
+              'Anxiety / low mood',
+              'Sleep disruption',
+              'Brain fog',
+              'Skin breakouts',
+              'None / minimal',
+            ];
 
-    final goals = [
-      {'id': 'build_strength', 'label': 'Build strength & muscle'},
-      {
-        'id': 'improve_endurance',
-        'label': 'Improve endurance / cardio fitness',
-      },
-      {'id': 'lose_fat', 'label': 'Lose body fat'},
-      {'id': 'general_health', 'label': 'General health & wellbeing'},
-      {
-        'id': 'athletic_performance',
-        'label': 'Athletic performance / competition',
-      },
-    ];
+      final goals = controller.dbGoals.isNotEmpty
+          ? controller.dbGoals
+              .map((g) => {'id': g['value'], 'label': g['label']})
+              .toList()
+          : [
+              {'id': 'build_strength', 'label': 'Build strength & muscle'},
+              {
+                'id': 'improve_endurance',
+                'label': 'Improve endurance / cardio fitness',
+              },
+              {'id': 'lose_fat', 'label': 'Lose body fat'},
+              {'id': 'general_health', 'label': 'General health & wellbeing'},
+              {
+                'id': 'athletic_performance',
+                'label': 'Athletic performance / competition',
+              },
+            ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        OnboardingComponents.buildEyebrow('STEP 6 OF 7'),
-        const SizedBox(height: 12),
-        OnboardingComponents.buildTitle('Your experience\n', accent: '& goals'),
-        OnboardingComponents.buildSub(
-          'This helps us tailor guidance to what actually affects you, not just the average.',
-        ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OnboardingComponents.buildEyebrow('STEP 6 OF 7'),
+          const SizedBox(height: 12),
+          OnboardingComponents.buildTitle('Your experience\n', accent: '& goals'),
+          OnboardingComponents.buildSub(
+            'This helps us tailor guidance to what actually affects you, not just the average.',
+          ),
 
-        OnboardingComponents.buildLabel('SYMPTOMS YOU REGULARLY EXPERIENCE'),
-        Wrap(
-          spacing: 8,
-          runSpacing: 12,
-          children: symptoms
-              .map(
-                (sym) => Obx(() {
-                  final isSelected = controller.selectedSymptoms.contains(sym);
-                  return InkWell(
-                    onTap: () {
-                      if (isSelected) {
-                        controller.selectedSymptoms.remove(sym);
-                      } else {
-                        controller.selectedSymptoms.add(sym);
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(24),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? const Color(0xFFF3E5E1)
-                            : const Color(0xFFEAE5DE),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
+          OnboardingComponents.buildLabel('SYMPTOMS YOU REGULARLY EXPERIENCE'),
+          Wrap(
+            spacing: 8,
+            runSpacing: 12,
+            children: symptoms
+                .map(
+                  (sym) {
+                    final isSelected = controller.selectedSymptoms.contains(sym);
+                    return InkWell(
+                      onTap: () {
+                        if (isSelected) {
+                          controller.selectedSymptoms.remove(sym);
+                        } else {
+                          controller.selectedSymptoms.add(sym);
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(24),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
                           color: isSelected
-                              ? const Color(0xFFE8927C)
-                              : const Color(0xFFD4C5B9),
-                          width: 1.0,
+                              ? const Color(0xFFF3E5E1)
+                              : const Color(0xFFEAE5DE),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: isSelected
+                                ? const Color(0xFFE8927C)
+                                : const Color(0xFFD4C5B9),
+                            width: 1.0,
+                          ),
+                        ),
+                        child: Text(
+                          sym,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                            color: const Color(0xFF3A2E28),
+                          ),
                         ),
                       ),
-                      child: Text(
-                        sym,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.w500,
-                          color: const Color(0xFF3A2E28),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              )
-              .toList(),
-        ),
+                    );
+                  },
+                )
+                .toList(),
+          ),
 
-        const SizedBox(height: 32),
-        OnboardingComponents.buildLabel('PRIMARY TRAINING GOAL'),
-        ...goals.map(
-          (g) => Obx(
-            () => OnboardingComponents.buildRadioOption(
+          const SizedBox(height: 32),
+          OnboardingComponents.buildLabel('PRIMARY TRAINING GOAL'),
+          ...goals.map(
+            (g) => OnboardingComponents.buildRadioOption(
               label: g['label']!,
               selected: controller.fitnessGoal.value == g['id'],
               onSelect: () => controller.fitnessGoal.value = g['id']!,
             ),
           ),
-        ),
-        const SizedBox(height: 40),
-        OnboardingComponents.buildPrimaryButton(
-          text: 'Continue',
-          onPressed: controller.nextStep,
-        ),
-      ],
-    );
+          const SizedBox(height: 40),
+          OnboardingComponents.buildPrimaryButton(
+            text: 'Continue',
+            onPressed: controller.nextStep,
+          ),
+        ],
+      );
+    });
   }
 }
 

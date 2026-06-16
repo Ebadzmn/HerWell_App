@@ -238,7 +238,7 @@ class WorkoutsScreen extends StatelessWidget {
               } else if (controller.selectedTab.value == 1) {
                 return _buildAICoachTab();
               } else {
-                return _buildSavedTab();
+                return _buildSavedTab(controller);
               }
             }),
           ],
@@ -490,40 +490,42 @@ class WorkoutsScreen extends StatelessWidget {
           const SizedBox(height: 8),
 
           // Workouts list
-          ListView.separated(
-            padding: EdgeInsets.zero,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 3, // Dummy count
-            separatorBuilder: (context, index) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              return _buildWebStyleWorkoutCard(
-                context: context,
-                title: index == 0
-                    ? 'Gentle Flow Yoga'
-                    : index == 1
-                    ? 'Full Body Sculpt'
-                    : 'Core Power HIIT',
-                duration: index == 0
-                    ? '25'
-                    : index == 1
-                    ? '45'
-                    : '30',
-                intensity: index == 0
-                    ? 'low'
-                    : index == 1
-                    ? 'moderate'
-                    : 'high',
-                bodypart: index == 0
-                    ? 'mobility'
-                    : index == 1
-                    ? 'full body'
-                    : 'core',
-                equipment: 'None',
-                desc: 'A gentle flow to support your body during this phase.',
+          Obx(() {
+            if (controller.isLoading.value) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(color: Color(0xFF8B7355)),
+                ),
               );
-            },
-          ),
+            }
+            final list = controller.filteredWorkouts;
+            if (list.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: Text(
+                    'No workouts match your filters for this phase.',
+                    style: TextStyle(color: Colors.grey, fontSize: 13),
+                  ),
+                ),
+              );
+            }
+            return ListView.separated(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: list.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                return _buildWebStyleWorkoutCard(
+                  context: context,
+                  workout: list[index],
+                  controller: controller,
+                );
+              },
+            );
+          }),
 
           const SizedBox(height: 22),
 
@@ -565,13 +567,14 @@ class WorkoutsScreen extends StatelessWidget {
 
   void _showWorkoutDetail(
     BuildContext context,
-    String title,
-    String desc,
-    String duration,
-    String intensity,
-    String bodypart,
-    String equipment,
+    Map<String, dynamic> workout,
   ) {
+    final title = workout['name'] ?? '';
+    final desc = workout['desc'] ?? '';
+    final intensity = workout['intensity'] ?? 'low';
+    final phaseNote = workout['phaseNote'] ?? 'A restorative sequence designed for your cycle.';
+    final List exercisesList = workout['exercises'] ?? [];
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -628,9 +631,7 @@ class WorkoutsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        intensity == 'low'
-                            ? 'During menstruation, prostaglandins cause inflammation and cramping. Gentle movement increases blood flow, releases endorphins, and can significantly reduce discomfort without stressing the body.'
-                            : 'A restorative sequence designed for your cycle. Focus on releasing tension in the hips and lower back.',
+                        phaseNote,
                         style: const TextStyle(
                           fontSize: 13,
                           color: Color(0xFF8B7355),
@@ -650,28 +651,30 @@ class WorkoutsScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _buildExerciseItem(
-                  'Child\'s Pose',
-                  '2 sets',
-                  'Set 1: 60 sec hold\nSet 2: 60 sec hold',
-                ),
-                _buildExerciseItem(
-                  'Supine Twist',
-                  '2 sets',
-                  'Set 1: 45 sec each side\nSet 2: 45 sec each side',
-                ),
-                _buildExerciseItem(
-                  'Cat-Cow',
-                  '3 sets',
-                  'Set 1: 10 slow reps\nSet 2: 10 slow reps\nSet 3: 10 slow reps',
-                ),
+                if (exercisesList.isEmpty)
+                  const Text('No exercises registered for this workout.', style: TextStyle(color: Colors.white70))
+                else
+                  ...exercisesList.map((ex) {
+                    final exName = ex['name'] ?? '';
+                    final setsList = List.from(ex['sets'] ?? []);
+                    final setsDesc = setsList.asMap().entries.map((entry) {
+                      final idx = entry.key;
+                      final setObj = entry.value;
+                      return 'Set ${idx + 1}: ${setObj['reps']}';
+                    }).join('\n');
+                    return _buildExerciseItem(
+                      exName,
+                      '${setsList.length} sets',
+                      setsDesc,
+                    );
+                  }).toList(),
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      Get.toNamed(AppRoute.workoutSession);
+                      Get.toNamed(AppRoute.workoutSession, arguments: workout);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF8B7355),
@@ -743,13 +746,17 @@ class WorkoutsScreen extends StatelessWidget {
 
   Widget _buildWebStyleWorkoutCard({
     required BuildContext context,
-    required String title,
-    required String duration,
-    required String intensity,
-    required String bodypart,
-    required String equipment,
-    required String desc,
+    required Map<String, dynamic> workout,
+    required WorkoutsController controller,
   }) {
+    final title = workout['name'] ?? '';
+    final duration = workout['duration_mins']?.toString() ?? '0';
+    final intensity = workout['intensity'] ?? 'low';
+    final bodypart = workout['bodypart'] ?? 'full body';
+    final equipment = workout['equipment'] ?? 'None';
+    final desc = workout['desc'] ?? '';
+    final workoutId = workout['id']?.toString() ?? '';
+
     Color intBg;
     Color intText;
     switch (intensity) {
@@ -773,12 +780,7 @@ class WorkoutsScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showWorkoutDetail(
         context,
-        title,
-        desc,
-        duration,
-        intensity,
-        bodypart,
-        equipment,
+        workout,
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -864,18 +866,23 @@ class WorkoutsScreen extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          _buildIconButton(
-                            Icons.bookmark_border_rounded,
-                            onTap: () {
-                              Get.snackbar(
-                                'Success',
-                                'Workout saved to your collection!',
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: AppColors.accent,
-                                colorText: Colors.white,
-                                margin: const EdgeInsets.all(16),
-                              );
-                            },
+                          GestureDetector(
+                            onTap: () => controller.toggleSaveWorkout(workoutId),
+                            child: Container(
+                              width: 44,
+                              height: 44,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFF5F3F0),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Obx(() => Icon(
+                                controller.savedWorkoutIds.contains(workoutId)
+                                    ? Icons.bookmark_rounded
+                                    : Icons.bookmark_border_rounded,
+                                size: 18,
+                                color: const Color(0xFF5C4A3A),
+                              )),
+                            ),
                           ),
                           const SizedBox(width: 8),
                           _buildIconButton(
@@ -883,12 +890,7 @@ class WorkoutsScreen extends StatelessWidget {
                             isFilled: true,
                             onTap: () => _showWorkoutDetail(
                               context,
-                              title,
-                              desc,
-                              duration,
-                              intensity,
-                              bodypart,
-                              equipment,
+                              workout,
                             ),
                           ),
                         ],
@@ -1121,35 +1123,58 @@ class WorkoutsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSavedTab() {
+  Widget _buildSavedTab(WorkoutsController controller) {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 60),
-          Icon(
-            Icons.bookmark_outline_rounded,
-            size: 80,
-            color: Colors.grey[200],
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'No Saved Workouts',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Workouts you save will appear here for quick access.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: Colors.grey[400]),
-          ),
-        ],
-      ),
+      child: Obx(() {
+        final savedWorkouts = controller.allWorkouts
+            .where((w) => controller.savedWorkoutIds.contains(w['id'].toString()))
+            .toList();
+
+        if (savedWorkouts.isEmpty) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 60),
+              Icon(
+                Icons.bookmark_outline_rounded,
+                size: 80,
+                color: Colors.grey[200],
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'No Saved Workouts',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Workouts you save will appear here for quick access.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 15, color: Colors.grey[400]),
+              ),
+            ],
+          );
+        }
+
+        return ListView.separated(
+          padding: EdgeInsets.zero,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: savedWorkouts.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            return _buildWebStyleWorkoutCard(
+              context: context,
+              workout: savedWorkouts[index],
+              controller: controller,
+            );
+          },
+        );
+      }),
     );
   }
 }

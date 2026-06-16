@@ -20,6 +20,55 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
   bool _isSaving = false;
   bool _isSaved = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadTodayLog();
+    
+    // Listen to date changes
+    final homeController = Get.find<HomeController>();
+    ever(homeController.selectedDate, (_) {
+      _loadTodayLog();
+    });
+  }
+
+  void _loadTodayLog() async {
+    try {
+      final homeController = Get.find<HomeController>();
+      final formattedDate = DateFormat('yyyy-MM-dd').format(homeController.selectedDate.value);
+      final ApiClient apiClient = Get.find<ApiClient>();
+      
+      final response = await apiClient.get(
+        '/cycle/daily-logs',
+        queryParameters: {"date": formattedDate},
+      );
+
+      if (response.isSuccess && response.data != null && response.data is List && (response.data as List).isNotEmpty) {
+        final log = response.data[0];
+        if (mounted) {
+          setState(() {
+            _selectedMood = log['mood'];
+            _selectedCheckins.clear();
+            if (log['checkins'] != null) {
+              _selectedCheckins.addAll(List<String>.from(log['checkins']));
+            }
+            _isSaved = true;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _selectedMood = null;
+            _selectedCheckins.clear();
+            _isSaved = false;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Failed to load today's daily log: $e");
+    }
+  }
+
   final List<Map<String, dynamic>> _moods = [
     {
       'value': 'exhausted',

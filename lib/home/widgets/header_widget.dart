@@ -4,15 +4,21 @@ import '../../core/app_colors.dart';
 import '../../core/app_route.dart';
 import '../controller/home_controller.dart';
 
+import '../../settings/controller/settings_controller.dart';
+import '../controller/notification_controller.dart';
+
 class HeaderWidget extends StatelessWidget {
   const HeaderWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // In a real app, these would come from a controller
-    const String userName = "User";
-    const String? userImage = null;
-    const int unreadCount = 3;
+    final SettingsController settingsController = Get.isRegistered<SettingsController>() 
+        ? Get.find<SettingsController>()
+        : Get.put(SettingsController());
+
+    final NotificationController notificationController = Get.isRegistered<NotificationController>() 
+        ? Get.find<NotificationController>()
+        : Get.put(NotificationController());
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -29,16 +35,23 @@ class HeaderWidget extends StatelessWidget {
                 color: Color(0xFF1A1A1A),
                 shape: BoxShape.circle,
               ),
-              child: const Center(
-                child: Text(
-                  'h',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'Georgia',
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+              child: Center(
+                child: Obx(() {
+                  final initial = settingsController.username.value.isNotEmpty
+                      ? settingsController.username.value.substring(0, 1).toLowerCase()
+                      : (settingsController.name.value.isNotEmpty
+                          ? settingsController.name.value.substring(0, 1).toLowerCase()
+                          : 'h');
+                  return Text(
+                    initial,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Georgia',
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }),
               ),
             ),
           ),
@@ -56,42 +69,45 @@ class HeaderWidget extends StatelessWidget {
             child: InkWell(
               onTap: () => Get.toNamed(AppRoute.notification),
               borderRadius: BorderRadius.circular(20),
-              child: Stack(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      shape: BoxShape.circle,
+              child: Obx(() {
+                final count = notificationController.unreadCount;
+                return Stack(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
                     ),
-                    child: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 24),
-                  ),
-                  if (unreadCount > 0)
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        width: 18,
-                        height: 18,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFEF4444),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            '$unreadCount',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                    if (count > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          width: 18,
+                          height: 18,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEF4444),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              '$count',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
+                  ],
+                );
+              }),
             ),
           ),
         ],

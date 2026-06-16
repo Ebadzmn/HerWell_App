@@ -20,6 +20,57 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
   String _severity = 'mild';
   final TextEditingController _notesController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    _loadTodaySymptoms();
+    
+    // Listen to date changes
+    final homeController = Get.find<HomeController>();
+    ever(homeController.selectedDate, (_) {
+      _loadTodaySymptoms();
+    });
+  }
+
+  void _loadTodaySymptoms() async {
+    try {
+      final homeController = Get.find<HomeController>();
+      final formattedDate = DateFormat('yyyy-MM-dd').format(homeController.selectedDate.value);
+      final ApiClient apiClient = Get.find<ApiClient>();
+
+      final response = await apiClient.get(
+        '/cycle/symptom-logs',
+        queryParameters: {"date": formattedDate},
+      );
+
+      if (response.isSuccess && response.data != null && response.data is List && (response.data as List).isNotEmpty) {
+        final log = response.data[0];
+        if (mounted) {
+          setState(() {
+            _selectedSymptoms.clear();
+            if (log['symptoms'] != null) {
+              _selectedSymptoms.addAll(List<String>.from(log['symptoms']));
+            }
+            _severity = log['severity'] ?? 'mild';
+            _notesController.text = log['notes'] ?? '';
+            _showLogger = true;
+          });
+        }
+      } else {
+        if (mounted && !widget.isModal) {
+          setState(() {
+            _selectedSymptoms.clear();
+            _severity = 'mild';
+            _notesController.clear();
+            _showLogger = false;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Failed to load today's symptoms: $e");
+    }
+  }
+
   final List<String> _commonSymptoms = [
     "Cramps", "Bloating", "Headache", "Fatigue", "Mood Swings",
     "Breast Tenderness", "Acne", "Back Pain", "Nausea", "Anxiety"
