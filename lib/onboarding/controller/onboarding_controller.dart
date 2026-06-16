@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_route.dart';
 import '../../core/network/api_client.dart';
+import 'dart:io';
+import 'package:dio/dio.dart' as dio;
 
 class OnboardingController extends GetxController {
   var currentStep = 1.obs;
@@ -97,13 +99,46 @@ class OnboardingController extends GetxController {
     try {
       isLoading.value = true;
 
+      final ApiClient apiClient = Get.find<ApiClient>();
+
+      // 1. Upload profile photo if chosen
+      String? avatarUrl;
+      if (profilePicture.value != null && profilePicture.value!.isNotEmpty) {
+        try {
+          final file = File(profilePicture.value!);
+          if (await file.exists()) {
+            final fileName = file.path.split('/').last;
+            final formData = dio.FormData.fromMap({
+              'file': await dio.MultipartFile.fromFile(file.path, filename: fileName),
+            });
+            final uploadResponse = await apiClient.post(
+              '/integration/files/upload',
+              data: formData,
+            );
+            if (uploadResponse.isSuccess && uploadResponse.data != null) {
+              avatarUrl = uploadResponse.data['file_url'];
+            }
+          }
+        } catch (e) {
+          debugPrint("Failed to upload profile picture: $e");
+        }
+      }
+
+      // 2. Update user profile with avatar URL if uploaded
+      if (avatarUrl != null) {
+        try {
+          await apiClient.put('/auth/me', data: {"avatarUrl": avatarUrl});
+        } catch (e) {
+          debugPrint("Failed to update avatarUrl on user: $e");
+        }
+      }
+
       final now = DateTime.now();
       final year = lastYear.value ?? now.year;
       final month = lastMonth.value ?? now.month;
       final day = lastDay.value ?? now.day;
       final startDateStr = "${year.toString().padLeft(4, '0')}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
 
-      final ApiClient apiClient = Get.find<ApiClient>();
       final response = await apiClient.post(
         '/cycle/cycle-data',
         data: {

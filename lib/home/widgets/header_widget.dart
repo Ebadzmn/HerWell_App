@@ -28,32 +28,40 @@ class HeaderWidget extends StatelessWidget {
           // Left: Avatar
           Align(
             alignment: Alignment.centerLeft,
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                color: Color(0xFF1A1A1A),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Obx(() {
-                  final initial = settingsController.username.value.isNotEmpty
-                      ? settingsController.username.value.substring(0, 1).toLowerCase()
-                      : (settingsController.name.value.isNotEmpty
-                          ? settingsController.name.value.substring(0, 1).toLowerCase()
-                          : 'h');
-                  return Text(
-                    initial,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Georgia',
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  );
-                }),
-              ),
-            ),
+            child: Obx(() {
+              final hasAvatar = settingsController.avatarUrl.value.isNotEmpty;
+              return Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1A1A),
+                  shape: BoxShape.circle,
+                  image: hasAvatar
+                      ? DecorationImage(
+                          image: NetworkImage(settingsController.avatarUrl.value),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                ),
+                child: !hasAvatar
+                    ? Center(
+                        child: Text(
+                          settingsController.username.value.isNotEmpty
+                              ? settingsController.username.value.substring(0, 1).toLowerCase()
+                              : (settingsController.name.value.isNotEmpty
+                                  ? settingsController.name.value.substring(0, 1).toLowerCase()
+                                  : 'h'),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Georgia',
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
+                    : null,
+              );
+            }),
           ),
 
           // Center: Logo

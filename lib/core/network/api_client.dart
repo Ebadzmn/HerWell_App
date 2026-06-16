@@ -6,11 +6,12 @@ import 'network_logger.dart';
 
 class ApiClient extends GetxService {
   late final Dio _dio;
+  final String baseUrl;
 
   // Can be updated when user logs in
   String? _authToken;
 
-  ApiClient({required String baseUrl}) {
+  ApiClient({required this.baseUrl}) {
     _dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
