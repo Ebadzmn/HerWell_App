@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import '../controller/settings_controller.dart';
-import '../../core/app_colors.dart';
+
 import '../../core/app_route.dart';
 import '../../auth/controller/auth_controller.dart';
 
@@ -266,7 +266,7 @@ class SettingsScreen extends StatelessWidget {
                   color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: _buildExpandedCycleCard(isDark),
+                child: _buildExpandedCycleCard(context, isDark),
               )),
               const SizedBox(height: 24),
               const Padding(
@@ -357,7 +357,7 @@ class SettingsScreen extends StatelessWidget {
 
 
 
-  Widget _buildExpandedCycleCard(bool isDark) {
+  Widget _buildExpandedCycleCard(BuildContext context, bool isDark) {
     final titleColor = isDark ? Colors.white : const Color(0xFF3A2E28);
     final boxBgColor = isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF3EFEA);
     final boxBorderColor = isDark ? const Color(0xFF3A3A3A) : const Color(0xFFE2D6C8);
@@ -570,7 +570,7 @@ class SettingsScreen extends StatelessWidget {
         activeTrackColor: const Color(0xFFE8927C),
         inactiveTrackColor: const Color(0xFFDCDCE2),
         thumbColor: const Color(0xFF7B8089),
-        overlayColor: const Color(0xFFE8927C).withOpacity(0.1),
+        overlayColor: const Color(0xFFE8927C).withValues(alpha: 0.1),
         thumbShape: _CustomThumbShape(),
         trackShape: const RoundedRectSliderTrackShape(),
       ),
@@ -888,7 +888,7 @@ class SettingsScreen extends StatelessWidget {
                     controller.isDarkMode.value = val;
                     Get.changeThemeMode(val ? ThemeMode.dark : ThemeMode.light);
                   },
-                  activeColor: const Color(0xFFE8927C),
+                  activeThumbColor: const Color(0xFFE8927C),
                   inactiveThumbColor: Colors.white,
                   inactiveTrackColor: const Color(0xFFE2D6C8),
                 ))
@@ -1028,7 +1028,7 @@ class SettingsScreen extends StatelessWidget {
                     Navigator.pop(context);
                   },
                 );
-              }).toList(),
+              })
             ],
           ),
         );
