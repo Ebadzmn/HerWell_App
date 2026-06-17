@@ -12,6 +12,7 @@ class OnboardingController extends GetxController {
 
   // UI State
   final isLoading = RxBool(false);
+  final isOptionsLoading = RxBool(true);
 
   // Auth Data (Local UI only)
   final email = RxString('');
@@ -30,7 +31,7 @@ class OnboardingController extends GetxController {
   final injectionBleed = RxnString();
   final miniType = RxnString();
   final miniOvulating = RxnBool();
-  
+
   final cycleRegular = RxBool(true);
   final alreadyTracking = RxnString();
   final cycleLength = RxInt(28);
@@ -38,14 +39,17 @@ class OnboardingController extends GetxController {
   final lastDay = RxnInt();
   final lastMonth = RxnInt();
   final lastYear = RxnInt(DateTime.now().year);
-  
+
   final trackingMethod = RxnString();
-  final dailyCheckins = <String>['Sleep quality', 'Energy level', 'Training performance', 'Mood & motivation'].obs;
+  // dailyCheckins stores the full label strings (which match what the backend expects)
+  final dailyCheckins = <String>[].obs;
   final selectedSymptoms = <String>[].obs;
-  final fitnessGoal = RxString('build_muscle');
+  final fitnessGoal = RxString('');
 
   // Dynamic backend-seeded options
   final dbContraceptions = <Map<String, dynamic>>[].obs;
+  // contraception detail options keyed by contraceptionKey
+  final dbDetails = <Map<String, dynamic>>[].obs;
   final dbGoals = <Map<String, dynamic>>[].obs;
   final dbSymptoms = <String>[].obs;
   final dbDailyCheckins = <Map<String, dynamic>>[].obs;
@@ -58,26 +62,69 @@ class OnboardingController extends GetxController {
 
   Future<void> loadOnboardingOptions() async {
     try {
+      isOptionsLoading.value = true;
       final ApiClient apiClient = Get.find<ApiClient>();
       final response = await apiClient.get('/onboarding/options');
       if (response.isSuccess && response.data != null) {
         final data = response.data;
+
         if (data['contraceptions'] != null) {
-          dbContraceptions.value = List<Map<String, dynamic>>.from(data['contraceptions']);
+          dbContraceptions.value =
+              List<Map<String, dynamic>>.from(data['contraceptions']);
         }
+
+        // Store contraception detail options
+        if (data['details'] != null) {
+          dbDetails.value =
+              List<Map<String, dynamic>>.from(data['details']);
+        }
+
         if (data['goals'] != null) {
-          dbGoals.value = List<Map<String, dynamic>>.from(data['goals']);
+          dbGoals.value =
+              List<Map<String, dynamic>>.from(data['goals']);
+          // Pre-select the first goal if none is set yet
+          if (fitnessGoal.value.isEmpty && dbGoals.isNotEmpty) {
+            fitnessGoal.value = dbGoals.first['value']?.toString() ?? 'build_muscle';
+          }
         }
+
         if (data['symptoms'] != null) {
-          dbSymptoms.value = List<String>.from((data['symptoms'] as List).map((s) => s['name'] as String));
+          dbSymptoms.value = List<String>.from(
+              (data['symptoms'] as List).map((s) => s['name'] as String));
         }
+
         if (data['checkins'] != null) {
-          dbDailyCheckins.value = List<Map<String, dynamic>>.from(data['checkins']);
+          dbDailyCheckins.value =
+              List<Map<String, dynamic>>.from(data['checkins']);
+          // Pre-select check-ins that are marked as default in the API
+          if (dailyCheckins.isEmpty) {
+            dailyCheckins.value = dbDailyCheckins
+                .where((c) => c['isDefault'] == true)
+                .map((c) => c['label'].toString())
+                .toList();
+          }
         }
       }
     } catch (e) {
       debugPrint("Failed to load onboarding options: $e");
+    } finally {
+      isOptionsLoading.value = false;
     }
+  }
+
+  /// Returns detail options for the currently selected contraception key,
+  /// grouped by questionKey.
+  Map<String, List<Map<String, dynamic>>> getDetailOptionsForCurrentContraception() {
+    final key = contraception.value;
+    if (key == null || dbDetails.isEmpty) return {};
+
+    final filtered = dbDetails.where((d) => d['contraceptionKey'] == key).toList();
+    final Map<String, List<Map<String, dynamic>>> grouped = {};
+    for (final d in filtered) {
+      final qKey = d['questionKey'].toString();
+      grouped.putIfAbsent(qKey, () => []).add(d);
+    }
+    return grouped;
   }
 
   void nextStep() {
@@ -109,7 +156,8 @@ class OnboardingController extends GetxController {
           if (await file.exists()) {
             final fileName = file.path.split('/').last;
             final formData = dio.FormData.fromMap({
-              'file': await dio.MultipartFile.fromFile(file.path, filename: fileName),
+              'file': await dio.MultipartFile.fromFile(file.path,
+                  filename: fileName),
             });
             final uploadResponse = await apiClient.post(
               '/integration/files/upload',
@@ -137,7 +185,8 @@ class OnboardingController extends GetxController {
       final year = lastYear.value ?? now.year;
       final month = lastMonth.value ?? now.month;
       final day = lastDay.value ?? now.day;
-      final startDateStr = "${year.toString().padLeft(4, '0')}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
+      final startDateStr =
+          "${year.toString().padLeft(4, '0')}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
 
       final response = await apiClient.post(
         '/cycle/cycle-data',
@@ -145,12 +194,13 @@ class OnboardingController extends GetxController {
           "cycle_start_date": startDateStr,
           "cycle_length": cycleLength.value,
           "period_length": periodLength.value,
-          "fitness_goal": fitnessGoal.value,
+          "fitness_goal": fitnessGoal.value.isNotEmpty ? fitnessGoal.value : 'build_muscle',
           "contraception_type": contraception.value ?? "none",
           "tracking_method": trackingMethod.value ?? "calendar",
           "pill_progestogen": pillProgestogen.value,
           "cycle_regular": cycleRegular.value,
           "symptoms": selectedSymptoms.toList(),
+          // Send full label strings — these match what the backend stores
           "daily_checkins": dailyCheckins.toList(),
           "preferred_workout_types": [],
           "available_equipment": [],
@@ -164,7 +214,9 @@ class OnboardingController extends GetxController {
       } else {
         Get.snackbar(
           'Error',
-          response.message.isNotEmpty ? response.message : 'Failed to save onboarding data',
+          response.message.isNotEmpty
+              ? response.message
+              : 'Failed to save onboarding data',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
@@ -181,20 +233,6 @@ class OnboardingController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  Future<void> registerUser() async {
-    isLoading.value = true;
-    await Future.delayed(const Duration(seconds: 1)); // Mock delay
-    isLoading.value = false;
-    nextStep();
-  }
-
-  Future<void> loginUser(String email, String password) async {
-    isLoading.value = true;
-    await Future.delayed(const Duration(seconds: 1)); // Mock delay
-    isLoading.value = false;
-    Get.offAllNamed(AppRoute.navbar);
   }
 
   void toggleSymptom(String symptom) {

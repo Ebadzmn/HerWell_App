@@ -108,11 +108,35 @@ class AuthController extends GetxController {
         },
       );
 
-      if (response.isSuccess) {
-        Get.snackbar('Success', response.message.isNotEmpty ? response.message : 'Registration Successful',
+      if (response.isSuccess && response.data != null) {
+        // Backend returns tokens immediately on registration — save them now
+        final prefs = await SharedPreferences.getInstance();
+        final accessToken = response.data['access_token']?.toString();
+        final refreshToken = response.data['refresh_token']?.toString();
+
+        if (accessToken != null && accessToken.isNotEmpty) {
+          await prefs.setString('access_token', accessToken);
+          apiClient.setToken(accessToken);
+        }
+        if (refreshToken != null && refreshToken.isNotEmpty) {
+          await prefs.setString('refresh_token', refreshToken);
+        }
+        if (response.data['user'] != null) {
+          await prefs.setString('user_data', jsonEncode(response.data['user']));
+        }
+
+        // Clear stale onboarding flag so first-time user always sees onboarding
+        await prefs.remove('hasCompletedOnboarding');
+
+        // Sync FCM token if notification service is registered
+        if (Get.isRegistered<NotificationService>()) {
+          Get.find<NotificationService>().syncFcmToken();
+        }
+
+        Get.snackbar('Welcome!', 'Account created successfully. Let\'s set up your profile.',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.green.withOpacity(0.1));
-        Get.offAllNamed(AppRoute.login);
+        Get.offAllNamed(AppRoute.onboarding);
       } else {
         Get.snackbar('Error', response.message.isNotEmpty ? response.message : 'Registration failed',
             snackPosition: SnackPosition.BOTTOM,
@@ -163,10 +187,69 @@ class AuthController extends GetxController {
   }
 
   Future<void> verifySignupOTP(String otp) async {
+    if (isLoading.value) return;
     try {
       isLoading.value = true;
-      await Future.delayed(const Duration(seconds: 1)); // Mock delay
-      Get.offAllNamed(AppRoute.onboarding);
+
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.post(
+        '/auth/verify-signup-otp',
+        data: {
+          "email": email.value,
+          "otp": otp.trim(),
+        },
+      );
+
+      if (response.isSuccess && response.data != null) {
+        // Save tokens exactly as we do during login
+        final prefs = await SharedPreferences.getInstance();
+        final accessToken = response.data['access_token']?.toString();
+        final refreshToken = response.data['refresh_token']?.toString();
+
+        if (accessToken != null && accessToken.isNotEmpty) {
+          await prefs.setString('access_token', accessToken);
+          apiClient.setToken(accessToken);
+        }
+        if (refreshToken != null && refreshToken.isNotEmpty) {
+          await prefs.setString('refresh_token', refreshToken);
+        }
+        if (response.data['user'] != null) {
+          await prefs.setString('user_data', jsonEncode(response.data['user']));
+        }
+
+        // Clear any stale onboarding flag so the new user sees onboarding
+        await prefs.remove('hasCompletedOnboarding');
+
+        Get.snackbar(
+          'Email verified!',
+          'Let\'s set up your profile.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green.withOpacity(0.1),
+        );
+        Get.offAllNamed(AppRoute.onboarding);
+      } else {
+        // Fallback: some backends return 200 with no token on OTP verify,
+        // requiring a separate login. In that case send user to login.
+        final msg = response.message.isNotEmpty ? response.message : 'Verification failed';
+        // If the message hints success (e.g. "OTP verified") treat it as success
+        final isSuccess = msg.toLowerCase().contains('verif') && !msg.toLowerCase().contains('fail') && !msg.toLowerCase().contains('invalid');
+        if (isSuccess) {
+          Get.snackbar('Verified!', 'Please log in to continue.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.green.withOpacity(0.1));
+          Get.offAllNamed(AppRoute.login);
+        } else {
+          Get.snackbar('Error', msg,
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.redAccent,
+              colorText: Colors.white);
+        }
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An unexpected error occurred during verification',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
@@ -268,10 +351,12 @@ class AuthController extends GetxController {
       await prefs.remove('access_token');
       await prefs.remove('refresh_token');
       await prefs.remove('user_data');
-      
+      // Clear onboarding flag so a different user on the same device goes through onboarding
+      await prefs.remove('hasCompletedOnboarding');
+
       final ApiClient apiClient = Get.find<ApiClient>();
       apiClient.clearToken();
-      
+
       Get.offAllNamed(AppRoute.login);
     } catch (e) {
       Get.snackbar('Error', 'Logout failed',

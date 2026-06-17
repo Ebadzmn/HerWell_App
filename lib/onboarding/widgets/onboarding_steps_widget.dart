@@ -230,28 +230,133 @@ class StepContraceptionDetailsWidget extends StatelessWidget {
   final OnboardingController controller = Get.find<OnboardingController>();
   StepContraceptionDetailsWidget({super.key});
 
+  /// Build a question section from a list of options with the same questionKey.
+  Widget _buildApiQuestionSection(
+    String questionLabel,
+    String questionKey,
+    List<Map<String, dynamic>> opts,
+  ) {
+    final type = opts.isNotEmpty ? opts.first['type']?.toString() ?? 'toggle' : 'toggle';
+
+    if (type == 'select') {
+      // Use dropdown
+      String? currentVal;
+      if (questionKey == 'pillType') currentVal = controller.pillType.value;
+      else if (questionKey == 'pillProgestogen') currentVal = controller.pillProgestogen.value;
+      else if (questionKey == 'miniType') currentVal = controller.miniType.value;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OnboardingComponents.buildDropdownSelection(
+            label: questionLabel.toUpperCase(),
+            hint: 'Select if known...',
+            value: currentVal,
+            options: opts.map((o) => o['label'].toString()).toList(),
+            onChanged: (v) {
+              final matched = opts.firstWhere(
+                (o) => o['label'] == v,
+                orElse: () => {},
+              );
+              final val = matched['value']?.toString() ?? v;
+              if (questionKey == 'pillType') controller.pillType.value = val;
+              else if (questionKey == 'pillProgestogen') controller.pillProgestogen.value = val;
+              else if (questionKey == 'miniType') controller.miniType.value = val;
+            },
+          ),
+          const SizedBox(height: 20),
+        ],
+      );
+    } else {
+      // Use radio/toggle options
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OnboardingComponents.buildLabel(questionLabel.toUpperCase()),
+          ...opts.map((opt) {
+            final val = opt['value']?.toString() ?? '';
+            final label = opt['label']?.toString() ?? '';
+            bool isSelected = false;
+            VoidCallback onSelect = () {};
+
+            if (questionKey == 'pillFreeWeek') {
+              isSelected = controller.pillFreeWeek.value?.toString() == val;
+              onSelect = () => controller.pillFreeWeek.value = val == 'true';
+            } else if (questionKey == 'iudPeriod') {
+              isSelected = controller.iudPeriod.value == val;
+              onSelect = () => controller.iudPeriod.value = val;
+            } else if (questionKey == 'iudOvulating') {
+              isSelected = controller.iudOvulating.value?.toString() == val;
+              onSelect = () => controller.iudOvulating.value = val;
+            } else if (questionKey == 'implantBleed') {
+              isSelected = controller.implantBleed.value == val;
+              onSelect = () => controller.implantBleed.value = val;
+            } else if (questionKey == 'implantPattern') {
+              isSelected = controller.implantPattern.value?.toString() == val;
+              onSelect = () => controller.implantPattern.value = val == 'true';
+            } else if (questionKey == 'injectionBleed') {
+              isSelected = controller.injectionBleed.value == val;
+              onSelect = () => controller.injectionBleed.value = val;
+            } else if (questionKey == 'miniOvulating') {
+              isSelected = controller.miniOvulating.value?.toString() == val;
+              onSelect = () => controller.miniOvulating.value = val == 'true';
+            } else if (questionKey == 'cycleRegular') {
+              isSelected = controller.cycleRegular.value.toString() == val;
+              onSelect = () => controller.cycleRegular.value = val == 'true';
+            } else if (questionKey == 'alreadyTracking') {
+              isSelected = controller.alreadyTracking.value == val;
+              onSelect = () => controller.alreadyTracking.value = val;
+            }
+
+            return OnboardingComponents.buildRadioOption(
+              label: label,
+              selected: isSelected,
+              onSelect: onSelect,
+            );
+          }).toList(),
+          const SizedBox(height: 24),
+        ],
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final c = controller.contraception.value;
+      final c = controller.contraception.value ?? '';
+      final grouped = controller.getDetailOptionsForCurrentContraception();
+
+      // Title based on selected contraception label from API
+      final contraceptionTitle = controller.dbContraceptions.isNotEmpty
+          ? (controller.dbContraceptions
+                .firstWhere((x) => x['key'] == c, orElse: () => {})['title']
+                ?.toString() ?? c)
+          : (c == 'none' ? 'Natural cycle' : 'About your contraception');
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           OnboardingComponents.buildEyebrow('STEP 2 OF 7'),
           const SizedBox(height: 12),
-          OnboardingComponents.buildTitle(c == 'none' ? 'Natural cycle' : 'About your pill'),
+          OnboardingComponents.buildTitle(contraceptionTitle),
           const SizedBox(height: 24),
-          if (c == 'pill') ...[
+          if (grouped.isNotEmpty) ...[
+            // API-driven: render each question group
+            ...grouped.entries.map((entry) {
+              final qKey = entry.key;
+              final opts = entry.value;
+              final questionLabel = opts.isNotEmpty
+                  ? opts.first['questionLabel']?.toString() ?? qKey
+                  : qKey;
+              return _buildApiQuestionSection(questionLabel, qKey, opts);
+            }).toList(),
+          ] else if (c == 'pill') ...[
+            // Fallback hardcoded for pill
             OnboardingComponents.buildDropdownSelection(
               label: 'PILL FORMULATION TYPE',
               hint: 'Select if known...',
               value: controller.pillType.value,
-              options: [
-                'Monophasic (same dose every day)',
-                'Biphasic (2 different doses)',
-                'Triphasic (3 different doses)',
-                'I\'m not sure',
-              ],
+              options: ['Monophasic (same dose every day)', 'Biphasic (2 different doses)', 'Triphasic (3 different doses)', 'I\'m not sure'],
               onChanged: (v) => controller.pillType.value = v,
             ),
             const SizedBox(height: 20),
@@ -259,82 +364,27 @@ class StepContraceptionDetailsWidget extends StatelessWidget {
               label: 'PROGESTOGEN TYPE (CHECK YOUR LEAFLET)',
               hint: 'Select if known...',
               value: controller.pillProgestogen.value,
-              options: [
-                'Androgenic',
-                'Anti-androgenic',
-                'Neutral',
-                'Unknown / not sure',
-              ],
+              options: ['Androgenic', 'Anti-androgenic', 'Neutral', 'Unknown / not sure'],
               onChanged: (v) => controller.pillProgestogen.value = v,
             ),
             const SizedBox(height: 24),
-            OnboardingComponents.buildLabel(
-              'DO YOU TAKE A PILL-FREE / PLACEBO WEEK?',
-            ),
-            OnboardingComponents.buildRadioOption(
-              label: 'Yes — I have a withdrawal bleed',
-              selected: controller.pillFreeWeek.value == true,
-              onSelect: () => controller.pillFreeWeek.value = true,
-            ),
-            OnboardingComponents.buildRadioOption(
-              label: 'No — I take it continuously',
-              selected: controller.pillFreeWeek.value == false,
-              onSelect: () => controller.pillFreeWeek.value = false,
-            ),
-          ] else if (c == 'mini') ...[
-            OnboardingComponents.buildDropdownSelection(
-              label: 'WHICH MINI PILL ARE YOU ON?',
-              hint: 'Select if known...',
-              value: controller.miniType.value,
-              options: [
-                'Cerazette / Cerelle / Desogestrel',
-                'Norethisterone-based',
-                'Other / not sure',
-              ],
-              onChanged: (v) => controller.miniType.value = v,
-            ),
+            OnboardingComponents.buildLabel('DO YOU TAKE A PILL-FREE / PLACEBO WEEK?'),
+            OnboardingComponents.buildRadioOption(label: 'Yes — I have a withdrawal bleed', selected: controller.pillFreeWeek.value == true, onSelect: () => controller.pillFreeWeek.value = true),
+            OnboardingComponents.buildRadioOption(label: 'No — I take it continuously', selected: controller.pillFreeWeek.value == false, onSelect: () => controller.pillFreeWeek.value = false),
           ] else if (c == 'none') ...[
             OnboardingComponents.buildLabel('ARE YOUR CYCLES GENERALLY REGULAR?'),
-            OnboardingComponents.buildRadioOption(
-              label: 'Yes — fairly predictable',
-              selected: controller.cycleRegular.value == true,
-              onSelect: () => controller.cycleRegular.value = true,
-            ),
-            OnboardingComponents.buildRadioOption(
-              label: 'No — quite variable or irregular',
-              selected: controller.cycleRegular.value == false,
-              onSelect: () => controller.cycleRegular.value = false,
-            ),
+            OnboardingComponents.buildRadioOption(label: 'Yes — fairly predictable', selected: controller.cycleRegular.value == true, onSelect: () => controller.cycleRegular.value = true),
+            OnboardingComponents.buildRadioOption(label: 'No — quite variable or irregular', selected: controller.cycleRegular.value == false, onSelect: () => controller.cycleRegular.value = false),
             const SizedBox(height: 24),
             OnboardingComponents.buildLabel('DO YOU TRACK YOUR CYCLE ALREADY?'),
-            OnboardingComponents.buildRadioOption(
-              label: 'Yes — using an app',
-              selected: controller.alreadyTracking.value == 'app',
-              onSelect: () => controller.alreadyTracking.value = 'app',
-            ),
-            OnboardingComponents.buildRadioOption(
-              label: 'Yes — basal body temperature',
-              selected: controller.alreadyTracking.value == 'bbt',
-              onSelect: () => controller.alreadyTracking.value = 'bbt',
-            ),
-            OnboardingComponents.buildRadioOption(
-              label: 'No — starting fresh',
-              selected: controller.alreadyTracking.value == 'none',
-              onSelect: () => controller.alreadyTracking.value = 'none',
-            ),
+            OnboardingComponents.buildRadioOption(label: 'Yes — using an app', selected: controller.alreadyTracking.value == 'app', onSelect: () => controller.alreadyTracking.value = 'app'),
+            OnboardingComponents.buildRadioOption(label: 'Yes — basal body temperature', selected: controller.alreadyTracking.value == 'bbt', onSelect: () => controller.alreadyTracking.value = 'bbt'),
+            OnboardingComponents.buildRadioOption(label: 'No — starting fresh', selected: controller.alreadyTracking.value == 'none', onSelect: () => controller.alreadyTracking.value = 'none'),
           ] else ...[
-            const Center(
-              child: Text(
-                'No further details needed for this selection.',
-                style: TextStyle(color: Color(0xFF8B7355)),
-              ),
-            ),
+            const Center(child: Text('No further details needed for this selection.', style: TextStyle(color: Color(0xFF8B7355)))),
           ],
           const SizedBox(height: 100),
-          OnboardingComponents.buildPrimaryButton(
-            text: 'Continue',
-            onPressed: controller.nextStep,
-          ),
+          OnboardingComponents.buildPrimaryButton(text: 'Continue', onPressed: controller.nextStep),
         ],
       );
     });
@@ -726,25 +776,26 @@ class StepDailyCheckinsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      // Use full label as ID so it matches what the backend stores in daily_checkins
       final options = controller.dbDailyCheckins.isNotEmpty
           ? controller.dbDailyCheckins
               .map<Map<String, String>>((c) => {
-                    'id': c['label'].toString().toLowerCase().split(' ')[0],
+                    'id': c['label'].toString(), // full label = ID sent to API
                     'icon': c['icon'].toString(),
                     'title': c['label'].toString(),
                   })
               .toList()
           : [
-              {'id': 'sleep', 'icon': '😴', 'title': 'Sleep quality'},
-              {'id': 'energy', 'icon': '⚡', 'title': 'Energy level'},
-              {'id': 'training', 'icon': '🏋️', 'title': 'Training performance'},
-              {'id': 'mood', 'icon': '😤', 'title': 'Mood & motivation'},
-              {'id': 'bloating', 'icon': '🤢', 'title': 'Bloating / GI'},
-              {'id': 'cravings', 'icon': '🍫', 'title': 'Cravings'},
-              {'id': 'hydration', 'icon': '💧', 'title': 'Hydration'},
-              {'id': 'hrv', 'icon': '❤️', 'title': 'Resting HR / HRV'},
-              {'id': 'bbt', 'icon': '🌡️', 'title': 'Basal body temp'},
-              {'id': 'flow', 'icon': '🩸', 'title': 'Flow / bleeding'},
+              {'id': 'Sleep quality', 'icon': '😴', 'title': 'Sleep quality'},
+              {'id': 'Energy level', 'icon': '⚡', 'title': 'Energy level'},
+              {'id': 'Training performance', 'icon': '🏋️', 'title': 'Training performance'},
+              {'id': 'Mood & motivation', 'icon': '😤', 'title': 'Mood & motivation'},
+              {'id': 'Bloating / GI', 'icon': '🤢', 'title': 'Bloating / GI'},
+              {'id': 'Cravings', 'icon': '🍫', 'title': 'Cravings'},
+              {'id': 'Hydration', 'icon': '💧', 'title': 'Hydration'},
+              {'id': 'Resting HR / HRV', 'icon': '❤️', 'title': 'Resting HR / HRV'},
+              {'id': 'Basal body temp', 'icon': '🌡️', 'title': 'Basal body temp'},
+              {'id': 'Flow / bleeding', 'icon': '🩸', 'title': 'Flow / bleeding'},
             ];
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -762,11 +813,12 @@ class StepDailyCheckinsWidget extends StatelessWidget {
               crossAxisCount: 2,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              mainAxisExtent: 56, // exactly 56px height per option
+              mainAxisExtent: 56,
             ),
             itemCount: options.length,
             itemBuilder: (context, index) {
               final opt = options[index];
+              // id is the full label — matches dailyCheckins list
               final isSelected = controller.dailyCheckins.contains(opt['id']);
               return _buildCheckinOption(context, opt, isSelected);
             },
@@ -964,123 +1016,152 @@ class StepSummaryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        OnboardingComponents.buildEyebrow('STEP 7 OF 7'),
-        const SizedBox(height: 12),
-        OnboardingComponents.buildTitle('Your profile is\n', accent: 'ready'),
-        OnboardingComponents.buildSub(
-          'Here\'s what we\'ve built for you — based on your Combined Pill (COCP) profile.',
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFFEAE5DE),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFD4C5B9)),
+    return Obx(() {
+      // Look up the contraception title from API data
+      final contraceptionKey = controller.contraception.value ?? '';
+      final contraceptionData = controller.dbContraceptions.isNotEmpty
+          ? controller.dbContraceptions.firstWhere(
+              (x) => x['key'] == contraceptionKey,
+              orElse: () => {},
+            )
+          : <String, dynamic>{};
+      final contraceptionTitle = contraceptionData['title']?.toString() ??
+          (contraceptionKey.isEmpty ? 'Not specified' : contraceptionKey);
+      final contraceptionIcon = contraceptionData['icon']?.toString() ?? '🌸';
+
+      // Look up the fitness goal label from API data
+      final goalKey = controller.fitnessGoal.value;
+      final goalData = controller.dbGoals.isNotEmpty
+          ? controller.dbGoals.firstWhere(
+              (g) => g['value'] == goalKey,
+              orElse: () => {},
+            )
+          : <String, dynamic>{};
+      final goalLabel = goalData['label']?.toString() ??
+          (goalKey.isEmpty ? 'Not selected' : goalKey);
+
+      // Tracking method display
+      final trackingDisplay = (() {
+        switch (controller.trackingMethod.value) {
+          case 'subjective': return 'Subjective daily signals';
+          case 'combined': return 'Combined approach';
+          case 'calendar': return 'Calendar based';
+          default: return controller.trackingMethod.value ?? 'Not selected';
+        }
+      })();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OnboardingComponents.buildEyebrow('STEP 7 OF 7'),
+          const SizedBox(height: 12),
+          OnboardingComponents.buildTitle('Your profile is\n', accent: 'ready'),
+          OnboardingComponents.buildSub(
+            'Here\'s a summary of what you\'ve told us — we\'ll use this to personalise everything.',
           ),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFEEDFD9),
-                        shape: BoxShape.circle,
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFEAE5DE),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFD4C5B9)),
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEEDFD9),
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(contraceptionIcon, style: const TextStyle(fontSize: 24)),
                       ),
-                      alignment: Alignment.center,
-                      child: const Text('💊', style: TextStyle(fontSize: 24)),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Combined Pill (COCP)',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2D2420),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              contraceptionTitle,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2D2420),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          const Text(
-                            'Hormonal profile configured',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF8B7355),
+                            const SizedBox(height: 2),
+                            const Text(
+                              'Hormonal profile configured',
+                              style: TextStyle(fontSize: 13, color: Color(0xFF8B7355)),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
-              _buildTableRow('Phase model', 'Subjective signal-led tracking'),
-              const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
-              _buildTableRow('Tracking method', 'Subjective signals'),
-              const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
-              Obx(
-                () => _buildTableRow(
-                  'Cycle length',
-                  '${controller.cycleLength.value} days',
+                const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
+                _buildTableRow('Tracking method', trackingDisplay),
+                const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
+                _buildTableRow('Cycle length', '${controller.cycleLength.value} days'),
+                const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
+                _buildTableRow('Period length', '${controller.periodLength.value} days'),
+                const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
+                _buildTableRow('Training goal', goalLabel),
+                if (controller.selectedSymptoms.isNotEmpty) ...[
+                  const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
+                  _buildTableRow('Symptoms tracked', '${controller.selectedSymptoms.length} selected'),
+                ],
+                if (controller.dailyCheckins.isNotEmpty) ...[
+                  const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
+                  _buildTableRow('Daily check-ins', '${controller.dailyCheckins.length} selected'),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEAE5DE),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFD4C5B9)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                OnboardingComponents.buildLabel('HOW WE\'LL GUIDE YOU'),
+                const SizedBox(height: 8),
+                OnboardingComponents.buildBulletPoint(
+                  const Color(0xFFE8927C),
+                  'Personalised training based on your hormonal profile and chosen goal',
                 ),
-              ),
-              const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
-              _buildTableRow('Training goal', 'Build strength & muscle'),
-            ],
+                const SizedBox(height: 16),
+                OnboardingComponents.buildBulletPoint(
+                  const Color(0xFFA78BCA),
+                  'Daily check-in insights mapped to your cycle phase patterns',
+                ),
+                const SizedBox(height: 16),
+                OnboardingComponents.buildBulletPoint(
+                  const Color(0xFF8BCAA7),
+                  'Symptom tracking to help you understand your body over time',
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 24),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: const Color(0xFFEAE5DE),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFD4C5B9)),
+          const SizedBox(height: 40),
+          OnboardingComponents.buildPrimaryButton(
+            text: controller.isLoading.value ? 'Finishing...' : 'Start my journey →',
+            onPressed: controller.isLoading.value ? null : controller.completeOnboarding,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              OnboardingComponents.buildLabel('HOW WE\'LL GUIDE YOU'),
-              const SizedBox(height: 8),
-              OnboardingComponents.buildBulletPoint(
-                const Color(0xFFE8927C),
-                'Consistent hormonal environment — no phase-based peaks or troughs',
-              ),
-              const SizedBox(height: 16),
-              OnboardingComponents.buildBulletPoint(
-                const Color(0xFFA78BCA),
-                'Progestogen type may affect muscle adaptation and libido',
-              ),
-              const SizedBox(height: 16),
-              OnboardingComponents.buildBulletPoint(
-                const Color(0xFF8BCAA7),
-                'Train consistently; use HRV and subjective feel to guide intensity',
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 40),
-        Obx(
-          () => OnboardingComponents.buildPrimaryButton(
-            text: controller.isLoading.value
-                ? 'Finishing...'
-                : 'Start my journey →',
-            onPressed: controller.isLoading.value
-                ? null
-                : controller.completeOnboarding,
-          ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 }
