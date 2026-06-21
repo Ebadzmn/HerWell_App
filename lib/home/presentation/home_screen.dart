@@ -20,9 +20,11 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.put(HomeController());
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF121212) : AppColors.background;
     
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: bgColor,
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
@@ -32,11 +34,15 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Container(
                   width: double.infinity,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [
+                      colors: isDark ? [
+                        const Color(0xFF2C2C2C),
+                        const Color(0xFF1E1E1E),
+                        const Color(0xFF121212),
+                      ] : [
                         AppColors.homeGradientStart,
                         AppColors.homeGradientMid,
                         AppColors.homeGradientEnd,
@@ -74,9 +80,9 @@ class HomeScreen extends StatelessWidget {
               offset: const Offset(0, -20),
               child: Container(
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

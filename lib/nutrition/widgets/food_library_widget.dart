@@ -167,9 +167,10 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
         return matchPhase && matchCat && matchSearch;
       }).toList();
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           // Dropdowns Row
           Row(
             children: [
@@ -337,7 +338,7 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
             },
           ),
         ],
-      );
+      ));
     });
   }
 }

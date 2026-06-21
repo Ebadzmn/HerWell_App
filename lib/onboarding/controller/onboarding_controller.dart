@@ -8,7 +8,7 @@ import 'package:dio/dio.dart' as dio;
 
 class OnboardingController extends GetxController {
   var currentStep = 1.obs;
-  final int totalSteps = 9;
+  final int totalSteps = 8;
 
   // UI State
   final isLoading = RxBool(false);

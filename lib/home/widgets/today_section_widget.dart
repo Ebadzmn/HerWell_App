@@ -14,17 +14,19 @@ class TodaySectionWidget extends StatelessWidget {
     final controller = Get.find<HomeController>();
     final navBox = Get.find<NavbarController>();
     
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Today",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -37,9 +39,9 @@ class TodaySectionWidget extends StatelessWidget {
               children: [
                 _buildLandscapeCard(
                   icon: Icons.fitness_center_rounded,
-                  iconColor: const Color(0xFF6B5D4F),
-                  accentColor: const Color(0xFF6B5D4F),
-                  cardBg: const Color(0xFFE8D5C4),
+                  iconColor: isDark ? const Color(0xFFE8D5C4) : const Color(0xFF6B5D4F),
+                  accentColor: isDark ? const Color(0xFFE8D5C4) : const Color(0xFF6B5D4F),
+                  cardBg: isDark ? const Color(0xFF4A3B2F) : const Color(0xFFE8D5C4),
                   title: workout['title']!,
                   desc: workout['desc']!,
                   onTap: () => navBox.changePage(1), // Switch to Workouts tab
@@ -47,9 +49,9 @@ class TodaySectionWidget extends StatelessWidget {
                 const SizedBox(height: 12),
                 _buildLandscapeCard(
                   icon: Icons.apple_rounded,
-                  iconColor: const Color(0xFF4A7A5A),
-                  accentColor: const Color(0xFF4A7A5A),
-                  cardBg: const Color(0xFFC8DCC8),
+                  iconColor: isDark ? const Color(0xFFC8DCC8) : const Color(0xFF4A7A5A),
+                  accentColor: isDark ? const Color(0xFFC8DCC8) : const Color(0xFF4A7A5A),
+                  cardBg: isDark ? const Color(0xFF2E3E34) : const Color(0xFFC8DCC8),
                   title: nutrition['title']!,
                   desc: nutrition['desc']!,
                   onTap: () => navBox.changePage(2), // Switch to Nutrition tab

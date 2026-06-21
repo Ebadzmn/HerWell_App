@@ -200,7 +200,7 @@ class StepContraceptionWidget extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OnboardingComponents.buildEyebrow('STEP 1 OF 7'),
+          OnboardingComponents.buildEyebrow('STEP 1 OF 6'),
           const SizedBox(height: 12),
           OnboardingComponents.buildTitle('What\'s your\ncurrent situation?'),
           OnboardingComponents.buildSub(
@@ -336,7 +336,7 @@ class StepContraceptionDetailsWidget extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OnboardingComponents.buildEyebrow('STEP 2 OF 7'),
+          OnboardingComponents.buildEyebrow('STEP 2 OF 6'),
           const SizedBox(height: 12),
           OnboardingComponents.buildTitle(contraceptionTitle),
           const SizedBox(height: 24),
@@ -447,7 +447,7 @@ class StepCycleDatesWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        OnboardingComponents.buildEyebrow('Step 3 of 7'),
+        OnboardingComponents.buildEyebrow('Step 3 of 6'),
         OnboardingComponents.buildTitle(
           'When was your\n',
           accent: 'last period?',
@@ -588,139 +588,6 @@ class StepCycleDatesWidget extends StatelessWidget {
   }
 }
 
-class StepTrackingWidget extends StatelessWidget {
-  final OnboardingController controller = Get.find<OnboardingController>();
-  StepTrackingWidget({super.key});
-
-  Widget _buildTrackingOption({
-    required String icon,
-    required String title,
-    required String subtitle,
-    required String description,
-    required bool selected,
-    required VoidCallback onSelect,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: InkWell(
-        onTap: onSelect,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: selected ? const Color(0xFFF0EAF5) : const Color(0xFFEAE5DE),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: selected
-                  ? const Color(0xFFA78BCA)
-                  : const Color(0xFFD4C5B9),
-              width: 1.0,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFDED5C9),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(icon, style: const TextStyle(fontSize: 20)),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF2D2420),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Color(0xFF8B7355),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                description,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF3A2E28),
-                  height: 1.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        OnboardingComponents.buildEyebrow('STEP 4 OF 7'),
-        const SizedBox(height: 12),
-        OnboardingComponents.buildTitle(
-          'How will you\n',
-          accent: 'track your cycle?',
-        ),
-        OnboardingComponents.buildSub(
-          'Since your contraception may suppress your natural cycle, we\'ll use your daily signals as the primary guide.',
-        ),
-        Obx(
-          () => _buildTrackingOption(
-            icon: '💬',
-            title: 'Subjective daily signals',
-            subtitle: 'Recommended for your situation',
-            description:
-                'Log energy, mood, sleep, and training performance daily. Our algorithm learns your personal patterns and maps them to hormonal phases.',
-            selected: controller.trackingMethod.value == 'subjective',
-            onSelect: () => controller.trackingMethod.value = 'subjective',
-          ),
-        ),
-        Obx(
-          () => _buildTrackingOption(
-            icon: '🔬',
-            title: 'Combined approach',
-            subtitle: 'Most powerful over time',
-            description:
-                'Use all available signals together — calendar, symptoms, temperature, and subjective data.',
-            selected: controller.trackingMethod.value == 'combined',
-            onSelect: () => controller.trackingMethod.value = 'combined',
-          ),
-        ),
-        const SizedBox(height: 60),
-        OnboardingComponents.buildPrimaryButton(
-          text: 'Continue',
-          onPressed: controller.nextStep,
-        ),
-      ],
-    );
-  }
-}
-
 class StepDailyCheckinsWidget extends StatelessWidget {
   final OnboardingController controller = Get.find<OnboardingController>();
   StepDailyCheckinsWidget({super.key});
@@ -800,7 +667,7 @@ class StepDailyCheckinsWidget extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OnboardingComponents.buildEyebrow('STEP 5 OF 7'),
+          OnboardingComponents.buildEyebrow('STEP 4 OF 6'),
           const SizedBox(height: 12),
           OnboardingComponents.buildTitle('Daily check-ins'),
           OnboardingComponents.buildSub(
@@ -905,7 +772,7 @@ class StepSymptomsGoalsWidget extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OnboardingComponents.buildEyebrow('STEP 6 OF 7'),
+          OnboardingComponents.buildEyebrow('STEP 5 OF 6'),
           const SizedBox(height: 12),
           OnboardingComponents.buildTitle('Your experience\n', accent: '& goals'),
           OnboardingComponents.buildSub(
@@ -1040,20 +907,11 @@ class StepSummaryWidget extends StatelessWidget {
       final goalLabel = goalData['label']?.toString() ??
           (goalKey.isEmpty ? 'Not selected' : goalKey);
 
-      // Tracking method display
-      final trackingDisplay = (() {
-        switch (controller.trackingMethod.value) {
-          case 'subjective': return 'Subjective daily signals';
-          case 'combined': return 'Combined approach';
-          case 'calendar': return 'Calendar based';
-          default: return controller.trackingMethod.value ?? 'Not selected';
-        }
-      })();
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OnboardingComponents.buildEyebrow('STEP 7 OF 7'),
+          OnboardingComponents.buildEyebrow('STEP 6 OF 6'),
           const SizedBox(height: 12),
           OnboardingComponents.buildTitle('Your profile is\n', accent: 'ready'),
           OnboardingComponents.buildSub(
@@ -1105,8 +963,6 @@ class StepSummaryWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
-                _buildTableRow('Tracking method', trackingDisplay),
                 const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
                 _buildTableRow('Cycle length', '${controller.cycleLength.value} days'),
                 const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),

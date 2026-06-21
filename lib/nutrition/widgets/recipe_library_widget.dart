@@ -157,9 +157,10 @@ class RecipeLibraryWidget extends StatelessWidget {
         );
       }
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           const Text(
             'Quick Recipes',
             style: TextStyle(
@@ -253,7 +254,7 @@ class RecipeLibraryWidget extends StatelessWidget {
             },
           ),
         ],
-      );
+      ));
     });
   }
 

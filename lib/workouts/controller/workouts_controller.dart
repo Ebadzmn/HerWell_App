@@ -33,16 +33,7 @@ class WorkoutsController extends GetxController {
   }
 
   void _setDefaultsByPhase() {
-    final homeController = Get.find<HomeController>();
-    final phase = homeController.currentPhase.value.toLowerCase();
-    
-    if (phase.contains('menstruat')) {
-      selectedIntensity.value = 'low';
-    } else if (phase.contains('follicular') || phase.contains('ovulat')) {
-      selectedIntensity.value = 'high';
-    } else {
-      selectedIntensity.value = 'moderate';
-    }
+    selectedIntensity.value = 'all';
   }
 
   Future<void> fetchWorkouts() async {
