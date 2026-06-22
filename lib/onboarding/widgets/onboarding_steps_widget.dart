@@ -248,20 +248,18 @@ class StepContraceptionDetailsWidget extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OnboardingComponents.buildDropdownSelection(
+          OnboardingComponents.buildKeyValueDropdownSelection(
             label: questionLabel.toUpperCase(),
             hint: 'Select if known...',
             value: currentVal,
-            options: opts.map((o) => o['label'].toString()).toList(),
+            options: opts.map((o) => {
+              'value': o['value'].toString(),
+              'label': o['label'].toString(),
+            }).toList(),
             onChanged: (v) {
-              final matched = opts.firstWhere(
-                (o) => o['label'] == v,
-                orElse: () => {},
-              );
-              final val = matched['value']?.toString() ?? v;
-              if (questionKey == 'pillType') controller.pillType.value = val;
-              else if (questionKey == 'pillProgestogen') controller.pillProgestogen.value = val;
-              else if (questionKey == 'miniType') controller.miniType.value = val;
+              if (questionKey == 'pillType') controller.pillType.value = v;
+              else if (questionKey == 'pillProgestogen') controller.pillProgestogen.value = v;
+              else if (questionKey == 'miniType') controller.miniType.value = v;
             },
           ),
           const SizedBox(height: 20),
@@ -677,47 +675,73 @@ class StepTrackingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        OnboardingComponents.buildEyebrow('STEP 4 OF 7'),
-        const SizedBox(height: 12),
-        OnboardingComponents.buildTitle(
-          'How will you\n',
-          accent: 'track your cycle?',
-        ),
-        OnboardingComponents.buildSub(
-          'Since your contraception may suppress your natural cycle, we\'ll use your daily signals as the primary guide.',
-        ),
-        Obx(
-          () => _buildTrackingOption(
+    return Obx(() {
+      final canUseCal = controller.canUseCalendar;
+      final canUseB = controller.canUseBBT;
+
+      final subtitle = !canUseCal
+          ? 'Since your contraception may suppress your natural cycle, we\'ll use your daily signals as the primary guide.'
+          : 'Choose how we determine which phase you\'re in each day.';
+
+      final selectedMethod = controller.trackingMethod.value ?? (canUseCal ? 'calendar' : 'subjective');
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OnboardingComponents.buildEyebrow('STEP 4 OF 7'),
+          const SizedBox(height: 12),
+          OnboardingComponents.buildTitle(
+            'How will you\n',
+            accent: 'track your cycle?',
+          ),
+          OnboardingComponents.buildSub(subtitle),
+          if (canUseCal)
+            _buildTrackingOption(
+              icon: '📅',
+              title: 'Calendar + cycle length',
+              subtitle: 'Recommended starting point',
+              description: 'Uses your last period date and average cycle length to predict which phase you\'re in. Accuracy improves as we learn your patterns.',
+              selected: selectedMethod == 'calendar',
+              onSelect: () => controller.trackingMethod.value = 'calendar',
+            ),
+          if (canUseB)
+            _buildTrackingOption(
+              icon: '🌡️',
+              title: 'Basal Body Temperature',
+              subtitle: 'Highest accuracy — confirms ovulation',
+              description: 'Log your temperature every morning. BBT rises ~0.3–0.5°C after ovulation, confirming the start of the luteal phase.',
+              selected: selectedMethod == 'bbt',
+              onSelect: () => controller.trackingMethod.value = 'bbt',
+            ),
+          _buildTrackingOption(
             icon: '💬',
             title: 'Subjective daily signals',
-            subtitle: 'Recommended for your situation',
-            description:
-                'Log energy, mood, sleep, and training performance daily. Our algorithm learns your personal patterns and maps them to hormonal phases.',
-            selected: controller.trackingMethod.value == 'subjective',
+            subtitle: !canUseCal ? 'Recommended for your situation' : 'Best combined with calendar',
+            description: 'Log energy, mood, sleep, and training performance daily. Our algorithm learns your personal patterns and maps them to hormonal phases.',
+            selected: selectedMethod == 'subjective',
             onSelect: () => controller.trackingMethod.value = 'subjective',
           ),
-        ),
-        Obx(
-          () => _buildTrackingOption(
+          _buildTrackingOption(
             icon: '🔬',
             title: 'Combined approach',
             subtitle: 'Most powerful over time',
-            description:
-                'Use all available signals together — calendar, symptoms, temperature, and subjective data.',
-            selected: controller.trackingMethod.value == 'combined',
+            description: 'Use all available signals together — calendar, symptoms, temperature, and subjective data.',
+            selected: selectedMethod == 'combined',
             onSelect: () => controller.trackingMethod.value = 'combined',
           ),
-        ),
-        const SizedBox(height: 60),
-        OnboardingComponents.buildPrimaryButton(
-          text: 'Continue',
-          onPressed: controller.nextStep,
-        ),
-      ],
-    );
+          const SizedBox(height: 60),
+          OnboardingComponents.buildPrimaryButton(
+            text: 'Continue',
+            onPressed: () {
+              if (controller.trackingMethod.value == null) {
+                controller.trackingMethod.value = selectedMethod;
+              }
+              controller.nextStep();
+            },
+          ),
+        ],
+      );
+    });
   }
 }
 

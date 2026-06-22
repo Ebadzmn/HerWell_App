@@ -66,42 +66,44 @@ class OnboardingController extends GetxController {
       final ApiClient apiClient = Get.find<ApiClient>();
       final response = await apiClient.get('/onboarding/options');
       if (response.isSuccess && response.data != null) {
-        final data = response.data;
-
-        if (data['contraceptions'] != null) {
-          dbContraceptions.value =
-              List<Map<String, dynamic>>.from(data['contraceptions']);
-        }
-
-        // Store contraception detail options
-        if (data['details'] != null) {
-          dbDetails.value =
-              List<Map<String, dynamic>>.from(data['details']);
-        }
-
-        if (data['goals'] != null) {
-          dbGoals.value =
-              List<Map<String, dynamic>>.from(data['goals']);
-          // Pre-select the first goal if none is set yet
-          if (fitnessGoal.value.isEmpty && dbGoals.isNotEmpty) {
-            fitnessGoal.value = dbGoals.first['value']?.toString() ?? 'build_muscle';
+        final rawResponse = response.data;
+        final data = rawResponse['data'];
+        if (data != null) {
+          if (data['contraceptions'] != null) {
+            dbContraceptions.value =
+                List<Map<String, dynamic>>.from(data['contraceptions']);
           }
-        }
 
-        if (data['symptoms'] != null) {
-          dbSymptoms.value = List<String>.from(
-              (data['symptoms'] as List).map((s) => s['name'] as String));
-        }
+          // Store contraception detail options
+          if (data['details'] != null) {
+            dbDetails.value =
+                List<Map<String, dynamic>>.from(data['details']);
+          }
 
-        if (data['checkins'] != null) {
-          dbDailyCheckins.value =
-              List<Map<String, dynamic>>.from(data['checkins']);
-          // Pre-select check-ins that are marked as default in the API
-          if (dailyCheckins.isEmpty) {
-            dailyCheckins.value = dbDailyCheckins
-                .where((c) => c['isDefault'] == true)
-                .map((c) => c['label'].toString())
-                .toList();
+          if (data['goals'] != null) {
+            dbGoals.value =
+                List<Map<String, dynamic>>.from(data['goals']);
+            // Pre-select the first goal if none is set yet
+            if (fitnessGoal.value.isEmpty && dbGoals.isNotEmpty) {
+              fitnessGoal.value = dbGoals.first['value']?.toString() ?? 'build_muscle';
+            }
+          }
+
+          if (data['symptoms'] != null) {
+            dbSymptoms.value = List<String>.from(
+                (data['symptoms'] as List).map((s) => s['name'] as String));
+          }
+
+          if (data['checkins'] != null) {
+            dbDailyCheckins.value =
+                List<Map<String, dynamic>>.from(data['checkins']);
+            // Pre-select check-ins that are marked as default in the API
+            if (dailyCheckins.isEmpty) {
+              dailyCheckins.value = dbDailyCheckins
+                  .where((c) => c['isDefault'] == true)
+                  .map((c) => c['label'].toString())
+                  .toList();
+            }
           }
         }
       }
@@ -245,5 +247,18 @@ class OnboardingController extends GetxController {
 
   int getPhaseNumber() {
     return 1;
+  }
+
+  bool get canUseCalendar {
+    final c = contraception.value;
+    if (c == 'none') return true;
+    if (c == 'mirena' && iudOvulating.value != false && iudOvulating.value != 'false') return true;
+    if (c == 'mini' && miniOvulating.value == true) return true;
+    return false;
+  }
+
+  bool get canUseBBT {
+    final c = contraception.value;
+    return c == 'none' || c == 'mirena';
   }
 }

@@ -104,6 +104,45 @@ class OnboardingComponents {
     );
   }
 
+  static Widget buildKeyValueDropdownSelection({
+    required String label,
+    required String hint,
+    required String? value,
+    required List<Map<String, String>> options,
+    required Function(String?) onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        buildLabel(label),
+        Container(
+          width: double.infinity,
+          height: 56,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1B1920),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              isExpanded: true,
+              value: value?.isEmpty ?? true ? null : value,
+              hint: Text(hint, style: const TextStyle(color: const Color(0xFF8A8794), fontSize: 15)),
+              icon: const SizedBox.shrink(),
+              dropdownColor: const Color(0xFF1B1920),
+              style: const TextStyle(fontSize: 15, color: Colors.white),
+              items: options.map((opt) => DropdownMenuItem<String>(
+                value: opt['value'],
+                child: Text(opt['label'] ?? '', style: const TextStyle(color: Colors.white)),
+              )).toList(),
+              onChanged: onChanged,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   static Widget buildSlider(String label, int value, double min, double max, Function(double) onChange) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
