@@ -20,16 +20,46 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
   String _severity = 'mild';
   final TextEditingController _notesController = TextEditingController();
 
+  List<String> _symptoms = [];
+  bool _isLoadingSymptoms = false;
+
   @override
   void initState() {
     super.initState();
     _loadTodaySymptoms();
+    _loadSymptomsFromApi();
     
     // Listen to date changes
     final homeController = Get.find<HomeController>();
     ever(homeController.selectedDate, (_) {
       _loadTodaySymptoms();
     });
+  }
+
+  void _loadSymptomsFromApi() async {
+    try {
+      if (mounted) setState(() => _isLoadingSymptoms = true);
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.get('/onboarding/options');
+      if (response.isSuccess && response.data != null) {
+        final data = response.data['data'];
+        if (data != null && data['symptoms'] != null) {
+          final List<String> loadedSymptoms = List<String>.from(
+              (data['symptoms'] as List)
+                  .map((s) => s['name'] as String)
+                  .where((name) => name != 'None / minimal'));
+          if (mounted) {
+            setState(() {
+              _symptoms = loadedSymptoms;
+            });
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint("Failed to load symptoms: $e");
+    } finally {
+      if (mounted) setState(() => _isLoadingSymptoms = false);
+    }
   }
 
   void _loadTodaySymptoms() async {
@@ -72,8 +102,8 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
   }
 
   final List<String> _commonSymptoms = [
-    "Cramps", "Bloating", "Headache", "Fatigue", "Mood Swings",
-    "Breast Tenderness", "Acne", "Back Pain", "Nausea", "Anxiety"
+    "PMS mood changes", "Cramping", "Fatigue", "Bloating", "Cravings", "Headaches",
+    "Breast tenderness", "Anxiety / low mood", "Sleep disruption", "Brain fog", "Skin breakouts"
   ];
 
   void _toggleSymptom(String symptom) {
@@ -156,7 +186,7 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _commonSymptoms.map((symptom) {
+            children: (_symptoms.isNotEmpty ? _symptoms : _commonSymptoms).map((symptom) {
               final isSelected = _selectedSymptoms.contains(symptom);
               return GestureDetector(
                 onTap: () => _toggleSymptom(symptom),

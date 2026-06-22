@@ -248,20 +248,18 @@ class StepContraceptionDetailsWidget extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OnboardingComponents.buildDropdownSelection(
+          OnboardingComponents.buildKeyValueDropdownSelection(
             label: questionLabel.toUpperCase(),
             hint: 'Select if known...',
             value: currentVal,
-            options: opts.map((o) => o['label'].toString()).toList(),
+            options: opts.map((o) => {
+              'value': o['value'].toString(),
+              'label': o['label'].toString(),
+            }).toList(),
             onChanged: (v) {
-              final matched = opts.firstWhere(
-                (o) => o['label'] == v,
-                orElse: () => {},
-              );
-              final val = matched['value']?.toString() ?? v;
-              if (questionKey == 'pillType') controller.pillType.value = val;
-              else if (questionKey == 'pillProgestogen') controller.pillProgestogen.value = val;
-              else if (questionKey == 'miniType') controller.miniType.value = val;
+              if (questionKey == 'pillType') controller.pillType.value = v;
+              else if (questionKey == 'pillProgestogen') controller.pillProgestogen.value = v;
+              else if (questionKey == 'miniType') controller.miniType.value = v;
             },
           ),
           const SizedBox(height: 20),
@@ -588,6 +586,165 @@ class StepCycleDatesWidget extends StatelessWidget {
   }
 }
 
+class StepTrackingWidget extends StatelessWidget {
+  final OnboardingController controller = Get.find<OnboardingController>();
+  StepTrackingWidget({super.key});
+
+  Widget _buildTrackingOption({
+    required String icon,
+    required String title,
+    required String subtitle,
+    required String description,
+    required bool selected,
+    required VoidCallback onSelect,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: InkWell(
+        onTap: onSelect,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: selected ? const Color(0xFFF0EAF5) : const Color(0xFFEAE5DE),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: selected
+                  ? const Color(0xFFA78BCA)
+                  : const Color(0xFFD4C5B9),
+              width: 1.0,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFDED5C9),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(icon, style: const TextStyle(fontSize: 20)),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF2D2420),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF8B7355),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF3A2E28),
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final canUseCal = controller.canUseCalendar;
+      final canUseB = controller.canUseBBT;
+
+      final subtitle = !canUseCal
+          ? 'Since your contraception may suppress your natural cycle, we\'ll use your daily signals as the primary guide.'
+          : 'Choose how we determine which phase you\'re in each day.';
+
+      final selectedMethod = controller.trackingMethod.value ?? (canUseCal ? 'calendar' : 'subjective');
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OnboardingComponents.buildEyebrow('STEP 4 OF 7'),
+          const SizedBox(height: 12),
+          OnboardingComponents.buildTitle(
+            'How will you\n',
+            accent: 'track your cycle?',
+          ),
+          OnboardingComponents.buildSub(subtitle),
+          if (canUseCal)
+            _buildTrackingOption(
+              icon: '📅',
+              title: 'Calendar + cycle length',
+              subtitle: 'Recommended starting point',
+              description: 'Uses your last period date and average cycle length to predict which phase you\'re in. Accuracy improves as we learn your patterns.',
+              selected: selectedMethod == 'calendar',
+              onSelect: () => controller.trackingMethod.value = 'calendar',
+            ),
+          if (canUseB)
+            _buildTrackingOption(
+              icon: '🌡️',
+              title: 'Basal Body Temperature',
+              subtitle: 'Highest accuracy — confirms ovulation',
+              description: 'Log your temperature every morning. BBT rises ~0.3–0.5°C after ovulation, confirming the start of the luteal phase.',
+              selected: selectedMethod == 'bbt',
+              onSelect: () => controller.trackingMethod.value = 'bbt',
+            ),
+          _buildTrackingOption(
+            icon: '💬',
+            title: 'Subjective daily signals',
+            subtitle: !canUseCal ? 'Recommended for your situation' : 'Best combined with calendar',
+            description: 'Log energy, mood, sleep, and training performance daily. Our algorithm learns your personal patterns and maps them to hormonal phases.',
+            selected: selectedMethod == 'subjective',
+            onSelect: () => controller.trackingMethod.value = 'subjective',
+          ),
+          _buildTrackingOption(
+            icon: '🔬',
+            title: 'Combined approach',
+            subtitle: 'Most powerful over time',
+            description: 'Use all available signals together — calendar, symptoms, temperature, and subjective data.',
+            selected: selectedMethod == 'combined',
+            onSelect: () => controller.trackingMethod.value = 'combined',
+          ),
+          const SizedBox(height: 60),
+          OnboardingComponents.buildPrimaryButton(
+            text: 'Continue',
+            onPressed: () {
+              if (controller.trackingMethod.value == null) {
+                controller.trackingMethod.value = selectedMethod;
+              }
+              controller.nextStep();
+            },
+          ),
+        ],
+      );
+    });
+  }
+}
+
 class StepDailyCheckinsWidget extends StatelessWidget {
   final OnboardingController controller = Get.find<OnboardingController>();
   StepDailyCheckinsWidget({super.key});
@@ -756,13 +913,13 @@ class StepSymptomsGoalsWidget extends StatelessWidget {
               .map((g) => {'id': g['value'], 'label': g['label']})
               .toList()
           : [
-              {'id': 'build_strength', 'label': 'Build strength & muscle'},
+              {'id': 'build_muscle', 'label': 'Build strength & muscle'},
               {
                 'id': 'improve_endurance',
                 'label': 'Improve endurance / cardio fitness',
               },
-              {'id': 'lose_fat', 'label': 'Lose body fat'},
-              {'id': 'general_health', 'label': 'General health & wellbeing'},
+              {'id': 'weight_loss', 'label': 'Lose body fat'},
+              {'id': 'general_fitness', 'label': 'General health & wellbeing'},
               {
                 'id': 'athletic_performance',
                 'label': 'Athletic performance / competition',
