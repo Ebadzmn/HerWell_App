@@ -10,6 +10,8 @@ class HomeController extends GetxController {
   var cycleDay = 8.obs;
   var cycleLength = 28.obs;
   var periodStartDate = DateTime.now().subtract(const Duration(days: 7)).obs;
+  var cycleDataId = ''.obs;
+  var periodLength = 5.obs;
 
   // AI Insights and Daily Logs tracking
   final recentLogs = <dynamic>[].obs;
@@ -42,8 +44,12 @@ class HomeController extends GetxController {
       final response = await apiClient.get('/cycle/cycle-data');
       if (response.isSuccess && response.data != null && response.data is List && (response.data as List).isNotEmpty) {
         final cycleData = response.data[0]; // Get the latest cycle data
+        cycleDataId.value = cycleData['id'] ?? '';
         if (cycleData['cycle_length'] != null) {
           cycleLength.value = cycleData['cycle_length'];
+        }
+        if (cycleData['period_length'] != null) {
+          periodLength.value = cycleData['period_length'];
         }
         if (cycleData['cycle_start_date'] != null) {
           try {
@@ -219,6 +225,78 @@ class HomeController extends GetxController {
     if (startDate != null) periodStartDate.value = startDate;
     if (length != null) cycleLength.value = length;
     calculatePhase();
+  }
+
+  Future<void> updateCycleDataOnBackend({DateTime? startDate, int? length, int? periodLengthValue}) async {
+    try {
+      if (cycleDataId.value.isEmpty) {
+        debugPrint("Cannot update cycle data: cycleDataId is empty. Trying to fetch first.");
+        await fetchCycleData();
+        if (cycleDataId.value.isEmpty) {
+          Get.snackbar(
+            'Error',
+            'No cycle data record found to update.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red.withOpacity(0.9),
+            colorText: Colors.white,
+          );
+          return;
+        }
+      }
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final Map<String, dynamic> updateData = {};
+      
+      if (startDate != null) {
+        updateData['cycle_start_date'] = DateFormat('yyyy-MM-dd').format(startDate);
+      }
+      if (length != null) {
+        updateData['cycle_length'] = length;
+      }
+      if (periodLengthValue != null) {
+        updateData['period_length'] = periodLengthValue;
+      }
+
+      final response = await apiClient.put('/cycle/cycle-data/${cycleDataId.value}', data: updateData);
+      if (response.isSuccess && response.data != null) {
+        final updated = response.data;
+        if (updated['cycle_length'] != null) {
+          cycleLength.value = updated['cycle_length'];
+        }
+        if (updated['period_length'] != null) {
+          periodLength.value = updated['period_length'];
+        }
+        if (updated['cycle_start_date'] != null) {
+          try {
+            periodStartDate.value = DateTime.parse(updated['cycle_start_date']);
+          } catch (_) {}
+        }
+        calculatePhase();
+        Get.snackbar(
+          'Success',
+          'Period information updated successfully.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green.withOpacity(0.9),
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          'Failed to update period info.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withOpacity(0.9),
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      debugPrint("Failed to update cycle data on backend: $e");
+      Get.snackbar(
+        'Error',
+        'An error occurred: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withOpacity(0.9),
+        colorText: Colors.white,
+      );
+    }
   }
 
   int getPhaseNumber() {

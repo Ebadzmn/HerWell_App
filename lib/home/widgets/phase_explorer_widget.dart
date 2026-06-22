@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../core/app_colors.dart';
+import '../../core/network/api_client.dart';
 
 class PhaseExplorerWidget extends StatefulWidget {
   const PhaseExplorerWidget({super.key});
@@ -12,14 +14,17 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
   String _activePhase = 'menstrual';
   String _activeTab = 'hormones';
 
+  Map<String, dynamic> _phasesFromApi = {};
+  bool _isLoadingGuides = false;
+
   final Map<String, dynamic> _phases = {
     'menstrual': {
       'id': 'menstrual',
       'label': 'Menstrual',
       'emoji': '🩸',
       'days': 'Days 1–5',
-      'color': Color(0xFFC0392B),
-      'softBg': Color(0xFFFADBD8),
+      'color': const Color(0xFFC0392B),
+      'softBg': const Color(0xFFFADBD8),
       'tagline': 'Rest, restore, and look inward — your body is doing its deepest work.',
       'hormones': [
         {'name': 'Oestrogen', 'level': 1, 'desc': 'At its lowest. Drop triggers lining to shed. Reduces serotonin and dopamine → fatigue and low mood.'},
@@ -43,14 +48,20 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
         'Anti-inflammatory foods: omega-3s, turmeric, ginger, dark leafy greens',
         'Magnesium (dark chocolate, nuts, seeds) — reduces cramping and improves mood',
       ],
+      'avoid': [
+        'Alcohol — worsens inflammation',
+        'Excess caffeine — can worsen cramping',
+        'Refined sugar — spikes inflammation',
+        'Salty processed foods — worsen bloating',
+      ],
     },
     'follicular': {
       'id': 'follicular',
       'label': 'Follicular',
       'emoji': '🌱',
       'days': 'Days 6–13',
-      'color': Color(0xFFE67E22),
-      'softBg': Color(0xFFFDEBD0),
+      'color': const Color(0xFFE67E22),
+      'softBg': const Color(0xFFFDEBD0),
       'tagline': 'Rising energy, rising ambition — this is your season of emergence.',
       'hormones': [
         {'name': 'Oestrogen', 'level': 3, 'desc': 'Steadily rising as dominant follicle grows. Boosts serotonin, dopamine, acetylcholine, and BDNF.'},
@@ -72,14 +83,18 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
         'Adequate protein (1.6–2.2g/kg) to support training',
         'Fermented foods (kefir, kimchi) support gut microbiome',
       ],
+      'avoid': [
+        'Appetite often lower — listen to hunger signals',
+        'Best phase for dietary flexibility',
+      ],
     },
     'ovulatory': {
       'id': 'ovulatory',
       'label': 'Ovulatory',
       'emoji': '✨',
       'days': 'Days 14–17',
-      'color': Color(0xFF27AE60),
-      'softBg': Color(0xFFD5F5E3),
+      'color': const Color(0xFF27AE60),
+      'softBg': const Color(0xFFD5F5E3),
       'tagline': 'Peak power, peak presence — you are at your most magnetic and capable.',
       'hormones': [
         {'name': 'Oestrogen', 'level': 5, 'desc': 'Peaks sharply — triggers LH surge. Oestradiol at highest point.'},
@@ -101,14 +116,19 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
         'Cruciferous vegetables (broccoli) support oestrogen metabolism',
         'Antioxidants (berries, leafy greens) to manage oxidative stress',
       ],
+      'avoid': [
+        'Peak ligament laxity: always warm up thoroughly',
+        'Activate glutes/hamstrings before lower body',
+        'Avoid cutting movements when fatigued',
+      ],
     },
     'luteal': {
       'id': 'luteal',
       'label': 'Luteal',
       'emoji': '🌕',
       'days': 'Days 18–28',
-      'color': Color(0xFF8E44AD),
-      'softBg': Color(0xFFE8DAEF),
+      'color': const Color(0xFF8E44AD),
+      'softBg': const Color(0xFFE8DAEF),
       'tagline': 'Your body turns inward — honour it.',
       'hormones': [
         {'name': 'Progesterone', 'level': 4, 'desc': 'Dominant hormone. Raises core temp, increases metabolic rate.'},
@@ -130,12 +150,78 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
         'Complex carbohydrates (sweet potato, oats) raise serotonin',
         'Magnesium (300–400mg) reduces PMS symptoms',
       ],
+      'avoid': [
+        'Refined sugar — worsens mood swings',
+        'Alcohol — severely worsens PMS mood',
+        'Excessive caffeine — worsens anxiety and sleep',
+        'High sodium — amplifies bloating',
+      ],
     },
   };
 
   @override
+  void initState() {
+    super.initState();
+    _loadPhaseGuidesFromApi();
+  }
+
+  void _loadPhaseGuidesFromApi() async {
+    try {
+      if (mounted) setState(() => _isLoadingGuides = true);
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.get('/cycle/phase-guide');
+      if (response.isSuccess && response.data != null && response.data is List) {
+        final List<dynamic> list = response.data;
+        final Map<String, dynamic> mapped = {};
+        for (var item in list) {
+          final id = item['id'] as String;
+          final colorStr = item['color'] as String;
+          final softBgStr = item['softBg'] as String;
+          
+          mapped[id] = {
+            'id': id,
+            'label': item['label'],
+            'emoji': item['emoji'],
+            'days': item['days'],
+            'color': _parseHexColor(colorStr, const Color(0xFFC0392B)),
+            'softBg': _parseHexColor(softBgStr, const Color(0xFFFADBD8)),
+            'tagline': item['tagline'],
+            'hormones': List<Map<String, dynamic>>.from(item['hormones'] ?? []),
+            'physical': List<String>.from(item['physical'] ?? []),
+            'training': List<String>.from(item['training'] ?? []),
+            'nutrition': List<String>.from(item['nutrition'] ?? []),
+            'avoid': List<String>.from(item['avoid'] ?? []),
+          };
+        }
+        if (mounted) {
+          setState(() {
+            _phasesFromApi = mapped;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Failed to load phase guides from API: $e");
+    } finally {
+      if (mounted) setState(() => _isLoadingGuides = false);
+    }
+  }
+
+  Color _parseHexColor(String hexStr, Color fallback) {
+    try {
+      final cleanHex = hexStr.replaceAll('#', '');
+      if (cleanHex.length == 6) {
+        return Color(int.parse('FF$cleanHex', radix: 16));
+      } else if (cleanHex.length == 8) {
+        return Color(int.parse(cleanHex, radix: 16));
+      }
+    } catch (_) {}
+    return fallback;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final phase = _phases[_activePhase];
+    final phases = _phasesFromApi.isNotEmpty ? _phasesFromApi : _phases;
+    final phase = phases[_activePhase];
     final color = phase['color'] as Color;
 
     return Container(
@@ -177,7 +263,7 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: _phases.values.map((p) {
+                    children: phases.values.map((p) {
                       final isActive = _activePhase == p['id'];
                       return GestureDetector(
                         onTap: () => setState(() => _activePhase = p['id']),
@@ -376,37 +462,98 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
     }
 
     final items = phase[_activeTab] as List;
+    final avoidItems = phase['avoid'] as List?;
+    final isNutrition = _activeTab == 'nutrition';
+
     return Column(
-      children: items.map((item) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 4),
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  item,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                    height: 1.4,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...items.map((item) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 4),
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    item,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+        if (isNutrition && avoidItems != null && avoidItems.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'LIMIT / AVOID',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[500],
+                    letterSpacing: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ...avoidItems.map((avoidItem) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '✕',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            avoidItem,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ],
+            ),
           ),
-        );
-      }).toList(),
+        ],
+      ],
     );
   }
 }

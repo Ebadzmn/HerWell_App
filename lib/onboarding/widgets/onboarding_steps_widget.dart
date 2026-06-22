@@ -842,9 +842,11 @@ class StepDailyCheckinsWidget extends StatelessWidget {
             itemCount: options.length,
             itemBuilder: (context, index) {
               final opt = options[index];
-              // id is the full label — matches dailyCheckins list
-              final isSelected = controller.dailyCheckins.contains(opt['id']);
-              return _buildCheckinOption(context, opt, isSelected);
+              return Obx(() {
+                // id is the full label — matches dailyCheckins list
+                final isSelected = controller.dailyCheckins.contains(opt['id']);
+                return _buildCheckinOption(context, opt, isSelected);
+              });
             },
           ),
           const SizedBox(height: 24),
