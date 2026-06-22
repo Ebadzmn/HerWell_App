@@ -7,7 +7,7 @@ import '../../home/controller/home_controller.dart';
 class SettingsController extends GetxController {
   final cycleLength = 28.obs;
   final periodDuration = 5.obs;
-  
+
   final lastPeriodDay = 12.obs;
   final lastPeriodMonth = 'Jun'.obs;
   final lastPeriodYear = 2026.obs;
@@ -24,17 +24,46 @@ class SettingsController extends GetxController {
   final fitnessGoal = 'general_fitness'.obs;
   final isLoading = false.obs;
 
+  // Dynamic onboarding options loaded from API
+  final dbContraceptions = <Map<String, dynamic>>[].obs;
+  final dbGoals = <Map<String, dynamic>>[].obs;
+
   @override
   void onInit() {
     super.onInit();
     fetchProfileAndCycleData();
+    fetchOnboardingOptions();
+  }
+
+  /// Loads contraception options and goal options from the backend.
+  /// Uses the same /onboarding/options endpoint as the onboarding flow.
+  Future<void> fetchOnboardingOptions() async {
+    try {
+      final ApiClient apiClient = Get.find<ApiClient>();
+      final response = await apiClient.get('/onboarding/options');
+      if (response.isSuccess && response.data != null) {
+        final data = response.data['data'];
+        if (data != null) {
+          if (data['contraceptions'] != null) {
+            dbContraceptions.value =
+                List<Map<String, dynamic>>.from(data['contraceptions']);
+          }
+          if (data['goals'] != null) {
+            dbGoals.value =
+                List<Map<String, dynamic>>.from(data['goals']);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch onboarding options in settings: $e');
+    }
   }
 
   Future<void> fetchProfileAndCycleData() async {
     try {
       isLoading.value = true;
       final ApiClient apiClient = Get.find<ApiClient>();
-      
+
       // Fetch user profile info
       final userResponse = await apiClient.get('/auth/me');
       if (userResponse.isSuccess && userResponse.data != null) {
@@ -46,14 +75,17 @@ class SettingsController extends GetxController {
 
       // Fetch cycle data
       final cycleResponse = await apiClient.get('/cycle/cycle-data');
-      if (cycleResponse.isSuccess && cycleResponse.data != null && cycleResponse.data is List && (cycleResponse.data as List).isNotEmpty) {
-        final cycleData = cycleResponse.data[0]; // latest cycle data
+      if (cycleResponse.isSuccess &&
+          cycleResponse.data != null &&
+          cycleResponse.data is List &&
+          (cycleResponse.data as List).isNotEmpty) {
+        final cycleData = cycleResponse.data[0];
         cycleDataId.value = cycleData['id'] ?? '';
         cycleLength.value = cycleData['cycle_length'] ?? 28;
         periodDuration.value = cycleData['period_length'] ?? 5;
         contraceptionType.value = cycleData['contraception_type'] ?? 'none';
         fitnessGoal.value = cycleData['fitness_goal'] ?? 'general_fitness';
-        
+
         if (cycleData['cycle_start_date'] != null) {
           try {
             final parsedDate = DateTime.parse(cycleData['cycle_start_date']);
@@ -64,7 +96,7 @@ class SettingsController extends GetxController {
         }
       }
     } catch (e) {
-      debugPrint("Failed to fetch settings: $e");
+      debugPrint('Failed to fetch settings: $e');
     } finally {
       isLoading.value = false;
     }
@@ -74,25 +106,25 @@ class SettingsController extends GetxController {
     if (cycleDataId.value.isEmpty) return;
     try {
       final ApiClient apiClient = Get.find<ApiClient>();
-      
-      final monthMap = {
+
+      const monthMap = {
         'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
         'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
       };
       final monthNum = monthMap[lastPeriodMonth.value] ?? 1;
-      final dateStr = "${lastPeriodYear.value}-${monthNum.toString().padLeft(2, '0')}-${lastPeriodDay.value.toString().padLeft(2, '0')}";
+      final dateStr =
+          '${lastPeriodYear.value}-${monthNum.toString().padLeft(2, '0')}-${lastPeriodDay.value.toString().padLeft(2, '0')}';
 
       final response = await apiClient.put(
         '/cycle/cycle-data/${cycleDataId.value}',
         data: {
-          "cycle_length": cycleLength.value,
-          "period_length": periodDuration.value,
-          "cycle_start_date": dateStr,
+          'cycle_length': cycleLength.value,
+          'period_length': periodDuration.value,
+          'cycle_start_date': dateStr,
         },
       );
 
       if (response.isSuccess) {
-        // Optimistically update HomeController cycle data
         try {
           if (Get.isRegistered<HomeController>()) {
             Get.find<HomeController>().fetchCycleData();
@@ -101,14 +133,16 @@ class SettingsController extends GetxController {
       } else {
         Get.snackbar(
           'Error',
-          response.message.isNotEmpty ? response.message : 'Failed to update cycle data',
+          response.message.isNotEmpty
+              ? response.message
+              : 'Failed to update cycle data',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
         );
       }
     } catch (e) {
-      debugPrint("Failed to update cycle data: $e");
+      debugPrint('Failed to update cycle data: $e');
     }
   }
 
@@ -119,9 +153,7 @@ class SettingsController extends GetxController {
       final ApiClient apiClient = Get.find<ApiClient>();
       final response = await apiClient.put(
         '/cycle/cycle-data/${cycleDataId.value}',
-        data: {
-          "fitness_goal": goalId,
-        },
+        data: {'fitness_goal': goalId},
       );
       if (response.isSuccess) {
         try {
@@ -132,14 +164,16 @@ class SettingsController extends GetxController {
       } else {
         Get.snackbar(
           'Error',
-          response.message.isNotEmpty ? response.message : 'Failed to update fitness goal',
+          response.message.isNotEmpty
+              ? response.message
+              : 'Failed to update fitness goal',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
         );
       }
     } catch (e) {
-      debugPrint("Failed to update fitness goal: $e");
+      debugPrint('Failed to update fitness goal: $e');
     }
   }
 
@@ -150,9 +184,7 @@ class SettingsController extends GetxController {
       final ApiClient apiClient = Get.find<ApiClient>();
       final response = await apiClient.put(
         '/cycle/cycle-data/${cycleDataId.value}',
-        data: {
-          "contraception_type": value,
-        },
+        data: {'contraception_type': value},
       );
       if (response.isSuccess) {
         try {
@@ -163,15 +195,16 @@ class SettingsController extends GetxController {
       } else {
         Get.snackbar(
           'Error',
-          response.message.isNotEmpty ? response.message : 'Failed to update contraception type',
+          response.message.isNotEmpty
+              ? response.message
+              : 'Failed to update contraception type',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
         );
       }
     } catch (e) {
-      debugPrint("Failed to update contraception type: $e");
+      debugPrint('Failed to update contraception type: $e');
     }
   }
 }
-

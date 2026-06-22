@@ -152,113 +152,125 @@ class SettingsScreen extends StatelessWidget {
               // Contraception Card
               GestureDetector(
                 onTap: () => _showContraceptionPicker(context),
-                child: Obx(() => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1B1B22),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const Text('💊', style: TextStyle(fontSize: 20)),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                child: Obx(() {
+                  final type = controller.contraceptionType.value;
+                  Map<String, dynamic>? selectedContraception;
+                  for (var c in controller.dbContraceptions) {
+                    if (c['key'] == type) {
+                      selectedContraception = c;
+                      break;
+                    }
+                  }
+                  final icon = selectedContraception?['icon'] ?? '💊';
+                  final title = selectedContraception?['title'] ?? getContraceptionLabel(type);
+
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B1B22),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(icon, style: const TextStyle(fontSize: 20)),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              const Text(
+                                'Contraception type',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Color(0xFFA09FA6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Row(
+                          children: const [
                             Text(
-                              getContraceptionLabel(controller.contraceptionType.value),
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            const Text(
-                              'Contraception type',
+                              'EDIT',
                               style: TextStyle(
-                                fontSize: 11,
-                                color: Color(0xFFA09FA6),
-                              ),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFFE8927C)),
+                            ),
+                            SizedBox(width: 4),
+                            Icon(
+                              Icons.keyboard_arrow_down,
+                              color: Color(0xFFE8927C),
+                              size: 16,
                             ),
                           ],
                         ),
-                      ),
-                      Row(
-                        children: const [
-                          Text(
-                            'EDIT',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFFE8927C),
-                            ),
-                          ),
-                          SizedBox(width: 4),
-                          Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Color(0xFFE8927C),
-                            size: 16,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                )),
+                      ],
+                    ),
+                  );
+                }),
               ),
 
               const SizedBox(height: 16),
 
               // Training Goal Card
-              Obx(() => Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text(
-                        'Training Goal',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF3A2E28),
+              Obx(() {
+                final defaultGoals = [
+                  {'value': 'build_muscle', 'label': 'Build strength & muscle'},
+                  {'value': 'improve_endurance', 'label': 'Improve endurance / cardio fitness'},
+                  {'value': 'weight_loss', 'label': 'Lose body fat'},
+                  {'value': 'general_fitness', 'label': 'General health & wellbeing'},
+                  {'value': 'athletic_performance', 'label': 'Athletic performance / competition'},
+                ];
+                final goals = controller.dbGoals.isNotEmpty
+                    ? controller.dbGoals
+                    : defaultGoals;
+
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text(
+                          'Training Goal',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF3A2E28),
+                          ),
                         ),
                       ),
-                    ),
-                    _buildTrainingGoalItem(
-                      'Build strength & muscle',
-                      isSelected: controller.fitnessGoal.value == 'build_strength',
-                      onTap: () => controller.updateFitnessGoal('build_strength'),
-                    ),
-                    _buildTrainingGoalItem(
-                      'Improve endurance / cardio fitness',
-                      isSelected: controller.fitnessGoal.value == 'improve_endurance',
-                      onTap: () => controller.updateFitnessGoal('improve_endurance'),
-                    ),
-                    _buildTrainingGoalItem(
-                      'Lose body fat',
-                      isSelected: controller.fitnessGoal.value == 'lose_fat',
-                      onTap: () => controller.updateFitnessGoal('lose_fat'),
-                    ),
-                    _buildTrainingGoalItem(
-                      'General health & wellbeing',
-                      isSelected: controller.fitnessGoal.value == 'general_health',
-                      onTap: () => controller.updateFitnessGoal('general_health'),
-                    ),
-                    _buildTrainingGoalItem(
-                      'Athletic performance / competition',
-                      isSelected: controller.fitnessGoal.value == 'athletic_performance',
-                      onTap: () => controller.updateFitnessGoal('athletic_performance'),
-                      isLast: true,
-                    ),
-                  ],
-                ),
-              )),
+                      ...goals.asMap().entries.map((entry) {
+                        final idx = entry.key;
+                        final opt = entry.value;
+                        final value = opt['value'] ?? '';
+                        final label = opt['label'] ?? '';
+                        final isLast = idx == goals.length - 1;
+                        return _buildTrainingGoalItem(
+                          label,
+                          isSelected: controller.fitnessGoal.value == value,
+                          onTap: () => controller.updateFitnessGoal(value),
+                          isLast: isLast,
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                );
+              }),
 
               const SizedBox(height: 16),
 
@@ -989,15 +1001,6 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showContraceptionPicker(BuildContext context) {
-    final options = [
-      {'id': 'pill', 'title': 'Combined Pill'},
-      {'id': 'mirena', 'title': 'Hormonal IUD'},
-      {'id': 'implant', 'title': 'Implant'},
-      {'id': 'injection', 'title': 'Injection'},
-      {'id': 'mini', 'title': 'Mini Pill'},
-      {'id': 'none', 'title': 'No hormonal contraception'},
-    ];
-
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -1005,38 +1008,55 @@ class SettingsScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 16),
-              const Text(
-                'Select Contraception Type',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF3A2E28),
-                ),
-              ),
-              const Divider(),
-              ...options.map((opt) {
-                return ListTile(
-                  title: Text(
-                    opt['title']!,
-                    style: const TextStyle(color: Color(0xFF3A2E28)),
+        return Obx(() {
+          final List<Map<String, dynamic>> options = controller.dbContraceptions.isNotEmpty
+              ? controller.dbContraceptions
+              : [
+                  {'key': 'pill', 'title': 'Combined Pill', 'icon': '💊'},
+                  {'key': 'mirena', 'title': 'Hormonal IUD', 'icon': '🔩'},
+                  {'key': 'implant', 'title': 'Implant', 'icon': '📌'},
+                  {'key': 'injection', 'title': 'Injection', 'icon': '💉'},
+                  {'key': 'mini', 'title': 'Mini Pill', 'icon': '🔵'},
+                  {'key': 'none', 'title': 'No hormonal contraception', 'icon': '🌙'},
+                ];
+
+          return SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 16),
+                const Text(
+                  'Select Contraception Type',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF3A2E28),
                   ),
-                  trailing: controller.contraceptionType.value == opt['id']
-                      ? const Icon(Icons.check, color: Color(0xFFE8927C))
-                      : null,
-                  onTap: () {
-                    controller.updateContraceptionType(opt['id']!);
-                    Navigator.pop(context);
-                  },
-                );
-              })
-            ],
-          ),
-        );
+                ),
+                const Divider(),
+                ...options.map((opt) {
+                  final key = opt['key'] ?? '';
+                  final title = opt['title'] ?? '';
+                  final icon = opt['icon'] ?? '';
+                  return ListTile(
+                    leading: icon.isNotEmpty ? Text(icon, style: const TextStyle(fontSize: 20)) : null,
+                    title: Text(
+                      title,
+                      style: const TextStyle(color: Color(0xFF3A2E28)),
+                    ),
+                    trailing: controller.contraceptionType.value == key
+                        ? const Icon(Icons.check, color: Color(0xFFE8927C))
+                        : null,
+                    onTap: () {
+                      controller.updateContraceptionType(key);
+                      Navigator.pop(context);
+                    },
+                  );
+                }).toList()
+              ],
+            ),
+          );
+        });
       },
     );
   }

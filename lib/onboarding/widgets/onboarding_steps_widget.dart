@@ -913,13 +913,13 @@ class StepSymptomsGoalsWidget extends StatelessWidget {
               .map((g) => {'id': g['value'], 'label': g['label']})
               .toList()
           : [
-              {'id': 'build_strength', 'label': 'Build strength & muscle'},
+              {'id': 'build_muscle', 'label': 'Build strength & muscle'},
               {
                 'id': 'improve_endurance',
                 'label': 'Improve endurance / cardio fitness',
               },
-              {'id': 'lose_fat', 'label': 'Lose body fat'},
-              {'id': 'general_health', 'label': 'General health & wellbeing'},
+              {'id': 'weight_loss', 'label': 'Lose body fat'},
+              {'id': 'general_fitness', 'label': 'General health & wellbeing'},
               {
                 'id': 'athletic_performance',
                 'label': 'Athletic performance / competition',
