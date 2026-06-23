@@ -196,15 +196,8 @@ class _PhaseIndicatorWidgetState extends State<PhaseIndicatorWidget> with Single
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            controller.updateCycleData(startDate: DateTime.now());
+                            controller.updateCycleDataOnBackend(startDate: DateTime.now());
                             Navigator.pop(context);
-                            Get.snackbar(
-                              'Success',
-                              'Period start date updated to today',
-                              snackPosition: SnackPosition.BOTTOM,
-                              backgroundColor: const Color(0xFFF14C4C),
-                              colorText: Colors.white,
-                            );
                           },
                           icon: const Icon(Icons.water_drop_outlined, size: 20),
                           label: const Text('My period started today'),
@@ -227,15 +220,15 @@ class _PhaseIndicatorWidgetState extends State<PhaseIndicatorWidget> with Single
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            // Assuming period ends today, set start date accordingly
-                            // This is a simplification
+                            final duration = DateTime.now().difference(controller.periodStartDate.value).inDays + 1;
+                            controller.updateCycleDataOnBackend(periodLengthValue: duration);
                             Navigator.pop(context);
                           },
                           icon: const Icon(Icons.check_circle_outline, size: 20),
                           label: const Text('My period ended today'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black,
-                            foregroundColor: Colors.white.withOpacity(0.5),
+                            foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 20),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
