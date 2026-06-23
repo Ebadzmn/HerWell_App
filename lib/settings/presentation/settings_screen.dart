@@ -420,7 +420,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         _buildCustomSlider(
-          value: controller.cycleLength.value.toDouble(),
+          value: controller.cycleLength.value.toDouble().clamp(21.0, 40.0),
           min: 21,
           max: 40,
           onChanged: (v) {
@@ -481,7 +481,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         _buildCustomSlider(
-          value: controller.periodDuration.value.toDouble(),
+          value: controller.periodDuration.value.toDouble().clamp(1.0, 10.0),
           min: 1,
           max: 10,
           onChanged: (v) {
