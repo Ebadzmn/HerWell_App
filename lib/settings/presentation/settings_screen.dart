@@ -224,15 +224,15 @@ class SettingsScreen extends StatelessWidget {
 
               // Training Goal Card
               Obx(() {
-                final defaultGoals = [
+                final List<Map<String, dynamic>> defaultGoals = [
                   {'value': 'build_muscle', 'label': 'Build strength & muscle'},
                   {'value': 'improve_endurance', 'label': 'Improve endurance / cardio fitness'},
                   {'value': 'weight_loss', 'label': 'Lose body fat'},
                   {'value': 'general_fitness', 'label': 'General health & wellbeing'},
                   {'value': 'athletic_performance', 'label': 'Athletic performance / competition'},
                 ];
-                final goals = controller.dbGoals.isNotEmpty
-                    ? controller.dbGoals
+                final List<Map<String, dynamic>> goals = controller.dbGoals.isNotEmpty
+                    ? controller.dbGoals.toList()
                     : defaultGoals;
 
                 return Container(
@@ -266,7 +266,7 @@ class SettingsScreen extends StatelessWidget {
                           onTap: () => controller.updateFitnessGoal(value),
                           isLast: isLast,
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 );
@@ -1052,7 +1052,7 @@ class SettingsScreen extends StatelessWidget {
                       Navigator.pop(context);
                     },
                   );
-                }).toList()
+                })
               ],
             ),
           );
