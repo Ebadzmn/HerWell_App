@@ -74,12 +74,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       case 5:
         return StepCycleDatesWidget();
       case 6:
-        return StepTrackingWidget();
-      case 7:
         return StepDailyCheckinsWidget();
-      case 8:
+      case 7:
         return StepSymptomsGoalsWidget();
-      case 9:
+      case 8:
         return StepSummaryWidget();
       default:
         debugPrint('❌ Unknown step: ${controller.currentStep.value}');

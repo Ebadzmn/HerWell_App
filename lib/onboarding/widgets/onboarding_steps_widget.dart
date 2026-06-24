@@ -200,7 +200,7 @@ class StepContraceptionWidget extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OnboardingComponents.buildEyebrow('STEP 1 OF 7'),
+          OnboardingComponents.buildEyebrow('STEP 1 OF 6'),
           const SizedBox(height: 12),
           OnboardingComponents.buildTitle('What\'s your\ncurrent situation?'),
           OnboardingComponents.buildSub(
@@ -334,7 +334,7 @@ class StepContraceptionDetailsWidget extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OnboardingComponents.buildEyebrow('STEP 2 OF 7'),
+          OnboardingComponents.buildEyebrow('STEP 2 OF 6'),
           const SizedBox(height: 12),
           OnboardingComponents.buildTitle(contraceptionTitle),
           const SizedBox(height: 24),
@@ -445,7 +445,7 @@ class StepCycleDatesWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        OnboardingComponents.buildEyebrow('Step 3 of 7'),
+        OnboardingComponents.buildEyebrow('Step 3 of 6'),
         OnboardingComponents.buildTitle(
           'When was your\n',
           accent: 'last period?',
@@ -824,7 +824,7 @@ class StepDailyCheckinsWidget extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OnboardingComponents.buildEyebrow('STEP 5 OF 7'),
+          OnboardingComponents.buildEyebrow('STEP 4 OF 6'),
           const SizedBox(height: 12),
           OnboardingComponents.buildTitle('Daily check-ins'),
           OnboardingComponents.buildSub(
@@ -931,7 +931,7 @@ class StepSymptomsGoalsWidget extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OnboardingComponents.buildEyebrow('STEP 6 OF 7'),
+          OnboardingComponents.buildEyebrow('STEP 5 OF 6'),
           const SizedBox(height: 12),
           OnboardingComponents.buildTitle('Your experience\n', accent: '& goals'),
           OnboardingComponents.buildSub(
@@ -1079,7 +1079,7 @@ class StepSummaryWidget extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OnboardingComponents.buildEyebrow('STEP 7 OF 7'),
+          OnboardingComponents.buildEyebrow('STEP 6 OF 6'),
           const SizedBox(height: 12),
           OnboardingComponents.buildTitle('Your profile is\n', accent: 'ready'),
           OnboardingComponents.buildSub(
