@@ -36,7 +36,7 @@ class OnboardingProgressHeader extends StatelessWidget {
           ),
           const SizedBox(width: 16),
           Obx(() => Text(
-            '${controller.currentStep.value} of 9',
+            '${controller.currentStep.value} of 8',
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,

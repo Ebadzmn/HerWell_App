@@ -8,7 +8,7 @@ import 'package:dio/dio.dart' as dio;
 
 class OnboardingController extends GetxController {
   var currentStep = 1.obs;
-  final int totalSteps = 9;
+  final int totalSteps = 8;
 
   // UI State
   final isLoading = RxBool(false);
@@ -198,7 +198,7 @@ class OnboardingController extends GetxController {
           "period_length": periodLength.value,
           "fitness_goal": fitnessGoal.value.isNotEmpty ? fitnessGoal.value : 'build_muscle',
           "contraception_type": contraception.value ?? "none",
-          "tracking_method": trackingMethod.value ?? "calendar",
+          "tracking_method": trackingMethod.value ?? (canUseCalendar ? "calendar" : "subjective"),
           "pill_progestogen": pillProgestogen.value,
           "cycle_regular": cycleRegular.value,
           "symptoms": selectedSymptoms.toList(),
