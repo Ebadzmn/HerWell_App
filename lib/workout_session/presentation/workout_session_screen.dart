@@ -365,8 +365,28 @@ class WorkoutSessionScreen extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () async {
                   final url = Uri.parse('https://www.strava.com');
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                  try {
+                    if (await canLaunchUrl(url)) {
+                      await launchUrl(url, mode: LaunchMode.externalApplication);
+                    } else {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Could not open Strava'),
+                            backgroundColor: Colors.redAccent,
+                          ),
+                        );
+                      }
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error opening Strava: $e'),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      );
+                    }
                   }
                 },
                 icon: const Icon(Icons.link, color: Colors.white),
