@@ -3,16 +3,28 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../controller/workout_session_controller.dart';
 
-class WorkoutSessionScreen extends StatelessWidget {
+class WorkoutSessionScreen extends StatefulWidget {
   const WorkoutSessionScreen({super.key});
 
   @override
+  State<WorkoutSessionScreen> createState() => _WorkoutSessionScreenState();
+}
+
+class _WorkoutSessionScreenState extends State<WorkoutSessionScreen> {
+  final TextEditingController notesController = TextEditingController();
+
+  @override
+  void dispose() {
+    notesController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = Get.put(WorkoutSessionController());
-    final notesController = TextEditingController();
+    final WorkoutSessionController controller = Get.put(WorkoutSessionController());
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final cardBgColor = isDark ? const Color(0xFF0F0F0F) : Colors.white;
+    final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
     final textColor = isDark ? Colors.white : Colors.black87;
     final hintColor = isDark ? Colors.grey : Colors.grey.shade600;
 
@@ -24,15 +36,15 @@ class WorkoutSessionScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF3EBE3), // Off-white warm background
       body: Obx(() {
         if (controller.isCompleted.value) {
-          return _buildCompletionScreen(context, controller, workoutName, workoutDurationStr, isDark);
+          return _buildCompletionScreen(controller, workoutName, workoutDurationStr, isDark);
         } else {
-          return _buildWorkoutScreen(context, controller, notesController, workoutName, workoutDurationStr, cardBgColor, textColor, hintColor, isDark);
+          return _buildWorkoutScreen(controller, workoutName, workoutDurationStr, cardBgColor, textColor, hintColor, isDark);
         }
       }),
     );
   }
 
-  Widget _buildWorkoutScreen(BuildContext context, WorkoutSessionController controller, TextEditingController notesController, String workoutName, String workoutDurationStr, Color cardBgColor, Color textColor, Color hintColor, bool isDark) {
+  Widget _buildWorkoutScreen(WorkoutSessionController controller, String workoutName, String workoutDurationStr, Color cardBgColor, Color textColor, Color hintColor, bool isDark) {
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -269,16 +281,16 @@ class WorkoutSessionScreen extends StatelessWidget {
                   width: double.infinity,
                   child: Obx(() => ElevatedButton(
                     onPressed: controller.isLoading.value ? () {} : () async {
-                      final errorMsg = await controller.saveWorkoutSession(
+                      final errorMessage = await controller.saveWorkoutSession(
                         workoutName: workoutName,
                         durationMinutes: double.tryParse(workoutDurationStr) ?? 35.0,
                         notes: notesController.text,
                       );
-                      if (context.mounted) {
-                        if (errorMsg != null && errorMsg != 'Loading') {
+                      if (mounted) {
+                        if (errorMessage != null && errorMessage != 'Loading') {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(errorMsg),
+                              content: Text(errorMessage),
                               backgroundColor: Colors.redAccent,
                             ),
                           );
@@ -307,7 +319,7 @@ class WorkoutSessionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCompletionScreen(BuildContext context, WorkoutSessionController controller, String workoutName, String workoutDurationStr, bool isDark) {
+  Widget _buildCompletionScreen(WorkoutSessionController controller, String workoutName, String workoutDurationStr, bool isDark) {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(24),
