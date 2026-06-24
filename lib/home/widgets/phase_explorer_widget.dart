@@ -11,11 +11,13 @@ class PhaseExplorerWidget extends StatefulWidget {
 }
 
 class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
-  String _activePhase = 'menstrual';
+  String _activePhase = 'follicular';
   String _activeTab = 'hormones';
 
   Map<String, dynamic> _phasesFromApi = {};
   bool _isLoadingGuides = false;
+
+  final HomeController _homeController = Get.find<HomeController>();
 
   final Map<String, dynamic> _phases = {
     'menstrual': {
@@ -162,7 +164,34 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
   @override
   void initState() {
     super.initState();
+    _setActivePhaseFromHomeController();
     _loadPhaseGuidesFromApi();
+  }
+
+  void _setActivePhaseFromHomeController() {
+    final homePhase = _homeController.currentPhase.value;
+    String phaseId;
+    switch (homePhase) {
+      case 'Menstruation':
+        phaseId = 'menstrual';
+        break;
+      case 'Follicular':
+        phaseId = 'follicular';
+        break;
+      case 'Ovulation':
+        phaseId = 'ovulatory';
+        break;
+      case 'Luteal':
+        phaseId = 'luteal';
+        break;
+      default:
+        phaseId = 'follicular';
+    }
+    if (mounted) {
+      setState(() {
+        _activePhase = phaseId;
+      });
+    }
   }
 
   void _loadPhaseGuidesFromApi() async {
@@ -287,6 +316,8 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                   color: isActive ? Colors.white : AppColors.textSecondary,
+                                  decoration: isActive ? TextDecoration.underline : TextDecoration.none,
+                                  decorationColor: Colors.white,
                                 ),
                               ),
                               Text(
@@ -354,8 +385,8 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
               ),
               child: Row(
                 children: [
-                  _buildTabButton('hormones', '⚗️ Hormones'),
-                  _buildTabButton('physical', '🫀 Physical'),
+                  _buildTabButton('hormones', '🧬 Hormones'),
+                  _buildTabButton('physical', '🫀 Body'),
                   _buildTabButton('training', '🏋️ Training'),
                   _buildTabButton('nutrition', '🍽️ Nutrition'),
                 ],

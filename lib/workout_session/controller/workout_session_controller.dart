@@ -33,6 +33,7 @@ class WorkoutSessionController extends GetxController {
   final totalVolume = '0 kg'.obs;
   final vsLastTime = '0%'.obs;
   final isLoading = false.obs;
+  final isCompleted = false.obs;
 
   @override
   void onInit() {
@@ -98,6 +99,7 @@ class WorkoutSessionController extends GetxController {
           volume += set.weight.value * set.reps.value;
         }
       }
+      totalVolume.value = '${volume.toStringAsFixed(1)} kg';
 
       // Map exercises list to JSON array
       final exercisesJson = exercises.map((ex) => {
@@ -123,6 +125,7 @@ class WorkoutSessionController extends GetxController {
       );
 
       if (response.isSuccess) {
+        isCompleted.value = true;
         return null;
       } else {
         return response.message.isNotEmpty ? response.message : 'Failed to save workout';

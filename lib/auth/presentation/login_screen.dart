@@ -298,42 +298,58 @@ class LoginScreen extends StatelessWidget {
   }
 
   Widget _buildBottomLinks() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              onPressed: () => Get.toNamed(AppRoute.forgotPassword),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text(
+                'Forgot password?',
+                style: TextStyle(
+                  color: Color(0xFF6B7280),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Get.toNamed(AppRoute.signup),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: RichText(
+                text: const TextSpan(
+                  text: 'Need an account? ',
+                  style: TextStyle(color: Color(0xFF6B7280), fontSize: 14, fontWeight: FontWeight.w500),
+                  children: [
+                    TextSpan(
+                      text: 'Sign up',
+                      style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
         TextButton(
-          onPressed: () => Get.toNamed(AppRoute.forgotPassword),
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
+          onPressed: () => Get.toNamed(AppRoute.privacyPolicy),
           child: const Text(
-            'Forgot password?',
+            'Privacy Policy',
             style: TextStyle(
               color: Color(0xFF6B7280),
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: () => Get.toNamed(AppRoute.signup),
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          child: RichText(
-            text: const TextSpan(
-              text: 'Need an account? ',
-              style: TextStyle(color: Color(0xFF6B7280), fontSize: 14, fontWeight: FontWeight.w500),
-              children: [
-                TextSpan(
-                  text: 'Sign up',
-                  style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w700),
-                ),
-              ],
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),

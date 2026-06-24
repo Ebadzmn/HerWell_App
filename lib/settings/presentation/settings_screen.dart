@@ -17,7 +17,7 @@ class SettingsScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Scaffold(
-      backgroundColor: const Color(0xFFE3D6C9),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -366,7 +366,7 @@ class SettingsScreen extends StatelessWidget {
                     title,
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                       color: isSelected
                           ? const Color(0xFF3A2E28)
                           : const Color(0xFF9E9287),
@@ -866,10 +866,12 @@ class SettingsScreen extends StatelessWidget {
           ),
           const Divider(height: 1, thickness: 1, color: Color(0xFFF6F3F0)),
           _buildAppSettingItem(
-            icon: Icons.notifications_off_outlined,
+            icon: Icons.notifications_outlined,
             iconBgColor: const Color(0xFFFFF0EC),
             iconColor: const Color(0xFFE8927C),
-            title: 'Notifications: Off',
+            title: 'Notifications',
+            isToggle: true,
+            isNotificationToggle: true,
           ),
           const Divider(height: 1, thickness: 1, color: Color(0xFFF6F3F0)),
           _buildAppSettingItem(
@@ -889,6 +891,7 @@ class SettingsScreen extends StatelessWidget {
     required Color iconColor,
     required String title,
     bool isToggle = false,
+    bool isNotificationToggle = false,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -915,10 +918,16 @@ class SettingsScreen extends StatelessWidget {
           ),
           if (isToggle)
             Obx(() => Switch(
-                  value: controller.isDarkMode.value,
+                  value: isNotificationToggle
+                      ? controller.notificationsEnabled.value
+                      : controller.isDarkMode.value,
                   onChanged: (val) {
-                    controller.isDarkMode.value = val;
-                    Get.changeThemeMode(val ? ThemeMode.dark : ThemeMode.light);
+                    if (isNotificationToggle) {
+                      controller.toggleNotifications(val);
+                    } else {
+                      controller.isDarkMode.value = val;
+                      Get.changeThemeMode(val ? ThemeMode.dark : ThemeMode.light);
+                    }
                   },
                   activeThumbColor: const Color(0xFFE8927C),
                   inactiveThumbColor: Colors.white,

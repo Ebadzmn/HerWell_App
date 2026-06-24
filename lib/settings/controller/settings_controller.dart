@@ -13,6 +13,8 @@ class SettingsController extends GetxController {
   final lastPeriodYear = 2026.obs;
 
   final isDarkMode = false.obs;
+  final notificationsEnabled = false.obs;
+  final deviceToken = ''.obs;
 
   // Profile fields
   final username = ''.obs;
@@ -125,6 +127,13 @@ class SettingsController extends GetxController {
       );
 
       if (response.isSuccess) {
+        Get.snackbar(
+          'Success',
+          'Cycle information updated successfully.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green.withOpacity(0.9),
+          colorText: Colors.white,
+        );
         try {
           if (Get.isRegistered<HomeController>()) {
             Get.find<HomeController>().fetchCycleData();
@@ -142,6 +151,13 @@ class SettingsController extends GetxController {
         );
       }
     } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to update cycle data: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
       debugPrint('Failed to update cycle data: $e');
     }
   }
@@ -156,6 +172,13 @@ class SettingsController extends GetxController {
         data: {'fitness_goal': goalId},
       );
       if (response.isSuccess) {
+        Get.snackbar(
+          'Success',
+          'Fitness goal updated successfully.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green.withOpacity(0.9),
+          colorText: Colors.white,
+        );
         try {
           if (Get.isRegistered<HomeController>()) {
             Get.find<HomeController>().fetchCycleData();
@@ -173,6 +196,13 @@ class SettingsController extends GetxController {
         );
       }
     } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to update fitness goal: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
       debugPrint('Failed to update fitness goal: $e');
     }
   }
@@ -205,6 +235,29 @@ class SettingsController extends GetxController {
       }
     } catch (e) {
       debugPrint('Failed to update contraception type: $e');
+    }
+  }
+
+  Future<void> toggleNotifications(bool value) async {
+    notificationsEnabled.value = value;
+    if (value) {
+      // TODO: Implement Twinr push token fetch here
+      // For now, just show a snackbar
+      Get.snackbar(
+        'Notifications',
+        'Notifications enabled',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withOpacity(0.9),
+        colorText: Colors.white,
+      );
+    } else {
+      Get.snackbar(
+        'Notifications',
+        'Notifications disabled',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.grey.withOpacity(0.9),
+        colorText: Colors.white,
+      );
     }
   }
 }

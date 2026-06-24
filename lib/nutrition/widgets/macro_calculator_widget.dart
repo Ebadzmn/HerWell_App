@@ -198,7 +198,7 @@ class _MacroCalculatorWidgetState extends State<MacroCalculatorWidget> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildMacroItem('Protein', '${_calculateProtein(tdee)}g', '30%', const Color(0xFF8B7355)),
-                      _buildMacroItem('Carbs', '${_calculateCarbs(tdee)}g', '40%', const Color(0xFF7DD3C0)),
+                      _buildMacroItem('Carbs', '${_calculateCarbs(tdee)}g', '40%', const Color(0xFFB08968)),
                       _buildMacroItem('Fat', '${_calculateFat(tdee)}g', '30%', const Color(0xFFE8A87C)),
                     ],
                   ),

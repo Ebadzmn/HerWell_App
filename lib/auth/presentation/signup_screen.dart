@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/auth_controller.dart';
+import '../../core/app_route.dart';
 
 class SignupScreen extends StatelessWidget {
   SignupScreen({super.key});
@@ -117,6 +118,18 @@ class SignupScreen extends StatelessWidget {
                   await controller.registerUser(_nameController.text, _usernameController.text, _emailController.text, _passwordController.text, _confirmPasswordController.text);
                 },
               )),
+              const SizedBox(height: 24),
+              TextButton(
+                onPressed: () => Get.toNamed(AppRoute.privacyPolicy),
+                child: const Text(
+                  'Privacy Policy',
+                  style: TextStyle(
+                    color: Color(0xFF6B7280),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             ],
           ),
         ),

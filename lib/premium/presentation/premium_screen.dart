@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/app_colors.dart';
 
 class PremiumScreen extends StatelessWidget {
@@ -104,8 +105,13 @@ class PremiumScreen extends StatelessWidget {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () {
-                  // TODO: Implement Stripe payment
+                onPressed: () async {
+                  // TODO: Implement Twinr deep link for IAP
+                  // For now, open a placeholder URL
+                  const url = 'https://herwellness.app/subscribe';
+                  if (await canLaunchUrl(Uri.parse(url))) {
+                    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

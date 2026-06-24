@@ -47,7 +47,7 @@ class _AICoachChatScreenState extends State<AICoachChatScreen> {
   }
 
   void _sendMessage(String text) async {
-    if (text.trim().isEmpty) return;
+    if (text.trim().isEmpty || _isLoading) return;
 
     setState(() {
       _messages.add({'role': 'user', 'content': text});
