@@ -5,6 +5,7 @@ import '../controller/settings_controller.dart';
 
 import '../../core/app_route.dart';
 import '../../auth/controller/auth_controller.dart';
+import '../../home/widgets/cycle_references_widget.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
@@ -299,6 +300,20 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               _buildSubscriptionCard(),
+              const SizedBox(height: 24),
+              const Padding(
+                padding: EdgeInsets.only(left: 4, bottom: 8),
+                child: Text(
+                  'REFERENCES',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF8B7355),
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ),
+              const CycleReferencesWidget(),
               const SizedBox(height: 24),
               const Padding(
                 padding: EdgeInsets.only(left: 4, bottom: 8),

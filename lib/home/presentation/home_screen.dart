@@ -101,8 +101,6 @@ class HomeScreen extends StatelessWidget {
                           HormoneChartWidget(),
                           SizedBox(height: 16),
                           PhaseExplorerWidget(),
-                          SizedBox(height: 16),
-                          CycleReferencesWidget(),
                         ],
                       ),
                     ),

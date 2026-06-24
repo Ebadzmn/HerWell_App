@@ -51,13 +51,29 @@ class LoginScreen extends StatelessWidget {
                   height: 20,
                   errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata, color: Colors.blue, size: 28),
                 ),
-                onPressed: () => controller.socialLogin('google'),
+                onPressed: () {
+                  Get.snackbar(
+                    'Not Implemented',
+                    'This feature is not implemented yet.',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.blueGrey,
+                    colorText: Colors.white,
+                  );
+                },
               ),
               const SizedBox(height: 16),
               _buildSocialButton(
                 text: 'Continue with Apple',
                 logo: const Icon(Icons.apple, color: Colors.black, size: 24),
-                onPressed: () => controller.socialLogin('apple'),
+                onPressed: () {
+                  Get.snackbar(
+                    'Not Implemented',
+                    'This feature is not implemented yet.',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.blueGrey,
+                    colorText: Colors.white,
+                  );
+                },
               ),
               const SizedBox(height: 32),
               _buildSocialDivider(),

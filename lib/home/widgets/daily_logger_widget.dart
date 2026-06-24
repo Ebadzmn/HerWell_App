@@ -24,7 +24,7 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
   void initState() {
     super.initState();
     _loadTodayLog();
-    
+
     // Listen to date changes
     final homeController = Get.find<HomeController>();
     ever(homeController.selectedDate, (_) {
@@ -35,15 +35,20 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
   void _loadTodayLog() async {
     try {
       final homeController = Get.find<HomeController>();
-      final formattedDate = DateFormat('yyyy-MM-dd').format(homeController.selectedDate.value);
+      final formattedDate = DateFormat(
+        'yyyy-MM-dd',
+      ).format(homeController.selectedDate.value);
       final ApiClient apiClient = Get.find<ApiClient>();
-      
+
       final response = await apiClient.get(
         '/cycle/daily-logs',
         queryParameters: {"date": formattedDate},
       );
 
-      if (response.isSuccess && response.data != null && response.data is List && (response.data as List).isNotEmpty) {
+      if (response.isSuccess &&
+          response.data != null &&
+          response.data is List &&
+          (response.data as List).isNotEmpty) {
         final log = response.data[0];
         if (mounted) {
           setState(() {
@@ -70,11 +75,7 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
   }
 
   final List<Map<String, dynamic>> _moods = [
-    {
-      'value': 'exhausted',
-      'icon': Icons.battery_alert_rounded,
-      'label': 'Exhausted',
-    },
+    {'value': 'Tired', 'icon': Icons.battery_alert_rounded, 'label': 'Tired'},
     {'value': 'low', 'icon': Icons.cloud_rounded, 'label': 'Low'},
     {'value': 'okay', 'icon': Icons.remove_rounded, 'label': 'Okay'},
     {
@@ -110,12 +111,19 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
     setState(() => _isSaving = true);
     try {
       final homeController = Get.find<HomeController>();
-      final formattedDate = DateFormat('yyyy-MM-dd').format(homeController.selectedDate.value);
-      
+      final formattedDate = DateFormat(
+        'yyyy-MM-dd',
+      ).format(homeController.selectedDate.value);
+
       final phaseNum = homeController.getPhaseNumber();
-      const phaseMap = {1: 'menstrual', 2: 'follicular', 3: 'ovulatory', 4: 'luteal'};
+      const phaseMap = {
+        1: 'menstrual',
+        2: 'follicular',
+        3: 'ovulatory',
+        4: 'luteal',
+      };
       final phase = phaseMap[phaseNum] ?? 'follicular';
-      
+
       final cycleDay = homeController.cycleDay.value;
 
       final ApiClient apiClient = Get.find<ApiClient>();
@@ -134,7 +142,7 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
       if (response.isSuccess) {
         // Refresh home controller logs
         homeController.fetchRecentLogs();
-        
+
         if (mounted) {
           setState(() {
             _isSaving = false;
@@ -154,7 +162,9 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
         }
         Get.snackbar(
           'Error',
-          response.message.isNotEmpty ? response.message : 'Failed to update check-in',
+          response.message.isNotEmpty
+              ? response.message
+              : 'Failed to update check-in',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
@@ -181,8 +191,12 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
     final bgColor = isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF3EFEA);
     final titleColor = isDark ? Colors.white : const Color(0xFF3A2E28);
     final itemBgColor = isDark ? const Color(0xFF2C2C2C) : Colors.white;
-    final itemBorderColor = isDark ? const Color(0xFF3A3A3A) : const Color(0xFFE2D6C8);
-    final unselectedIconColor = isDark ? Colors.grey[400] : const Color(0xFF5A4D42);
+    final itemBorderColor = isDark
+        ? const Color(0xFF3A3A3A)
+        : const Color(0xFFE2D6C8);
+    final unselectedIconColor = isDark
+        ? Colors.grey[400]
+        : const Color(0xFF5A4D42);
     final selectedColor = const Color(0xFFE8927C);
 
     return Container(
@@ -235,7 +249,9 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
                         children: [
                           Icon(
                             mood['icon'],
-                            color: isSelected ? selectedColor : unselectedIconColor,
+                            color: isSelected
+                                ? selectedColor
+                                : unselectedIconColor,
                             size: 20,
                           ),
                           const SizedBox(height: 6),
@@ -243,7 +259,9 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
                             mood['label'],
                             style: TextStyle(
                               fontSize: 9,
-                              color: isSelected ? selectedColor : unselectedIconColor,
+                              color: isSelected
+                                  ? selectedColor
+                                  : unselectedIconColor,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -312,7 +330,9 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
                           checkin['label'],
                           style: TextStyle(
                             fontSize: 10,
-                            color: isSelected ? selectedColor : unselectedIconColor,
+                            color: isSelected
+                                ? selectedColor
+                                : unselectedIconColor,
                             fontWeight: FontWeight.w500,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -364,14 +384,18 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
                         ? null
                         : _handleSave,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFB5ADA4), // Soft taupe button color
+                      backgroundColor: const Color(
+                        0xFFB5ADA4,
+                      ), // Soft taupe button color
                       foregroundColor: Colors.white,
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      disabledBackgroundColor: const Color(0xFFB5ADA4).withOpacity(0.5),
+                      disabledBackgroundColor: const Color(
+                        0xFFB5ADA4,
+                      ).withOpacity(0.5),
                     ),
                     child: _isSaving
                         ? const SizedBox(
@@ -402,7 +426,9 @@ class _DailyLoggerWidgetState extends State<DailyLoggerWidget> {
       style: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w600,
-        color: isDark ? Colors.grey[400] : const Color(0xFF7A6856), // Dark brownish grey
+        color: isDark
+            ? Colors.grey[400]
+            : const Color(0xFF7A6856), // Dark brownish grey
         letterSpacing: 0.5,
       ),
     );
