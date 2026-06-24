@@ -118,6 +118,8 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     if (!_showLogger && !widget.isModal) {
       return ElevatedButton(
           onPressed: () {
@@ -129,8 +131,8 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
             );
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: const Color(0xFF3A2E28),
+            backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+            foregroundColor: isDark ? Colors.white : const Color(0xFF3A2E28),
             padding: const EdgeInsets.symmetric(vertical: 18),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -159,7 +161,7 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
       margin: widget.isModal ? EdgeInsets.zero : EdgeInsets.zero,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: isDark ? const Color(0xFF1E1E1E) : AppColors.cardBackground,
         borderRadius: widget.isModal ? const BorderRadius.vertical(top: Radius.circular(32)) : BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -172,12 +174,12 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'How are you feeling today?',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 16),
@@ -191,7 +193,7 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primary : Colors.grey[100],
+                    color: isSelected ? AppColors.primary : (isDark ? const Color(0xFF2C2C2C) : Colors.grey[100]),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -199,7 +201,7 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: isSelected ? Colors.white : AppColors.textPrimary,
+                      color: isSelected ? Colors.white : (isDark ? Colors.grey[300] : AppColors.textPrimary),
                     ),
                   ),
                 ),
@@ -207,12 +209,12 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
             }).toList(),
           ),
           const SizedBox(height: 20),
-          const Text(
+          Text(
             'Severity',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -226,9 +228,9 @@ class _SymptomLoggerWidgetState extends State<SymptomLoggerWidget> {
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primaryLight : Colors.white,
+                      color: isSelected ? AppColors.primaryLight : (isDark ? const Color(0xFF2C2C2C) : Colors.white),
                       border: Border.all(
-                        color: isSelected ? AppColors.primary : Colors.grey[300]!,
+                        color: isSelected ? AppColors.primary : (isDark ? const Color(0xFF3A3A3A) : Colors.grey[300]!),
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),

@@ -257,13 +257,30 @@ class WorkoutSessionScreen extends StatelessWidget {
                     width: double.infinity,
                     child: Obx(() => ElevatedButton(
                       onPressed: controller.isLoading.value ? () {} : () async {
-                        final success = await controller.saveWorkoutSession(
+                        final errorMsg = await controller.saveWorkoutSession(
                           workoutName: workoutName,
                           durationMinutes: double.tryParse(workoutDurationStr) ?? 35.0,
                           notes: notesController.text,
                         );
-                        if (success) {
-                          Get.back();
+                        if (context.mounted) {
+                          if (errorMsg == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Workout saved successfully!'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                            Get.back();
+                          } else {
+                            if (errorMsg != 'Loading') {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(errorMsg),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                              );
+                            }
+                          }
                         }
                       },
                       style: ElevatedButton.styleFrom(

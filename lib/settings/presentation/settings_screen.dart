@@ -5,6 +5,7 @@ import '../controller/settings_controller.dart';
 
 import '../../core/app_route.dart';
 import '../../auth/controller/auth_controller.dart';
+import '../../home/widgets/cycle_references_widget.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
@@ -224,15 +225,15 @@ class SettingsScreen extends StatelessWidget {
 
               // Training Goal Card
               Obx(() {
-                final defaultGoals = [
+                final List<Map<String, dynamic>> defaultGoals = [
                   {'value': 'build_muscle', 'label': 'Build strength & muscle'},
                   {'value': 'improve_endurance', 'label': 'Improve endurance / cardio fitness'},
                   {'value': 'weight_loss', 'label': 'Lose body fat'},
                   {'value': 'general_fitness', 'label': 'General health & wellbeing'},
                   {'value': 'athletic_performance', 'label': 'Athletic performance / competition'},
                 ];
-                final goals = controller.dbGoals.isNotEmpty
-                    ? controller.dbGoals
+                final List<Map<String, dynamic>> goals = controller.dbGoals.isNotEmpty
+                    ? controller.dbGoals.toList()
                     : defaultGoals;
 
                 return Container(
@@ -266,7 +267,7 @@ class SettingsScreen extends StatelessWidget {
                           onTap: () => controller.updateFitnessGoal(value),
                           isLast: isLast,
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 );
@@ -299,6 +300,20 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               _buildSubscriptionCard(),
+              const SizedBox(height: 24),
+              const Padding(
+                padding: EdgeInsets.only(left: 4, bottom: 8),
+                child: Text(
+                  'REFERENCES',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF8B7355),
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ),
+              const CycleReferencesWidget(),
               const SizedBox(height: 24),
               const Padding(
                 padding: EdgeInsets.only(left: 4, bottom: 8),
@@ -420,7 +435,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         _buildCustomSlider(
-          value: controller.cycleLength.value.toDouble(),
+          value: controller.cycleLength.value.toDouble().clamp(21.0, 40.0),
           min: 21,
           max: 40,
           onChanged: (v) {
@@ -481,7 +496,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         _buildCustomSlider(
-          value: controller.periodDuration.value.toDouble(),
+          value: controller.periodDuration.value.toDouble().clamp(1.0, 10.0),
           min: 1,
           max: 10,
           onChanged: (v) {
@@ -1052,7 +1067,7 @@ class SettingsScreen extends StatelessWidget {
                       Navigator.pop(context);
                     },
                   );
-                }).toList()
+                })
               ],
             ),
           );

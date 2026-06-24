@@ -1066,15 +1066,6 @@ class StepSummaryWidget extends StatelessWidget {
       final goalLabel = goalData['label']?.toString() ??
           (goalKey.isEmpty ? 'Not selected' : goalKey);
 
-      // Tracking method display
-      final trackingDisplay = (() {
-        switch (controller.trackingMethod.value) {
-          case 'subjective': return 'Subjective daily signals';
-          case 'combined': return 'Combined approach';
-          case 'calendar': return 'Calendar based';
-          default: return controller.trackingMethod.value ?? 'Not selected';
-        }
-      })();
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1131,8 +1122,6 @@ class StepSummaryWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
-                _buildTableRow('Tracking method', trackingDisplay),
                 const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),
                 _buildTableRow('Cycle length', '${controller.cycleLength.value} days'),
                 const Divider(height: 1, thickness: 1, color: Color(0xFFD4C5B9)),

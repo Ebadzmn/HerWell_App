@@ -81,12 +81,12 @@ class WorkoutSessionController extends GetxController {
     ));
   }
 
-  Future<bool> saveWorkoutSession({
+  Future<String?> saveWorkoutSession({
     required String workoutName,
     required double durationMinutes,
     required String notes,
   }) async {
-    if (isLoading.value) return false;
+    if (isLoading.value) return 'Loading';
     try {
       isLoading.value = true;
       final formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -123,33 +123,12 @@ class WorkoutSessionController extends GetxController {
       );
 
       if (response.isSuccess) {
-        Get.snackbar(
-          'Success',
-          'Workout saved successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green.withOpacity(0.1),
-          colorText: Colors.green[800],
-        );
-        return true;
+        return null;
       } else {
-        Get.snackbar(
-          'Error',
-          response.message.isNotEmpty ? response.message : 'Failed to save workout',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-        );
-        return false;
+        return response.message.isNotEmpty ? response.message : 'Failed to save workout';
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'An unexpected error occurred',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
-      return false;
+      return 'An unexpected error occurred';
     } finally {
       isLoading.value = false;
     }

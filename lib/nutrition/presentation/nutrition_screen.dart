@@ -36,9 +36,7 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
+      body: Column(
           children: [
             // Top Section with Gradient
             Container(
@@ -133,8 +131,9 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
             ),
 
             // Content Section
-            Transform.translate(
-              offset: const Offset(0, -20),
+            Expanded(
+              child: Transform.translate(
+                offset: const Offset(0, -20),
               child: Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(
@@ -181,8 +180,7 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
                       ),
                       const SizedBox(height: 24),
                       
-                      SizedBox(
-                        height: 1200,
+                      Expanded(
                         child: TabBarView(
                           controller: _tabController,
                           children: [
@@ -197,8 +195,8 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -226,10 +224,11 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
   }
 
   Widget _buildCalculatorTab(HomeController homeController) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Recommended Card
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Recommended Card
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -262,6 +261,7 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
         ),
         const SizedBox(height: 100),
       ],
-    );
+    ),
+  );
   }
 }

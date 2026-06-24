@@ -738,7 +738,7 @@ class _PhaseIndicatorWidgetState extends State<PhaseIndicatorWidget> with Single
               children: [
                 TextSpan(
                   text: 'Phase ${controller.getPhaseNumber()}, ${controller.currentPhase.value}',
-                  style: const TextStyle(fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
