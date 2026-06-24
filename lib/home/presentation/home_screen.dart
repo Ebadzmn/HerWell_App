@@ -10,7 +10,6 @@ import '../widgets/tips_section_widget.dart';
 import '../widgets/hormone_chart_widget.dart';
 import '../widgets/symptom_logger_widget.dart';
 import '../widgets/phase_explorer_widget.dart';
-import '../widgets/cycle_references_widget.dart';
 import '../widgets/cycle_pattern_insights_widget.dart';
 import '../controller/home_controller.dart';
 
@@ -105,7 +104,6 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                     TipsSectionWidget(),
-                    SizedBox(height: 100), // bottom nav padding
                   ],
                 ),
               ),
