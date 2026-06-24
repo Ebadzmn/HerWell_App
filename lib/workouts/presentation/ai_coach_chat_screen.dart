@@ -102,10 +102,11 @@ class _AICoachChatScreenState extends State<AICoachChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F3F0),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left_rounded, color: AppColors.textPrimary, size: 28),
@@ -116,16 +117,16 @@ class _AICoachChatScreenState extends State<AICoachChatScreen> {
             Container(
               width: 32,
               height: 32,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF7DD3C0), Color(0xFF5BA89D)],
+                  colors: [AppColors.accentGreen, AppColors.accentGreen.withValues(alpha: 0.7)],
                 ),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 18),
             ),
             const SizedBox(width: 12),
-            const Text(
+            Text(
               'AI Coach',
               style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
             ),
@@ -149,7 +150,7 @@ class _AICoachChatScreenState extends State<AICoachChatScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
                     decoration: BoxDecoration(
-                      color: isUser ? const Color(0xFF8B7355) : Colors.white,
+                      color: isUser ? AppColors.primary : AppColors.surface,
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(20),
                         topRight: const Radius.circular(20),
@@ -181,7 +182,7 @@ class _AICoachChatScreenState extends State<AICoachChatScreen> {
                 child: SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.grey),
+                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textSecondary),
                 ),
               ),
             ),
@@ -199,7 +200,7 @@ class _AICoachChatScreenState extends State<AICoachChatScreen> {
                   child: ActionChip(
                     label: Text(_quickPrompts[index]),
                     onPressed: () => _sendMessage(_quickPrompts[index]),
-                    backgroundColor: Colors.white,
+                    backgroundColor: AppColors.surface,
                     labelStyle: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
@@ -211,9 +212,9 @@ class _AICoachChatScreenState extends State<AICoachChatScreen> {
           // Input Area
           Container(
             padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: Row(
               children: [
@@ -221,15 +222,16 @@ class _AICoachChatScreenState extends State<AICoachChatScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F3F0),
+                      color: AppColors.background,
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: TextField(
                       controller: _messageController,
-                      decoration: const InputDecoration(
+                      style: TextStyle(color: AppColors.textPrimary),
+                      decoration: InputDecoration(
                         hintText: 'Ask your AI coach...',
                         border: InputBorder.none,
-                        hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
+                        hintStyle: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                       ),
                       onSubmitted: _sendMessage,
                     ),
@@ -242,7 +244,7 @@ class _AICoachChatScreenState extends State<AICoachChatScreen> {
                     width: 44,
                     height: 44,
                     decoration: const BoxDecoration(
-                      color: Color(0xFF8B7355),
+                      color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
