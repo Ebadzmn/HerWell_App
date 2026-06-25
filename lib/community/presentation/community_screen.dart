@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_route.dart';
 import '../controller/community_controller.dart';
+import '../../nav_bar/navbar_controller.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -26,8 +27,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
@@ -35,11 +37,15 @@ class _CommunityScreenState extends State<CommunityScreen> {
             // Top Section with Gradient
             Container(
               width: double.infinity,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
+                  colors: isDark ? [
+                    const Color(0xFF2C2C2C),
+                    const Color(0xFF1E1E1E),
+                    const Color(0xFF121212),
+                  ] : [
                     AppColors.homeGradientStart,
                     AppColors.homeGradientMid,
                     AppColors.homeGradientEnd,
@@ -59,7 +65,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: () => Get.back(),
+                            onTap: () => Get.find<NavbarController>().changePage(0),
                             child: const Icon(
                               Icons.arrow_back_ios_rounded,
                               color: Colors.white,
@@ -95,7 +101,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: isDark ? AppColors.darkSurface : AppColors.surface,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(
@@ -104,10 +110,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                 radius: 18,
                                 backgroundColor: AppColors.background
                                     .withOpacity(0.4),
-                                child: const Text(
+                                child: Text(
                                   'M',
                                   style: TextStyle(
-                                    color: AppColors.textPrimary,
+                                    color: isDark ? Colors.white : AppColors.textPrimary,
                                     fontSize: 14,
                                   ),
                                 ),
@@ -128,7 +134,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   vertical: 8,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.textPrimary,
+                                  color: isDark ? AppColors.accent : AppColors.textPrimary,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: const Text(
@@ -199,9 +205,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
               offset: const Offset(0, -20),
               child: Container(
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.darkBackground : AppColors.background,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -257,37 +263,41 @@ class _CommunityScreenState extends State<CommunityScreen> {
     final postContentController = TextEditingController();
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text(
-          'Create Post',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: postContentController,
-              maxLines: 4,
-              decoration: InputDecoration(
-                hintText: "What's on your mind?",
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return AlertDialog(
+          backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Text(
+            'Create Post',
+            style: TextStyle(fontWeight: FontWeight.bold, color: isDark ? Colors.white : AppColors.textPrimary),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: postContentController,
+                maxLines: 4,
+                style: TextStyle(color: isDark ? Colors.white : AppColors.textPrimary),
+                decoration: InputDecoration(
+                  hintText: "What's on your mind?",
+                  hintStyle: TextStyle(color: isDark ? Colors.white54 : Colors.grey),
+                  filled: true,
+                  fillColor: isDark ? const Color(0xFF333333) : Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            ],
           ),
-          ElevatedButton(
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel', style: TextStyle(color: isDark ? Colors.white70 : AppColors.textPrimary)),
+            ),
+            ElevatedButton(
             onPressed: () async {
               if (postContentController.text.trim().isEmpty) {
                 Get.snackbar('Error', 'Please enter some content');
@@ -300,7 +310,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.textPrimary,
+              backgroundColor: isDark ? AppColors.accent : AppColors.textPrimary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -309,9 +319,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
             child: const Text('Post'),
           ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
   Widget _buildPostCard({
     required String id,
@@ -321,6 +332,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
     required String content,
     required int likes,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () async {
         await controller.fetchPostDetails(id);
@@ -329,11 +341,11 @@ class _CommunityScreenState extends State<CommunityScreen> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: isDark ? AppColors.darkSurface : AppColors.surface,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: isDark ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.02),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -349,7 +361,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   backgroundColor: AppColors.background.withOpacity(0.4),
                   child: Text(
                     username[0],
-                    style: const TextStyle(color: AppColors.textPrimary),
+                    style: TextStyle(color: isDark ? Colors.white : AppColors.textPrimary),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -361,10 +373,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         children: [
                           Text(
                             username,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
+                              color: isDark ? Colors.white : AppColors.textPrimary,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -387,9 +399,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
             const SizedBox(height: 12),
             Text(
               content,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textPrimary,
+                color: isDark ? Colors.white : AppColors.textPrimary,
                 height: 1.5,
               ),
             ),
@@ -421,28 +433,29 @@ class _CommunityScreenState extends State<CommunityScreen> {
   }
 
   Widget _buildCategoryBadge(String category) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     Color color;
     Color bg;
     switch (category) {
       case 'workout':
-        color = Colors.orange[700]!;
-        bg = Colors.orange[50]!;
+        color = isDark ? Colors.orange[300]! : Colors.orange[700]!;
+        bg = isDark ? Colors.orange.withOpacity(0.2) : Colors.orange[50]!;
         break;
       case 'nutrition':
-        color = Colors.green[700]!;
-        bg = Colors.green[50]!;
+        color = isDark ? Colors.green[300]! : Colors.green[700]!;
+        bg = isDark ? Colors.green.withOpacity(0.2) : Colors.green[50]!;
         break;
       case 'support':
-        color = Colors.pink[700]!;
-        bg = Colors.pink[50]!;
+        color = isDark ? Colors.pink[300]! : Colors.pink[700]!;
+        bg = isDark ? Colors.pink.withOpacity(0.2) : Colors.pink[50]!;
         break;
       case 'tips':
-        color = Colors.blue[700]!;
-        bg = Colors.blue[50]!;
+        color = isDark ? Colors.blue[300]! : Colors.blue[700]!;
+        bg = isDark ? Colors.blue.withOpacity(0.2) : Colors.blue[50]!;
         break;
       default:
-        color = Colors.grey[700]!;
-        bg = Colors.grey[100]!;
+        color = isDark ? Colors.grey[300]! : Colors.grey[700]!;
+        bg = isDark ? Colors.grey.withOpacity(0.2) : Colors.grey[100]!;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),

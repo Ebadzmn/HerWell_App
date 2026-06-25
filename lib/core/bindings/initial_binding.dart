@@ -7,6 +7,7 @@ class InitialBinding extends Bindings {
   void dependencies() {
     Get.put(
       ApiClient(baseUrl: 'https://herwellness-server.vercel.app/api/v1'),
+      // ApiClient(baseUrl: 'http://10.10.7.111:5000/api/v1'),
       permanent: true,
     );
     Get.putAsync<NotificationService>(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:herwellness_flutter/core/app_colors.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import '../controller/settings_controller.dart';
 
@@ -15,9 +16,9 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -25,12 +26,12 @@ class SettingsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
-              const Text(
+              Text(
                 'Settings',
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF3A2E28),
+                  color: isDark ? Colors.white : const Color(0xFF3A2E28),
                 ),
               ),
               const SizedBox(height: 4),
@@ -46,34 +47,41 @@ class SettingsScreen extends StatelessWidget {
 
               // Profile Card
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? AppColors.darkSurface : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   children: [
                     Stack(
                       children: [
-                        Obx(() => CircleAvatar(
-                          radius: 28,
-                          backgroundColor: const Color(0xFFD49A9B),
-                          backgroundImage: controller.avatarUrl.value.isNotEmpty
-                              ? NetworkImage(controller.avatarUrl.value)
-                              : null,
-                          child: controller.avatarUrl.value.isEmpty
-                              ? Text(
-                                  controller.username.value.isNotEmpty
-                                      ? controller.username.value[0].toUpperCase()
-                                      : 'M',
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : null,
-                        )),
+                        Obx(
+                          () => CircleAvatar(
+                            radius: 28,
+                            backgroundColor: const Color(0xFFD49A9B),
+                            backgroundImage:
+                                controller.avatarUrl.value.isNotEmpty
+                                ? NetworkImage(controller.avatarUrl.value)
+                                : null,
+                            child: controller.avatarUrl.value.isEmpty
+                                ? Text(
+                                    controller.username.value.isNotEmpty
+                                        ? controller.username.value[0]
+                                              .toUpperCase()
+                                        : 'M',
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                        ),
                         Positioned(
                           bottom: -2,
                           right: -2,
@@ -102,33 +110,35 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 16),
                     Expanded(
-                      child: Obx(() => Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            controller.username.value.isNotEmpty
-                                ? controller.username.value
-                                : 'mxguxnnfbzlenetvlf',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF3A2E28),
+                      child: Obx(
+                        () => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              controller.username.value.isNotEmpty
+                                  ? controller.username.value
+                                  : 'mxguxnnfbzlenetvlf',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? Colors.white : const Color(0xFF3A2E28),
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            controller.email.value.isNotEmpty
-                                ? controller.email.value
-                                : 'mxguxnnfbzlenetvlf@onidm.net',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Color(0xFF8B7355),
+                            const SizedBox(height: 2),
+                            Text(
+                              controller.email.value.isNotEmpty
+                                  ? controller.email.value
+                                  : 'mxguxnnfbzlenetvlf@onidm.net',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFF8B7355),
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      )),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -163,10 +173,15 @@ class SettingsScreen extends StatelessWidget {
                     }
                   }
                   final icon = selectedContraception?['icon'] ?? '💊';
-                  final title = selectedContraception?['title'] ?? getContraceptionLabel(type);
+                  final title =
+                      selectedContraception?['title'] ??
+                      getContraceptionLabel(type);
 
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF1B1B22),
                       borderRadius: BorderRadius.circular(12),
@@ -203,9 +218,10 @@ class SettingsScreen extends StatelessWidget {
                             Text(
                               'EDIT',
                               style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFFE8927C)),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFFE8927C),
+                              ),
                             ),
                             SizedBox(width: 4),
                             Icon(
@@ -227,31 +243,41 @@ class SettingsScreen extends StatelessWidget {
               Obx(() {
                 final List<Map<String, dynamic>> defaultGoals = [
                   {'value': 'build_muscle', 'label': 'Build strength & muscle'},
-                  {'value': 'improve_endurance', 'label': 'Improve endurance / cardio fitness'},
+                  {
+                    'value': 'improve_endurance',
+                    'label': 'Improve endurance / cardio fitness',
+                  },
                   {'value': 'weight_loss', 'label': 'Lose body fat'},
-                  {'value': 'general_fitness', 'label': 'General health & wellbeing'},
-                  {'value': 'athletic_performance', 'label': 'Athletic performance / competition'},
+                  {
+                    'value': 'general_fitness',
+                    'label': 'General health & wellbeing',
+                  },
+                  {
+                    'value': 'athletic_performance',
+                    'label': 'Athletic performance / competition',
+                  },
                 ];
-                final List<Map<String, dynamic>> goals = controller.dbGoals.isNotEmpty
+                final List<Map<String, dynamic>> goals =
+                    controller.dbGoals.isNotEmpty
                     ? controller.dbGoals.toList()
                     : defaultGoals;
 
                 return Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? AppColors.darkSurface : Colors.white,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.all(16),
+                      Padding(
+                        padding: const EdgeInsets.all(16),
                         child: Text(
                           'Training Goal',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF3A2E28),
+                            color: isDark ? Colors.white : const Color(0xFF3A2E28),
                           ),
                         ),
                       ),
@@ -263,6 +289,7 @@ class SettingsScreen extends StatelessWidget {
                         final isLast = idx == goals.length - 1;
                         return _buildTrainingGoalItem(
                           label,
+                          isDark: isDark,
                           isSelected: controller.fitnessGoal.value == value,
                           onTap: () => controller.updateFitnessGoal(value),
                           isLast: isLast,
@@ -275,17 +302,18 @@ class SettingsScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-
               // Cycle Length Card
-              Obx(() => Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+              Obx(
+                () => Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: _buildExpandedCycleCard(context, isDark),
                 ),
-                child: _buildExpandedCycleCard(context, isDark),
-              )),
+              ),
               const SizedBox(height: 24),
               const Padding(
                 padding: EdgeInsets.only(left: 4, bottom: 8),
@@ -299,7 +327,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              _buildSubscriptionCard(),
+              _buildSubscriptionCard(isDark),
               const SizedBox(height: 24),
               const Padding(
                 padding: EdgeInsets.only(left: 4, bottom: 8),
@@ -327,19 +355,16 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              _buildAppCard(),
+              _buildAppCard(isDark),
               const SizedBox(height: 24),
-              _buildSignOutButton(),
+              _buildSignOutButton(isDark),
               const SizedBox(height: 16),
-              _buildDeleteAccountButton(),
+              _buildDeleteAccountButton(isDark),
               const SizedBox(height: 32),
               const Center(
                 child: Text(
                   'HerWellness · Version 1.0 · yasmin@herwellness.app',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF9E9287),
-                  ),
+                  style: TextStyle(fontSize: 11, color: Color(0xFF9E9287)),
                 ),
               ),
               const SizedBox(height: 80), // Padding for Bottom Nav Bar
@@ -350,13 +375,18 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTrainingGoalItem(String title,
-      {bool isSelected = false, bool isLast = false, VoidCallback? onTap}) {
+  Widget _buildTrainingGoalItem(
+    String title, {
+    required bool isDark,
+    bool isSelected = false,
+    bool isLast = false,
+    VoidCallback? onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       child: Column(
         children: [
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF6F3F0)),
+          Divider(height: 1, thickness: 1, color: isDark ? const Color(0xFF333333) : const Color(0xFFF6F3F0)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Row(
@@ -366,19 +396,17 @@ class SettingsScreen extends StatelessWidget {
                     title,
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
                       color: isSelected
-                          ? const Color(0xFF3A2E28)
+                          ? (isDark ? Colors.white : const Color(0xFF3A2E28))
                           : const Color(0xFF9E9287),
                     ),
                   ),
                 ),
                 if (isSelected)
-                  const Icon(
-                    Icons.check,
-                    size: 18,
-                    color: Color(0xFFE8927C),
-                  ),
+                  const Icon(Icons.check, size: 18, color: Color(0xFFE8927C)),
               ],
             ),
           ),
@@ -387,12 +415,14 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-
-
   Widget _buildExpandedCycleCard(BuildContext context, bool isDark) {
     final titleColor = isDark ? Colors.white : const Color(0xFF3A2E28);
-    final boxBgColor = isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF3EFEA);
-    final boxBorderColor = isDark ? const Color(0xFF3A3A3A) : const Color(0xFFE2D6C8);
+    final boxBgColor = isDark
+        ? const Color(0xFF2C2C2C)
+        : const Color(0xFFF3EFEA);
+    final boxBorderColor = isDark
+        ? const Color(0xFF3A3A3A)
+        : const Color(0xFFE2D6C8);
     final boxTextColor = isDark ? Colors.white : const Color(0xFF2D2420);
 
     return Column(
@@ -450,10 +480,22 @@ class SettingsScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              Text('21', style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12)),
-              Text('28', style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12)),
-              Text('35', style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12)),
-              Text('40+', style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12)),
+              Text(
+                '21',
+                style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12),
+              ),
+              Text(
+                '28',
+                style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12),
+              ),
+              Text(
+                '35',
+                style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12),
+              ),
+              Text(
+                '40+',
+                style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12),
+              ),
             ],
           ),
         ),
@@ -511,11 +553,26 @@ class SettingsScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              Text('1', style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12)),
-              Text('3', style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12)),
-              Text('5', style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12)),
-              Text('7', style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12)),
-              Text('10', style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12)),
+              Text(
+                '1',
+                style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12),
+              ),
+              Text(
+                '3',
+                style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12),
+              ),
+              Text(
+                '5',
+                style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12),
+              ),
+              Text(
+                '7',
+                style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12),
+              ),
+              Text(
+                '10',
+                style: TextStyle(color: Color(0xFFAAA5A0), fontSize: 12),
+              ),
             ],
           ),
         ),
@@ -537,7 +594,10 @@ class SettingsScreen extends StatelessWidget {
               Expanded(
                 flex: 1,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: boxBgColor,
                     borderRadius: BorderRadius.circular(8),
@@ -553,7 +613,10 @@ class SettingsScreen extends StatelessWidget {
               Expanded(
                 flex: 1,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: boxBgColor,
                     borderRadius: BorderRadius.circular(8),
@@ -569,7 +632,10 @@ class SettingsScreen extends StatelessWidget {
               Expanded(
                 flex: 1,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: boxBgColor,
                     borderRadius: BorderRadius.circular(8),
@@ -615,10 +681,11 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
-  Widget _buildSubscriptionCard() {
+
+  Widget _buildSubscriptionCard(bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -668,13 +735,13 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                _buildPremiumFeature('Advanced hormone trend charts'),
+                _buildPremiumFeature('Advanced hormone trend charts', isDark),
                 const SizedBox(height: 12),
-                _buildPremiumFeature('Phase-optimised workout plans'),
+                _buildPremiumFeature('Phase-optimised workout plans', isDark),
                 const SizedBox(height: 12),
-                _buildPremiumFeature('AI nutrition guidance'),
+                _buildPremiumFeature('AI nutrition guidance', isDark),
                 const SizedBox(height: 12),
-                _buildPremiumFeature('Symptom pattern insights'),
+                _buildPremiumFeature('Symptom pattern insights', isDark),
               ],
             ),
           ),
@@ -690,6 +757,7 @@ class SettingsScreen extends StatelessWidget {
                     suffix: '/year',
                     subtitle: '≈ £9.67/month · Save 19%',
                     isBestValue: true,
+                    isDark: isDark,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -700,6 +768,7 @@ class SettingsScreen extends StatelessWidget {
                     suffix: '/month',
                     subtitle: '',
                     isBestValue: false,
+                    isDark: isDark,
                   ),
                 ),
               ],
@@ -734,10 +803,7 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 8),
           const Text(
             'No charge for 7 days · Cancel anytime in App Store',
-            style: TextStyle(
-              fontSize: 10,
-              color: Color(0xFF8B7355),
-            ),
+            style: TextStyle(fontSize: 10, color: Color(0xFF8B7355)),
           ),
           const SizedBox(height: 16),
         ],
@@ -745,17 +811,14 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPremiumFeature(String text) {
+  Widget _buildPremiumFeature(String text, bool isDark) {
     return Row(
       children: [
         const Icon(Icons.check, color: Color(0xFFE8927C), size: 16),
         const SizedBox(width: 12),
         Text(
           text,
-          style: const TextStyle(
-            fontSize: 13,
-            color: Color(0xFF3A2E28),
-          ),
+          style: TextStyle(fontSize: 13, color: isDark ? Colors.white : const Color(0xFF3A2E28)),
         ),
       ],
     );
@@ -767,6 +830,7 @@ class SettingsScreen extends StatelessWidget {
     required String suffix,
     required String subtitle,
     required bool isBestValue,
+    required bool isDark,
   }) {
     return Stack(
       clipBehavior: Clip.none,
@@ -775,17 +839,19 @@ class SettingsScreen extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
           decoration: BoxDecoration(
-            color: isBestValue ? const Color(0xFFFAF5F0) : Colors.white,
+            color: isBestValue ? (isDark ? const Color(0xFF3B2F2A) : const Color(0xFFFAF5F0)) : (isDark ? AppColors.darkSurfaceLight : Colors.white),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isBestValue ? const Color(0xFFE8927C) : const Color(0xFFE2D6C8),
+              color: isBestValue
+                  ? const Color(0xFFE8927C)
+                  : (isDark ? const Color(0xFF333333) : const Color(0xFFE2D6C8)),
             ),
           ),
           child: Column(
             children: [
               Text(
                 title,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF3A2E28)),
+                style: TextStyle(fontSize: 12, color: isDark ? Colors.white : const Color(0xFF3A2E28)),
               ),
               const SizedBox(height: 4),
               RichText(
@@ -793,10 +859,10 @@ class SettingsScreen extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: price,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF3A2E28),
+                        color: isDark ? Colors.white : const Color(0xFF3A2E28),
                       ),
                     ),
                     TextSpan(
@@ -813,12 +879,9 @@ class SettingsScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    fontSize: 9,
-                    color: Color(0xFF8B7355),
-                  ),
+                  style: const TextStyle(fontSize: 9, color: Color(0xFF8B7355)),
                 ),
-              ]
+              ],
             ],
           ),
         ),
@@ -849,36 +912,39 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppCard() {
+  Widget _buildAppCard(bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
           _buildAppSettingItem(
             icon: Icons.light_mode_outlined,
-            iconBgColor: const Color(0xFFF3EFEA),
-            iconColor: const Color(0xFF3A2E28),
+            iconBgColor: isDark ? const Color(0xFF333333) : const Color(0xFFF3EFEA),
+            iconColor: isDark ? Colors.white : const Color(0xFF3A2E28),
             title: 'Appearance',
             isToggle: true,
+            isDark: isDark,
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF6F3F0)),
+          Divider(height: 1, thickness: 1, color: isDark ? const Color(0xFF333333) : const Color(0xFFF6F3F0)),
           _buildAppSettingItem(
             icon: Icons.notifications_outlined,
-            iconBgColor: const Color(0xFFFFF0EC),
+            iconBgColor: isDark ? const Color(0xFF4A2B24) : const Color(0xFFFFF0EC),
             iconColor: const Color(0xFFE8927C),
             title: 'Notifications',
             isToggle: true,
             isNotificationToggle: true,
+            isDark: isDark,
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF6F3F0)),
+          Divider(height: 1, thickness: 1, color: isDark ? const Color(0xFF333333) : const Color(0xFFF6F3F0)),
           _buildAppSettingItem(
             icon: Icons.privacy_tip_outlined,
-            iconBgColor: const Color(0xFFF4F0F9),
+            iconBgColor: isDark ? const Color(0xFF3A2D4A) : const Color(0xFFF4F0F9),
             iconColor: const Color(0xFFA687C6),
             title: 'Privacy & Data',
+            isDark: isDark,
           ),
         ],
       ),
@@ -892,6 +958,7 @@ class SettingsScreen extends StatelessWidget {
     required String title,
     bool isToggle = false,
     bool isNotificationToggle = false,
+    required bool isDark,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -909,30 +976,32 @@ class SettingsScreen extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF3A2E28),
+                color: isDark ? Colors.white : const Color(0xFF3A2E28),
               ),
             ),
           ),
           if (isToggle)
-            Obx(() => Switch(
-                  value: isNotificationToggle
-                      ? controller.notificationsEnabled.value
-                      : controller.isDarkMode.value,
-                  onChanged: (val) {
-                    if (isNotificationToggle) {
-                      controller.toggleNotifications(val);
-                    } else {
-                      controller.isDarkMode.value = val;
-                      Get.changeThemeMode(val ? ThemeMode.dark : ThemeMode.light);
-                    }
-                  },
-                  activeThumbColor: const Color(0xFFE8927C),
-                  inactiveThumbColor: Colors.white,
-                  inactiveTrackColor: const Color(0xFFE2D6C8),
-                ))
+            Obx(
+              () => Switch(
+                value: isNotificationToggle
+                    ? controller.notificationsEnabled.value
+                    : controller.isDarkMode.value,
+                onChanged: (val) {
+                  if (isNotificationToggle) {
+                    controller.toggleNotifications(val);
+                  } else {
+                    controller.isDarkMode.value = val;
+                    Get.changeThemeMode(val ? ThemeMode.dark : ThemeMode.light);
+                  }
+                },
+                activeThumbColor: const Color(0xFFE8927C),
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: const Color(0xFFE2D6C8),
+              ),
+            )
           else
             const Icon(Icons.chevron_right, color: Color(0xFFC4B8AD), size: 20),
         ],
@@ -940,7 +1009,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSignOutButton() {
+  Widget _buildSignOutButton(bool isDark) {
     return InkWell(
       onTap: () {
         Get.put(AuthController()).logout();
@@ -950,7 +1019,7 @@ class SettingsScreen extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? AppColors.darkSurface : Colors.white,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -972,7 +1041,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDeleteAccountButton() {
+  Widget _buildDeleteAccountButton(bool isDark) {
     return InkWell(
       onTap: () {
         Get.toNamed(AppRoute.deleteAccount);
@@ -984,7 +1053,7 @@ class SettingsScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFCDBEAE)),
+          border: Border.all(color: isDark ? const Color(0xFF333333) : const Color(0xFFCDBEAE)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -1033,7 +1102,8 @@ class SettingsScreen extends StatelessWidget {
       ),
       builder: (context) {
         return Obx(() {
-          final List<Map<String, dynamic>> options = controller.dbContraceptions.isNotEmpty
+          final List<Map<String, dynamic>> options =
+              controller.dbContraceptions.isNotEmpty
               ? controller.dbContraceptions
               : [
                   {'key': 'pill', 'title': 'Combined Pill', 'icon': '💊'},
@@ -1041,7 +1111,11 @@ class SettingsScreen extends StatelessWidget {
                   {'key': 'implant', 'title': 'Implant', 'icon': '📌'},
                   {'key': 'injection', 'title': 'Injection', 'icon': '💉'},
                   {'key': 'mini', 'title': 'Mini Pill', 'icon': '🔵'},
-                  {'key': 'none', 'title': 'No hormonal contraception', 'icon': '🌙'},
+                  {
+                    'key': 'none',
+                    'title': 'No hormonal contraception',
+                    'icon': '🌙',
+                  },
                 ];
 
           return SafeArea(
@@ -1063,7 +1137,9 @@ class SettingsScreen extends StatelessWidget {
                   final title = opt['title'] ?? '';
                   final icon = opt['icon'] ?? '';
                   return ListTile(
-                    leading: icon.isNotEmpty ? Text(icon, style: const TextStyle(fontSize: 20)) : null,
+                    leading: icon.isNotEmpty
+                        ? Text(icon, style: const TextStyle(fontSize: 20))
+                        : null,
                     title: Text(
                       title,
                       style: const TextStyle(color: Color(0xFF3A2E28)),
@@ -1076,7 +1152,7 @@ class SettingsScreen extends StatelessWidget {
                       Navigator.pop(context);
                     },
                   );
-                })
+                }),
               ],
             ),
           );
@@ -1087,8 +1163,18 @@ class SettingsScreen extends StatelessWidget {
 
   Future<void> _selectStartDate(BuildContext context) async {
     final monthMap = {
-      'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
-      'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+      'Jan': 1,
+      'Feb': 2,
+      'Mar': 3,
+      'Apr': 4,
+      'May': 5,
+      'Jun': 6,
+      'Jul': 7,
+      'Aug': 8,
+      'Sep': 9,
+      'Oct': 10,
+      'Nov': 11,
+      'Dec': 12,
     };
     final monthNum = monthMap[controller.lastPeriodMonth.value] ?? 1;
     final currentDate = DateTime(
@@ -1137,29 +1223,32 @@ class _CustomThumbShape extends SliderComponentShape {
   }
 
   @override
-  void paint(PaintingContext context, Offset center,
-      {required Animation<double> activationAnimation,
-      required Animation<double> enableAnimation,
-      required bool isDiscrete,
-      required TextPainter labelPainter,
-      required RenderBox parentBox,
-      required SliderThemeData sliderTheme,
-      required TextDirection textDirection,
-      required double value,
-      required double textScaleFactor,
-      required Size sizeWithOverflow}) {
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
     final Canvas canvas = context.canvas;
-    
+
     // Outer white border
     final Paint borderPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    
+
     // Inner thumb color
     final Paint thumbPaint = Paint()
       ..color = sliderTheme.thumbColor ?? const Color(0xFF7B8089)
       ..style = PaintingStyle.fill;
-      
+
     // Shadow
     canvas.drawShadow(
       Path()..addOval(Rect.fromCircle(center: center, radius: 10)),
@@ -1174,4 +1263,3 @@ class _CustomThumbShape extends SliderComponentShape {
     canvas.drawCircle(center, 7.5, thumbPaint);
   }
 }
-

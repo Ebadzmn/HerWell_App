@@ -44,4 +44,13 @@ class AppColors {
   static const Color streakIcon = Color(0xFFF57D54);
   static const Color accentGreen = Color(0xFF1E8A4A);
   static const Color accentGreenLight = Color(0xFFD5F5E3);
+
+  // Dark Mode Tokens
+  static const Color darkBackground = Color(0xFF121212); // Deep dark background
+  static const Color darkSurface = Color(0xFF1E1E1E); // Slightly lighter surface
+  static const Color darkSurfaceLight = Color(0xFF2C2C2C); // For elevated cards
+  static const Color darkTextPrimary = Color(0xFFFFFFFF);
+  static const Color darkTextSecondary = Color(0xFFB3B3B3);
+  static const Color darkTextMuted = Color(0xFF808080);
+  static const Color darkBorder = Color(0xFF333333);
 }

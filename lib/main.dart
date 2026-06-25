@@ -39,13 +39,15 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(
               seedColor: AppColors.primary,
               brightness: Brightness.dark,
+              surface: AppColors.darkBackground,
             ),
             useMaterial3: true,
+            scaffoldBackgroundColor: AppColors.darkBackground,
             textTheme: GoogleFonts.nunitoTextTheme(
               ThemeData.dark().textTheme,
             ),
           ),
-          themeMode: ThemeMode.light,
+          themeMode: ThemeMode.system,
           initialRoute: AppRoute.splash,
           initialBinding: InitialBinding(),
           getPages: AppRoute.routes,

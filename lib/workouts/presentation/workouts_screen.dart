@@ -17,22 +17,28 @@ class WorkoutsScreen extends StatelessWidget {
     final homeController = Get.find<HomeController>();
     final navBox = Get.find<NavbarController>();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F3F0),
+      backgroundColor: isDark ? AppColors.darkBackground : const Color(0xFFF5F3F0),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
             // Header
             Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFE5D9CF),
-                    Color(0xFFD4C5B9),
-                    Color(0xFFC4B5A9),
+                  colors: isDark ? [
+                    const Color(0xFF2C2C2C),
+                    const Color(0xFF1E1E1E),
+                    const Color(0xFF121212),
+                  ] : [
+                    const Color(0xFFE5D9CF),
+                    const Color(0xFFD4C5B9),
+                    const Color(0xFFC4B5A9),
                   ],
                 ),
               ),
@@ -46,28 +52,28 @@ class WorkoutsScreen extends StatelessWidget {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: () => Get.back(),
+                            onTap: () => navBox.changePage(0),
                             child: Container(
                               width: 44,
                               height: 44,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.4),
+                                color: isDark ? Colors.white.withOpacity(0.1) : Colors.white.withOpacity(0.4),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.arrow_back_rounded,
-                                color: Color(0xFF3A2E28),
+                                color: isDark ? Colors.white : const Color(0xFF3A2E28),
                                 size: 20,
                               ),
                             ),
                           ),
                           const SizedBox(width: 16),
-                          const Text(
+                          Text(
                             'Workouts',
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF3A2E28),
+                              color: isDark ? Colors.white : const Color(0xFF3A2E28),
                             ),
                           ),
                         ],
@@ -79,7 +85,7 @@ class WorkoutsScreen extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.4),
+                          color: isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.4),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Obx(() {
@@ -91,13 +97,16 @@ class WorkoutsScreen extends StatelessWidget {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    'Phase $phaseNum • Day ${homeController.cycleDay.value}',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: const Color(
-                                        0xFF3A2E28,
-                                      ).withOpacity(0.6),
+                                  Expanded(
+                                    child: Text(
+                                      'Phase $phaseNum • Day ${homeController.cycleDay.value}',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isDark ? Colors.white70 : const Color(
+                                          0xFF3A2E28,
+                                        ).withOpacity(0.6),
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                   Container(
@@ -106,15 +115,15 @@ class WorkoutsScreen extends StatelessWidget {
                                       vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.5),
+                                      color: isDark ? Colors.white.withOpacity(0.1) : Colors.white.withOpacity(0.5),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    child: const Text(
+                                    child: Text(
                                       'GENERAL FITNESS',
                                       style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
-                                        color: Color(0xFF3A2E28),
+                                        color: isDark ? Colors.white : const Color(0xFF3A2E28),
                                       ),
                                     ),
                                   ),
@@ -123,10 +132,10 @@ class WorkoutsScreen extends StatelessWidget {
                               const SizedBox(height: 4),
                               Text(
                                 _getPhaseTitle(phaseNum),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF3A2E28),
+                                  color: isDark ? Colors.white : const Color(0xFF3A2E28),
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -134,7 +143,7 @@ class WorkoutsScreen extends StatelessWidget {
                                 _getPhaseDesc(phaseNum),
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: const Color(
+                                  color: isDark ? Colors.white70 : const Color(
                                     0xFF3A2E28,
                                   ).withOpacity(0.7),
                                 ),
@@ -253,15 +262,16 @@ class WorkoutsScreen extends StatelessWidget {
     List<Map<String, dynamic>> options,
     BuildContext context,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () => _showFilterBottomSheet(label, value, options, context),
       child: Container(
         height: 44,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
+          color: isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.2),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withOpacity(0.3)),
+          border: Border.all(color: isDark ? Colors.white.withOpacity(0.1) : Colors.white.withOpacity(0.3)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -276,18 +286,18 @@ class WorkoutsScreen extends StatelessWidget {
                     : options.first;
                 return Text(
                   selectedOption['l'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF3A2E28),
+                    color: isDark ? Colors.white : const Color(0xFF3A2E28),
                   ),
                   overflow: TextOverflow.ellipsis,
                 );
               }),
             ),
-            const Icon(
+            Icon(
               Icons.keyboard_arrow_down_rounded,
-              color: Color(0xFF3A2E28),
+              color: isDark ? Colors.white : const Color(0xFF3A2E28),
               size: 18,
             ),
           ],
@@ -302,9 +312,10 @@ class WorkoutsScreen extends StatelessWidget {
     List<Map<String, dynamic>> options,
     BuildContext context,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -318,10 +329,10 @@ class WorkoutsScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: isDark ? Colors.white : AppColors.textPrimary,
                 ),
               ),
             ),
@@ -348,7 +359,7 @@ class WorkoutsScreen extends StatelessWidget {
                               : FontWeight.normal,
                           color: isSelected
                               ? AppColors.accent
-                              : AppColors.textPrimary,
+                              : (isDark ? Colors.white : AppColors.textPrimary),
                         ),
                       ),
                       trailing: isSelected
@@ -387,7 +398,7 @@ class WorkoutsScreen extends StatelessWidget {
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Get.isDarkMode ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.1),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -400,7 +411,7 @@ class WorkoutsScreen extends StatelessWidget {
                 Icon(
                   icon,
                   size: 16,
-                  color: isSelected ? Colors.white : const Color(0xFF5C4A3A),
+                  color: isSelected ? Colors.white : (Get.isDarkMode ? Colors.white70 : const Color(0xFF5C4A3A)),
                 ),
                 const SizedBox(width: 6),
                 Text(
@@ -408,7 +419,7 @@ class WorkoutsScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: isSelected ? Colors.white : const Color(0xFF5C4A3A),
+                    color: isSelected ? Colors.white : (Get.isDarkMode ? Colors.white70 : const Color(0xFF5C4A3A)),
                   ),
                 ),
               ],
@@ -825,11 +836,11 @@ class WorkoutsScreen extends StatelessWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Get.isDarkMode ? AppColors.darkSurface : Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Get.isDarkMode ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -855,10 +866,10 @@ class WorkoutsScreen extends StatelessWidget {
                       Expanded(
                         child: Text(
                           title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2D2420),
+                            color: Get.isDarkMode ? Colors.white : const Color(0xFF2D2420),
                           ),
                         ),
                       ),
@@ -887,23 +898,26 @@ class WorkoutsScreen extends StatelessWidget {
                     desc,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(fontSize: 12, color: Get.isDarkMode ? Colors.white54 : Colors.grey),
                   ),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          _buildInfoItem(
-                            Icons.access_time_rounded,
-                            '$duration min',
-                          ),
-                          const SizedBox(width: 12),
-                          _buildInfoItem(Icons.track_changes_rounded, bodypart),
-                          const SizedBox(width: 12),
-                          _buildInfoItem(Icons.inventory_2_outlined, equipment),
-                        ],
+                      Expanded(
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            _buildInfoItem(
+                              Icons.access_time_rounded,
+                              '$duration min',
+                            ),
+                            _buildInfoItem(Icons.track_changes_rounded, bodypart),
+                            _buildInfoItem(Icons.inventory_2_outlined, equipment),
+                          ],
+                        ),
                       ),
                       Row(
                         children: [
@@ -912,8 +926,8 @@ class WorkoutsScreen extends StatelessWidget {
                             child: Container(
                               width: 44,
                               height: 44,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFF5F3F0),
+                              decoration: BoxDecoration(
+                                color: Get.isDarkMode ? const Color(0xFF333333) : const Color(0xFFF5F3F0),
                                 shape: BoxShape.circle,
                               ),
                               child: Obx(() => Icon(
@@ -921,7 +935,7 @@ class WorkoutsScreen extends StatelessWidget {
                                     ? Icons.bookmark_rounded
                                     : Icons.bookmark_border_rounded,
                                 size: 18,
-                                color: const Color(0xFF5C4A3A),
+                                color: Get.isDarkMode ? Colors.white : const Color(0xFF5C4A3A),
                               )),
                             ),
                           ),
@@ -949,10 +963,17 @@ class WorkoutsScreen extends StatelessWidget {
 
   Widget _buildInfoItem(IconData icon, String text) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 11, color: Colors.black),
+        Icon(icon, size: 11, color: Get.isDarkMode ? Colors.white70 : Colors.black),
         const SizedBox(width: 4),
-        Text(text, style: const TextStyle(fontSize: 11, color: Colors.black)),
+        Flexible(
+          child: Text(
+            text,
+            style: TextStyle(fontSize: 11, color: Get.isDarkMode ? Colors.white70 : Colors.black),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
   }
@@ -967,11 +988,11 @@ class WorkoutsScreen extends StatelessWidget {
       child: Container(
         width: 44,
         height: 44,
-        decoration: const BoxDecoration(
-          color: Color(0xFFF5F3F0),
+        decoration: BoxDecoration(
+          color: Get.isDarkMode ? const Color(0xFF333333) : const Color(0xFFF5F3F0),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, size: 18, color: const Color(0xFF5C4A3A)),
+        child: Icon(icon, size: 18, color: Get.isDarkMode ? Colors.white : const Color(0xFF5C4A3A)),
       ),
     );
   }
@@ -983,10 +1004,10 @@ class WorkoutsScreen extends StatelessWidget {
     bool isDashed = false,
     bool gradient = false,
   }) {
-    final bgColor = gradient ? const Color(0xFFEFE8DE) : Colors.white;
+    final bgColor = gradient ? (Get.isDarkMode ? AppColors.darkSurface : const Color(0xFFEFE8DE)) : (Get.isDarkMode ? AppColors.darkSurfaceLight : Colors.white);
     final borderColor = gradient
-        ? const Color(0xFFD4C5B9)
-        : const Color(0xFFE2E8F0);
+        ? (Get.isDarkMode ? AppColors.darkSurface : const Color(0xFFD4C5B9))
+        : (Get.isDarkMode ? const Color(0xFF333333) : const Color(0xFFE2E8F0));
 
     Widget content = Container(
       width: double.infinity,
@@ -999,7 +1020,7 @@ class WorkoutsScreen extends StatelessWidget {
         children: [
           Text(
             text,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF4F5962)),
+            style: TextStyle(fontSize: 14, color: Get.isDarkMode ? Colors.white70 : const Color(0xFF4F5962)),
           ),
           const SizedBox(height: 6),
           Row(
@@ -1045,11 +1066,11 @@ class WorkoutsScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Get.isDarkMode ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Get.isDarkMode ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -1159,6 +1180,7 @@ class WorkoutsScreen extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 100),
         ],
       ),
     );
@@ -1201,7 +1223,7 @@ class WorkoutsScreen extends StatelessWidget {
           );
         }
 
-        return ListView.separated(
+        final listWidget = ListView.separated(
           padding: EdgeInsets.zero,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -1214,6 +1236,13 @@ class WorkoutsScreen extends StatelessWidget {
               controller: controller,
             );
           },
+        );
+        
+        return Column(
+          children: [
+            listWidget,
+            const SizedBox(height: 100),
+          ],
         );
       }),
     );

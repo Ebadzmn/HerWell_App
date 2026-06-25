@@ -6,6 +6,7 @@ import '../widgets/food_library_widget.dart';
 import '../widgets/recipe_library_widget.dart';
 import '../../home/controller/home_controller.dart';
 import '../controller/nutrition_controller.dart';
+import '../../nav_bar/navbar_controller.dart';
 
 class NutritionScreen extends StatefulWidget {
   const NutritionScreen({super.key});
@@ -33,19 +34,24 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
   Widget build(BuildContext context) {
     final controller = Get.put(NutritionController());
     final homeController = Get.find<HomeController>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       body: Column(
           children: [
             // Top Section with Gradient
             Container(
               width: double.infinity,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
+                  colors: isDark ? [
+                    const Color(0xFF2C2C2C),
+                    const Color(0xFF1E1E1E),
+                    const Color(0xFF121212),
+                  ] : [
                     AppColors.homeGradientStart,
                     AppColors.homeGradientMid,
                     AppColors.homeGradientEnd,
@@ -62,24 +68,24 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: () => Get.back(),
+                            onTap: () => Get.find<NavbarController>().changePage(0),
                             child: Container(
                               width: 44,
                               height: 44,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.4),
+                                color: isDark ? Colors.white.withOpacity(0.1) : Colors.white.withOpacity(0.4),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF3A2E28), size: 20),
+                              child: Icon(Icons.arrow_back_rounded, color: isDark ? Colors.white : const Color(0xFF3A2E28), size: 20),
                             ),
                           ),
                           const SizedBox(width: 16),
-                          const Text(
+                          Text(
                             'Nutrition',
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF3A2E28),
+                              color: isDark ? Colors.white : const Color(0xFF3A2E28),
                             ),
                           ),
                         ],
@@ -91,7 +97,7 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.4),
+                          color: isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.4),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Obx(() => Column(
@@ -101,16 +107,16 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
                               'Phase ${homeController.getPhaseNumber()}',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: const Color(0xFF3A2E28).withOpacity(0.6),
+                                color: isDark ? Colors.white70 : const Color(0xFF3A2E28).withOpacity(0.6),
                               ),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               homeController.currentPhase.value,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF3A2E28),
+                                color: isDark ? Colors.white : const Color(0xFF3A2E28),
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -118,7 +124,7 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
                               _getPhaseDescription(homeController.getPhaseNumber()),
                               style: TextStyle(
                                 fontSize: 12,
-                                color: const Color(0xFF3A2E28).withOpacity(0.7),
+                                color: isDark ? Colors.white70 : const Color(0xFF3A2E28).withOpacity(0.7),
                               ),
                             ),
                           ],
@@ -136,9 +142,9 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
                 offset: const Offset(0, -20),
               child: Container(
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.darkBackground : AppColors.background,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -148,24 +154,24 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? AppColors.darkSurface : Colors.white,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey[200]!),
+                          border: Border.all(color: isDark ? const Color(0xFF333333) : Colors.grey[200]!),
                         ),
                         child: TabBar(
                           controller: _tabController,
-                          labelColor: const Color(0xFF2D2420),
-                          unselectedLabelColor: Colors.grey[600],
+                          labelColor: isDark ? Colors.white : const Color(0xFF2D2420),
+                          unselectedLabelColor: isDark ? Colors.grey[400] : Colors.grey[600],
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
                           indicatorSize: TabBarIndicatorSize.tab,
                           dividerColor: Colors.transparent,
                           indicator: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: Colors.white,
+                            color: isDark ? AppColors.darkSurfaceLight : Colors.white,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
+                                color: isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.08),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -186,7 +192,7 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
                           children: [
                             const FoodLibraryWidget(),
                             const RecipeLibraryWidget(),
-                            _buildCalculatorTab(homeController),
+                            _buildCalculatorTab(context, homeController),
                           ],
                         ),
                       ),
@@ -223,7 +229,8 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
     );
   }
 
-  Widget _buildCalculatorTab(HomeController homeController) {
+  Widget _buildCalculatorTab(BuildContext context, HomeController homeController) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,26 +239,26 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: const Color(0xFFC8DCC8),
+            color: isDark ? const Color(0xFF2C3E30) : const Color(0xFFC8DCC8),
             borderRadius: BorderRadius.circular(24),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Energy Boosting',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF4A7A5A),
+                  color: isDark ? const Color(0xFF8FD1A3) : const Color(0xFF4A7A5A),
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 'Light, fresh foods to support rising energy levels',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xB24A7A5A), // 0.7 opacity
+                  color: isDark ? const Color(0xFF8FD1A3).withOpacity(0.7) : const Color(0xB24A7A5A), // 0.7 opacity
                 ),
               ),
               const SizedBox(height: 20),

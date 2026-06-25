@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:herwellness_flutter/home/controller/home_controller.dart';
 import '../../core/app_colors.dart';
 import '../../core/network/api_client.dart';
 
@@ -27,12 +28,33 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
       'days': 'Days 1–5',
       'color': const Color(0xFFC0392B),
       'softBg': const Color(0xFFFADBD8),
-      'tagline': 'Rest, restore, and look inward — your body is doing its deepest work.',
+      'tagline':
+          'Rest, restore, and look inward — your body is doing its deepest work.',
       'hormones': [
-        {'name': 'Oestrogen', 'level': 1, 'desc': 'At its lowest. Drop triggers lining to shed. Reduces serotonin and dopamine → fatigue and low mood.'},
-        {'name': 'Progesterone', 'level': 1, 'desc': 'Also very low. Its fall from luteal triggers menstruation. Less calming GABA activity.'},
-        {'name': 'Prostaglandins', 'level': 4, 'desc': 'Elevated. Inflammatory compounds cause uterine contractions, cramping, and gut motility issues.'},
-        {'name': 'FSH & LH', 'level': 2, 'desc': 'FSH begins to rise slightly, stimulating follicle recruitment for the next cycle.'},
+        {
+          'name': 'Oestrogen',
+          'level': 1,
+          'desc':
+              'At its lowest. Drop triggers lining to shed. Reduces serotonin and dopamine → fatigue and low mood.',
+        },
+        {
+          'name': 'Progesterone',
+          'level': 1,
+          'desc':
+              'Also very low. Its fall from luteal triggers menstruation. Less calming GABA activity.',
+        },
+        {
+          'name': 'Prostaglandins',
+          'level': 4,
+          'desc':
+              'Elevated. Inflammatory compounds cause uterine contractions, cramping, and gut motility issues.',
+        },
+        {
+          'name': 'FSH & LH',
+          'level': 2,
+          'desc':
+              'FSH begins to rise slightly, stimulating follicle recruitment for the next cycle.',
+        },
       ],
       'physical': [
         'Core temperature at its lowest — cardiovascular performance marginally better but you feel worst',
@@ -64,11 +86,27 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
       'days': 'Days 6–13',
       'color': const Color(0xFFE67E22),
       'softBg': const Color(0xFFFDEBD0),
-      'tagline': 'Rising energy, rising ambition — this is your season of emergence.',
+      'tagline':
+          'Rising energy, rising ambition — this is your season of emergence.',
       'hormones': [
-        {'name': 'Oestrogen', 'level': 3, 'desc': 'Steadily rising as dominant follicle grows. Boosts serotonin, dopamine, acetylcholine, and BDNF.'},
-        {'name': 'FSH', 'level': 3, 'desc': 'Drives follicle maturation. Eventually suppressed by oestrogen.'},
-        {'name': 'Testosterone', 'level': 2, 'desc': 'Gradual rise — supports libido, motivation, and anabolic drive.'},
+        {
+          'name': 'Oestrogen',
+          'level': 3,
+          'desc':
+              'Steadily rising as dominant follicle grows. Boosts serotonin, dopamine, acetylcholine, and BDNF.',
+        },
+        {
+          'name': 'FSH',
+          'level': 3,
+          'desc':
+              'Drives follicle maturation. Eventually suppressed by oestrogen.',
+        },
+        {
+          'name': 'Testosterone',
+          'level': 2,
+          'desc':
+              'Gradual rise — supports libido, motivation, and anabolic drive.',
+        },
       ],
       'physical': [
         'Core temperature low — cardiovascular efficiency at its best; VO2 max performance superior',
@@ -97,11 +135,25 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
       'days': 'Days 14–17',
       'color': const Color(0xFF27AE60),
       'softBg': const Color(0xFFD5F5E3),
-      'tagline': 'Peak power, peak presence — you are at your most magnetic and capable.',
+      'tagline':
+          'Peak power, peak presence — you are at your most magnetic and capable.',
       'hormones': [
-        {'name': 'Oestrogen', 'level': 5, 'desc': 'Peaks sharply — triggers LH surge. Oestradiol at highest point.'},
-        {'name': 'LH', 'level': 5, 'desc': 'LH surge triggers ovulation — mature follicle ruptures.'},
-        {'name': 'Testosterone', 'level': 3, 'desc': 'Peaks around ovulation — drives libido and assertiveness.'},
+        {
+          'name': 'Oestrogen',
+          'level': 5,
+          'desc':
+              'Peaks sharply — triggers LH surge. Oestradiol at highest point.',
+        },
+        {
+          'name': 'LH',
+          'level': 5,
+          'desc': 'LH surge triggers ovulation — mature follicle ruptures.',
+        },
+        {
+          'name': 'Testosterone',
+          'level': 3,
+          'desc': 'Peaks around ovulation — drives libido and assertiveness.',
+        },
       ],
       'physical': [
         'Absolute peak physical capacity — strength, power, and anaerobic threshold are highest',
@@ -133,9 +185,22 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
       'softBg': const Color(0xFFE8DAEF),
       'tagline': 'Your body turns inward — honour it.',
       'hormones': [
-        {'name': 'Progesterone', 'level': 4, 'desc': 'Dominant hormone. Raises core temp, increases metabolic rate.'},
-        {'name': 'Oestrogen', 'level': 3, 'desc': 'Secondary mid-luteal peak then falls.'},
-        {'name': 'Serotonin', 'level': 2, 'desc': 'Falls as oestrogen drops → carbohydrate cravings, low mood.'},
+        {
+          'name': 'Progesterone',
+          'level': 4,
+          'desc':
+              'Dominant hormone. Raises core temp, increases metabolic rate.',
+        },
+        {
+          'name': 'Oestrogen',
+          'level': 3,
+          'desc': 'Secondary mid-luteal peak then falls.',
+        },
+        {
+          'name': 'Serotonin',
+          'level': 2,
+          'desc': 'Falls as oestrogen drops → carbohydrate cravings, low mood.',
+        },
       ],
       'physical': [
         'Core temperature rises 0.3–0.5°C — reduces cardiovascular efficiency',
@@ -199,14 +264,16 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
       if (mounted) setState(() => _isLoadingGuides = true);
       final ApiClient apiClient = Get.find<ApiClient>();
       final response = await apiClient.get('/cycle/phase-guide');
-      if (response.isSuccess && response.data != null && response.data is List) {
+      if (response.isSuccess &&
+          response.data != null &&
+          response.data is List) {
         final List<dynamic> list = response.data;
         final Map<String, dynamic> mapped = {};
         for (var item in list) {
           final id = item['id'] as String;
           final colorStr = item['color'] as String;
           final softBgStr = item['softBg'] as String;
-          
+
           mapped[id] = {
             'id': id,
             'label': item['label'],
@@ -298,33 +365,50 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
                         onTap: () => setState(() => _activePhase = p['id']),
                         child: Container(
                           margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          width: 85,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 12,
+                          ),
                           decoration: BoxDecoration(
                             color: isActive ? p['color'] : Colors.grey[50],
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: isActive ? Colors.transparent : Colors.grey[200]!,
+                              color: isActive
+                                  ? Colors.transparent
+                                  : Colors.grey[200]!,
                             ),
                           ),
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(p['emoji'], style: const TextStyle(fontSize: 18)),
-                              const SizedBox(height: 2),
+                              Text(
+                                p['emoji'],
+                                style: const TextStyle(fontSize: 22),
+                              ),
+                              const SizedBox(height: 6),
                               Text(
                                 p['label'],
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.bold,
-                                  color: isActive ? Colors.white : AppColors.textSecondary,
-                                  decoration: isActive ? TextDecoration.underline : TextDecoration.none,
-                                  decorationColor: Colors.white,
+                                  color: isActive
+                                      ? Colors.white
+                                      : AppColors.textSecondary,
                                 ),
                               ),
+                              const SizedBox(height: 2),
                               Text(
                                 p['days'],
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 8,
-                                  color: isActive ? Colors.white.withOpacity(0.7) : Colors.grey,
+                                  fontSize: 9,
+                                  color: isActive
+                                      ? Colors.white.withOpacity(0.8)
+                                      : Colors.grey,
                                 ),
                               ),
                             ],
@@ -385,10 +469,10 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
               ),
               child: Row(
                 children: [
-                  _buildTabButton('hormones', '🧬 Hormones'),
-                  _buildTabButton('physical', '🫀 Body'),
-                  _buildTabButton('training', '🏋️ Training'),
-                  _buildTabButton('nutrition', '🍽️ Nutrition'),
+                  _buildTabButton('hormones', '🧬', 'Hormones'),
+                  _buildTabButton('physical', '🫀', 'Body'),
+                  _buildTabButton('training', '🏋️', 'Training'),
+                  _buildTabButton('nutrition', '🍽️', 'Nutrition'),
                 ],
               ),
             ),
@@ -402,7 +486,7 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
     );
   }
 
-  Widget _buildTabButton(String id, String label) {
+  Widget _buildTabButton(String id, String emoji, String label) {
     final isActive = _activeTab == id;
     return Expanded(
       child: GestureDetector(
@@ -425,14 +509,28 @@ class _PhaseExplorerWidgetState extends State<PhaseExplorerWidget> {
                   ]
                 : null,
           ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: isActive ? AppColors.textPrimary : AppColors.textSecondary.withOpacity(0.6),
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                emoji,
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: isActive
+                      ? AppColors.textPrimary
+                      : AppColors.textSecondary.withOpacity(0.6),
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -52,10 +52,11 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -79,10 +80,10 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF2D2420),
+                        color: isDark ? Colors.white : const Color(0xFF2D2420),
                       ),
                     ),
                     GestureDetector(
@@ -98,7 +99,7 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: options.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  separatorBuilder: (_, __) => Divider(height: 1, color: isDark ? const Color(0xFF333333) : const Color(0xFFF1F5F9)),
                   itemBuilder: (context, index) {
                     final key = options.keys.elementAt(index);
                     final value = options.values.elementAt(index);
@@ -117,7 +118,7 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                        color: isSelected ? const Color(0xFFFDF8F5) : Colors.white,
+                        color: isSelected ? (isDark ? const Color(0xFF333333) : const Color(0xFFFDF8F5)) : (isDark ? AppColors.darkSurface : Colors.white),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -126,11 +127,11 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                color: isSelected ? const Color(0xFF5C4A3A) : const Color(0xFF2D2420),
+                                color: isSelected ? (isDark ? Colors.white : const Color(0xFF5C4A3A)) : (isDark ? Colors.white70 : const Color(0xFF2D2420)),
                               ),
                             ),
                             if (isSelected)
-                              const Icon(Icons.check, color: Color(0xFF5C4A3A), size: 20),
+                              Icon(Icons.check, color: isDark ? Colors.white : const Color(0xFF5C4A3A), size: 20),
                           ],
                         ),
                       ),
@@ -148,6 +149,7 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Obx(() {
       if (controller.isLoading.value) {
         return const Center(
@@ -181,18 +183,18 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
                     height: 48,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3EFEA),
+                      color: isDark ? const Color(0xFF333333) : const Color(0xFFF3EFEA),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: isDark ? const Color(0xFF444444) : const Color(0xFFE2E8F0)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           _phaseLabels[_selectedPhase]!,
-                          style: const TextStyle(fontSize: 14, color: Color(0xFF3A2E28)),
+                          style: TextStyle(fontSize: 14, color: isDark ? Colors.white : const Color(0xFF3A2E28)),
                         ),
-                        const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF3A2E28)),
+                        Icon(Icons.keyboard_arrow_down_rounded, color: isDark ? Colors.white : const Color(0xFF3A2E28)),
                       ],
                     ),
                   ),
@@ -206,18 +208,18 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
                     height: 48,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3EFEA),
+                      color: isDark ? const Color(0xFF333333) : const Color(0xFFF3EFEA),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: isDark ? const Color(0xFF444444) : const Color(0xFFE2E8F0)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           _categoryLabels[_selectedCategory]!,
-                          style: const TextStyle(fontSize: 14, color: Color(0xFF3A2E28)),
+                          style: TextStyle(fontSize: 14, color: isDark ? Colors.white : const Color(0xFF3A2E28)),
                         ),
-                        const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF3A2E28)),
+                        Icon(Icons.keyboard_arrow_down_rounded, color: isDark ? Colors.white : const Color(0xFF3A2E28)),
                       ],
                     ),
                   ),
@@ -234,20 +236,21 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
               hintText: 'Search foods...',
               hintStyle: TextStyle(color: Colors.grey[500]),
               filled: true,
-              fillColor: Colors.white,
+              fillColor: isDark ? AppColors.darkSurface : Colors.white,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFF8B7355)),
+                borderSide: BorderSide(color: isDark ? Colors.white24 : const Color(0xFF8B7355)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFF8B7355)),
+                borderSide: BorderSide(color: isDark ? Colors.white24 : const Color(0xFF8B7355)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFF8B7355), width: 1.5),
+                borderSide: BorderSide(color: isDark ? Colors.white54 : const Color(0xFF8B7355), width: 1.5),
               ),
+              prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
             ),
           ),
           const SizedBox(height: 16),
@@ -255,7 +258,7 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
           // Count text
           Text(
             '${filteredFoods.length} foods',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF5C4A3A)),
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isDark ? Colors.white70 : const Color(0xFF5C4A3A)),
           ),
           const SizedBox(height: 12),
   
@@ -271,10 +274,10 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? AppColors.darkSurface : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 2)),
+                    BoxShadow(color: isDark ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 2)),
                   ],
                 ),
                 child: Row(
@@ -294,17 +297,17 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
                             children: [
                               Text(
                                 food['name'] ?? '',
-                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF2D2420)),
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF2D2420)),
                               ),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF3EFEA),
+                                  color: isDark ? const Color(0xFF333333) : const Color(0xFFF3EFEA),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
                                   food['cat'] ?? '',
-                                  style: const TextStyle(fontSize: 11, color: Color(0xFF5C4A3A)),
+                                  style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : const Color(0xFF5C4A3A)),
                                 ),
                               ),
                             ],

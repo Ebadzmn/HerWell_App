@@ -20,12 +20,14 @@ class RecipeLibraryWidget extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.8,
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-        ),
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.8,
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -43,8 +45,8 @@ class RecipeLibraryWidget extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(recipe['name'] ?? '', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                        Text(recipe['tagline'] ?? '', style: const TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: AppColors.textSecondary)),
+                        Text(recipe['name'] ?? '', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: isDark ? Colors.white : AppColors.textPrimary)),
+                        Text(recipe['tagline'] ?? '', style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: isDark ? Colors.white70 : AppColors.textSecondary)),
                       ],
                     ),
                   ),
@@ -54,13 +56,13 @@ class RecipeLibraryWidget extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildDetailTag(Icons.timer_outlined, prepTime),
-                  _buildDetailTag(Icons.local_fire_department_rounded, caloriesText),
-                  _buildDetailTag(Icons.spa_rounded, phaseText),
+                  _buildDetailTag(Icons.timer_outlined, prepTime, context),
+                  _buildDetailTag(Icons.local_fire_department_rounded, caloriesText, context),
+                  _buildDetailTag(Icons.spa_rounded, phaseText, context),
                 ],
               ),
               const SizedBox(height: 32),
-              const Text('Ingredients', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              Text('Ingredients', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isDark ? Colors.white : AppColors.textPrimary)),
               const SizedBox(height: 12),
               if (recipe['ingredients'] != null && recipe['ingredients'] is List)
                 Column(
@@ -72,15 +74,15 @@ class RecipeLibraryWidget extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 6.0),
                       child: Text(
                         '• $amount $name',
-                        style: const TextStyle(fontSize: 14, height: 1.6, color: AppColors.textPrimary),
+                        style: TextStyle(fontSize: 14, height: 1.6, color: isDark ? Colors.white : AppColors.textPrimary),
                       ),
                     );
                   }).toList(),
                 )
               else
-                const Text('• Standard ingredients', style: TextStyle(fontSize: 14, height: 1.6, color: AppColors.textPrimary)),
+                Text('• Standard ingredients', style: TextStyle(fontSize: 14, height: 1.6, color: isDark ? Colors.white : AppColors.textPrimary)),
               const SizedBox(height: 32),
-              const Text('Instructions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              Text('Instructions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isDark ? Colors.white : AppColors.textPrimary)),
               const SizedBox(height: 12),
               if (recipe['steps'] != null && recipe['steps'] is List)
                 Column(
@@ -92,20 +94,20 @@ class RecipeLibraryWidget extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 10.0),
                       child: Text(
                         '$idx. $step',
-                        style: const TextStyle(fontSize: 14, height: 1.6, color: AppColors.textPrimary),
+                        style: TextStyle(fontSize: 14, height: 1.6, color: isDark ? Colors.white : AppColors.textPrimary),
                       ),
                     );
                   }).toList(),
                 )
               else
-                const Text('1. Prepare and enjoy.', style: TextStyle(fontSize: 14, height: 1.6, color: AppColors.textPrimary)),
+                Text('1. Prepare and enjoy.', style: TextStyle(fontSize: 14, height: 1.6, color: isDark ? Colors.white : AppColors.textPrimary)),
               const SizedBox(height: 40),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.textPrimary,
+                    backgroundColor: isDark ? AppColors.accent : AppColors.textPrimary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -116,17 +118,19 @@ class RecipeLibraryWidget extends StatelessWidget {
               const SizedBox(height: 20),
             ],
           ),
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildDetailTag(IconData icon, String label) {
+  Widget _buildDetailTag(IconData icon, String label, BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         Icon(icon, color: AppColors.textMuted, size: 24),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+        Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isDark ? Colors.white : AppColors.textPrimary)),
       ],
     );
   }
@@ -134,6 +138,7 @@ class RecipeLibraryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<NutritionController>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Obx(() {
       if (controller.isLoading.value) {
@@ -161,12 +166,12 @@ class RecipeLibraryWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          const Text(
+          Text(
             'Quick Recipes',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -187,11 +192,11 @@ class RecipeLibraryWidget extends StatelessWidget {
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? AppColors.darkSurface : Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.02),
+                        color: isDark ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.02),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -219,17 +224,17 @@ class RecipeLibraryWidget extends StatelessWidget {
                                 children: [
                                   Text(
                                     recipe['name'] ?? '',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.textPrimary,
+                                      color: isDark ? Colors.white : AppColors.textPrimary,
                                     ),
                                   ),
                                   Text(
                                     recipe['tagline'] ?? '',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 11,
-                                      color: AppColors.textSecondary,
+                                      color: isDark ? Colors.white70 : AppColors.textSecondary,
                                     ),
                                   ),
                                   const SizedBox(height: 8),

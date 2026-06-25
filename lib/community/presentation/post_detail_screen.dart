@@ -11,18 +11,19 @@ class PostDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<CommunityController>();
     final commentController = TextEditingController();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Discussion',
-          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(color: isDark ? Colors.white : AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: AppColors.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_rounded, color: isDark ? Colors.white : AppColors.textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -45,7 +46,7 @@ class PostDetailScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: isDark ? AppColors.darkSurface : AppColors.surface,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
@@ -58,7 +59,7 @@ class PostDetailScreen extends StatelessWidget {
                           backgroundColor: AppColors.background.withOpacity(0.4),
                           child: Text(
                             (post.authorName ?? 'A')[0].toUpperCase(),
-                            style: const TextStyle(color: AppColors.textPrimary),
+                            style: TextStyle(color: isDark ? Colors.white : AppColors.textPrimary),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -68,7 +69,7 @@ class PostDetailScreen extends StatelessWidget {
                             children: [
                               Text(
                                 post.authorName ?? 'Anonymous',
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isDark ? Colors.white : AppColors.textPrimary),
                               ),
                               Text(postTime, style: const TextStyle(fontSize: 11, color: Colors.grey)),
                             ],
@@ -79,7 +80,7 @@ class PostDetailScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text(
                       post.content,
-                      style: const TextStyle(fontSize: 15, color: AppColors.textPrimary, height: 1.5),
+                      style: TextStyle(fontSize: 15, color: isDark ? Colors.white : AppColors.textPrimary, height: 1.5),
                     ),
                     const SizedBox(height: 20),
                     Row(
@@ -89,7 +90,7 @@ class PostDetailScreen extends StatelessWidget {
                           child: _buildAction(Icons.favorite_rounded, post.likes.toString(), Colors.red),
                         ),
                         const SizedBox(width: 20),
-                        _buildAction(Icons.chat_bubble_rounded, post.comments.length.toString(), AppColors.textPrimary),
+                        _buildAction(Icons.chat_bubble_rounded, post.comments.length.toString(), isDark ? Colors.white : AppColors.textPrimary, isDark),
                         const Spacer(),
                         const Icon(Icons.share_rounded, size: 20, color: Colors.grey),
                       ],
@@ -100,9 +101,9 @@ class PostDetailScreen extends StatelessWidget {
               const SizedBox(height: 32),
 
               // Comments Section
-              const Text(
+              Text(
                 'Comments',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: isDark ? Colors.white : AppColors.textPrimary),
               ),
               const SizedBox(height: 16),
               if (post.comments.isEmpty)
@@ -122,6 +123,7 @@ class PostDetailScreen extends StatelessWidget {
                     name: comment.authorName ?? 'Anonymous',
                     text: comment.content,
                     time: commentTime,
+                    isDark: isDark,
                   );
                 }).toList(),
             ],
@@ -138,18 +140,20 @@ class PostDetailScreen extends StatelessWidget {
             top: 10,
           ),
           decoration: BoxDecoration(
-            color: AppColors.background,
-            border: Border(top: BorderSide(color: Colors.black.withOpacity(0.05))),
+            color: isDark ? AppColors.darkBackground : AppColors.background,
+            border: Border(top: BorderSide(color: isDark ? Colors.white24 : Colors.black.withOpacity(0.05))),
           ),
           child: Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: commentController,
+                  style: TextStyle(color: isDark ? Colors.white : AppColors.textPrimary),
                   decoration: InputDecoration(
                     hintText: 'Add a comment...',
+                    hintStyle: TextStyle(color: isDark ? Colors.white54 : Colors.grey),
                     filled: true,
-                    fillColor: AppColors.surface,
+                    fillColor: isDark ? AppColors.darkSurface : AppColors.surface,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
                   ),
@@ -166,7 +170,7 @@ class PostDetailScreen extends StatelessWidget {
                 },
                 child: Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(color: AppColors.textPrimary, shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: isDark ? AppColors.accent : AppColors.textPrimary, shape: BoxShape.circle),
                   child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
                 ),
               ),
@@ -177,17 +181,17 @@ class PostDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAction(IconData icon, String label, Color color) {
+  Widget _buildAction(IconData icon, String label, Color color, [bool isDark = false]) {
     return Row(
       children: [
         Icon(icon, size: 18, color: color),
         const SizedBox(width: 6),
-        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+        Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: isDark ? Colors.white : AppColors.textPrimary)),
       ],
     );
   }
 
-  Widget _buildComment({required String name, required String text, required String time}) {
+  Widget _buildComment({required String name, required String text, required String time, bool isDark = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Row(
@@ -198,7 +202,7 @@ class PostDetailScreen extends StatelessWidget {
             backgroundColor: AppColors.background.withOpacity(0.4),
             child: Text(
               name.isEmpty ? 'A' : name[0].toUpperCase(),
-              style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+              style: TextStyle(fontSize: 12, color: isDark ? Colors.white : AppColors.textPrimary),
             ),
           ),
           const SizedBox(width: 12),
@@ -209,12 +213,12 @@ class PostDetailScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                    Text(name, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: isDark ? Colors.white : AppColors.textPrimary)),
                     Text(time, style: const TextStyle(fontSize: 11, color: Colors.grey)),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(text, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, height: 1.4)),
+                Text(text, style: TextStyle(fontSize: 13, color: isDark ? Colors.white : AppColors.textPrimary, height: 1.4)),
               ],
             ),
           ),
