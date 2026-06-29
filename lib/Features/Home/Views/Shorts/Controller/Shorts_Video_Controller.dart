@@ -220,13 +220,16 @@ class ShortsVideoController extends GetxController with WidgetsBindingObserver {
     videoPlayerController?.pause();
     videoPlayerController?.dispose();
     videoPlayerController = null;
-    isInitialized.value = false;
-    isPlaying.value = false;
-    hasStartedPlaying.value = false;
-    hasError.value = false;
-    position.value = Duration.zero;
-    duration.value = Duration.zero;
-    isLoading.value = false;
+    
+    if (!isClosed) {
+      isInitialized.value = false;
+      isPlaying.value = false;
+      hasStartedPlaying.value = false;
+      hasError.value = false;
+      position.value = Duration.zero;
+      duration.value = Duration.zero;
+      isLoading.value = false;
+    }
   }
 
   @override

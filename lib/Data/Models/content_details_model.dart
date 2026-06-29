@@ -12,6 +12,7 @@ class EpisodeModel {
   final String thumbnailUrl;
   final String title;
   final String videoUrl;
+  final int requiredCoin;
 
   EpisodeModel({
     required this.id,
@@ -27,6 +28,7 @@ class EpisodeModel {
     required this.thumbnailUrl,
     required this.title,
     required this.videoUrl,
+    this.requiredCoin = 0,
   });
 
   factory EpisodeModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +46,7 @@ class EpisodeModel {
       thumbnailUrl: json['thumbnailUrl']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
       videoUrl: json['videoUrl']?.toString() ?? '',
+      requiredCoin: json['requiredCoin'] is int ? json['requiredCoin'] : (int.tryParse(json['requiredCoin']?.toString() ?? '') ?? 0),
     );
   }
 }

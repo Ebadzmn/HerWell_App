@@ -493,7 +493,19 @@ class MovieDetailScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final episode = controller.episodes[index];
                   return GestureDetector(
-                    onTap: () => controller.playEpisode(episode),
+                    onTap: () {
+                      if (episode.requiredCoin > 0) {
+                        Get.snackbar(
+                          "Locked", 
+                          "This episode requires ${episode.requiredCoin} coins to unlock",
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.redAccent,
+                          colorText: Colors.white,
+                        );
+                        return;
+                      }
+                      controller.playEpisode(episode);
+                    },
                     child: Container(
                       decoration: BoxDecoration(
                         color: const Color(0xFF222222),
@@ -549,7 +561,10 @@ class MovieDetailScreen extends StatelessWidget {
                           ),
                           Padding(
                             padding: EdgeInsets.only(right: 12.w),
-                            child: const Icon(Icons.play_circle_outline, color: Colors.white),
+                            child: Icon(
+                              episode.requiredCoin > 0 ? Icons.lock : Icons.play_circle_outline, 
+                              color: episode.requiredCoin > 0 ? const Color(0xFFF76212) : Colors.white,
+                            ),
                           ),
                         ],
                       ),

@@ -70,6 +70,7 @@ class ShortsFullSeriesScreen extends StatelessWidget {
                     children: [
                       // Background Video
                       ShortsVideoPlayer(
+                        key: ValueKey(shorts.id),
                         videoUrl: shorts.videoUrl, 
                         posterUrl: shorts.posterUrl,
                         id: shorts.id,
@@ -295,26 +296,40 @@ class ShortsFullSeriesScreen extends StatelessWidget {
   }
 
   Widget _buildRangeSection(ShortsController controller) {
-    return Row(
-      children: [
-        _buildEpisodeRangeTab(controller, "1-25"),
-        SizedBox(width: 40.w),
-        _buildEpisodeRangeTab(controller, "26-43"),
-        SizedBox(width: 40.w),
-        _buildEpisodeRangeTab(controller, "44-93"),
-      ],
-    );
+    return Obx(() {
+      final details = controller.currentContentDetails.value;
+      if (details == null || details.seasons.isEmpty) return const SizedBox.shrink();
+
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          children: details.seasons.map((season) {
+            return Padding(
+              padding: EdgeInsets.only(right: 20.w),
+              child: _buildEpisodeRangeTab(controller, season.title, season.id),
+            );
+          }).toList(),
+        ),
+      );
+    });
   }
 
   Widget _buildEpisodeGrid(ShortsController controller) {
     return Expanded(
       child: Obx(() {
-        final episodes = controller.episodesForSelectedRange;
+        if (controller.isLoadingDetails.value) {
+           return const Center(child: CircularProgressIndicator(color: Color(0xFFF76212)));
+        }
+        final episodesList = controller.episodes;
+        if (episodesList.isEmpty) {
+           return const Center(child: Text("No episodes available.", style: TextStyle(color: Colors.white)));
+        }
         return GridView.builder(
           padding: EdgeInsets.only(bottom: 20.h),
           shrinkWrap: false,
           physics: const BouncingScrollPhysics(),
-          itemCount: episodes.length,
+          itemCount: episodesList.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 5,
             crossAxisSpacing: 14.w,
@@ -322,9 +337,9 @@ class ShortsFullSeriesScreen extends StatelessWidget {
             childAspectRatio: 1.1,
           ),
           itemBuilder: (context, index) {
-            int episodeNum = episodes[index];
-            bool isLocked = episodeNum > 10;
-            return _buildEpisodeItem(controller, episodeNum, isLocked);
+            final episode = episodesList[index];
+            bool isLocked = episode.requiredCoin > 0;
+            return _buildEpisodeItem(controller, episode.episodeNumber, isLocked, episode);
           },
         );
       }),
@@ -335,9 +350,12 @@ class ShortsFullSeriesScreen extends StatelessWidget {
     ShortsController controller,
     int episodeNum,
     bool isLocked,
+    dynamic episodeModel,
   ) {
     return GestureDetector(
-      onTap: () => controller.selectEpisode(episodeNum),
+      onTap: () {
+        controller.selectEpisode(episodeModel);
+      },
       child: Stack(
         children: [
           Container(
@@ -374,16 +392,16 @@ class ShortsFullSeriesScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEpisodeRangeTab(ShortsController controller, String range) {
+  Widget _buildEpisodeRangeTab(ShortsController controller, String title, String seasonId) {
     return Obx(() {
-      bool isSelected = controller.selectedEpisodeRange.value == range;
+      bool isSelected = controller.selectedSeasonId.value == seasonId;
       return GestureDetector(
-        onTap: () => controller.changeEpisodeRange(range),
+        onTap: () => controller.selectSeason(seasonId),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             CustomText(
-              text: range,
+              text: title,
               fontSize: 18.sp,
               fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
               color: isSelected

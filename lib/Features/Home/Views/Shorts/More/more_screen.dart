@@ -6,7 +6,7 @@ import 'package:uremz100/Utils/app_colors.dart';
 import 'package:uremz100/Utils/app_images.dart';
 import 'Modet/more_model.dart';
 import 'Widget/more_widget.dart';
-import 'Controller/more_controller.dart';
+import '../Controller/Shorts_Controller.dart';
 
 class MoreScreen extends StatelessWidget {
   final String movieId;
@@ -14,10 +14,7 @@ class MoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MoreController controller = Get.put(MoreController());
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.fetchMovieDetails(movieId);
-    });
+    final ShortsController controller = Get.find<ShortsController>();
 
     // Sample Data for Cast
     final List<CastModel> castList = [
@@ -148,20 +145,12 @@ class MoreScreen extends StatelessWidget {
             ),
           ),
           Obx(() {
-            if (controller.isLoading.value) {
+            if (controller.isLoadingDetails.value) {
               return const Center(child: CircularProgressIndicator(color: Colors.white));
             }
-            if (controller.errorMessage.value.isNotEmpty) {
-              return Center(
-                child: CustomText(
-                  text: controller.errorMessage.value,
-                  color: Colors.red,
-                  fontSize: 14.sp,
-                ),
-              );
-            }
+            // If there's an error state, we could show it here, but ShortsController doesn't explicitly have it yet.
             
-            final movie = controller.movieDetails;
+            final movie = controller.currentContentDetails.value;
             if (movie == null) return const SizedBox();
 
             return CustomScrollView(
@@ -227,7 +216,7 @@ class MoreScreen extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     CustomText(
-                                      text: controller.formatViews(movie.views),
+                                      text: "${movie.views} Views", // formatViews doesn't exist in ShortsController yet, but we can display raw or add it. Let's just use raw views for now or format inline.
                                       fontSize: 12.sp,
                                       color: const Color(0xFF8E8E8E),
                                     ),

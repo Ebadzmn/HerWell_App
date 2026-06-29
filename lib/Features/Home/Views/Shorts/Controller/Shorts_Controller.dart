@@ -17,6 +17,8 @@ import 'package:uremz100/Data/Repositories/shorts_repository.dart';
 import 'package:uremz100/Domain/UseCases/get_shorts_usecase.dart';
 import 'package:uremz100/Domain/UseCases/track_short_view_usecase.dart';
 import 'package:uremz100/Domain/UseCases/add_to_collection_usecase.dart';
+import 'package:uremz100/Data/Repositories/content_details_repository.dart';
+import 'package:uremz100/Data/Models/content_details_model.dart';
 
 class ShortsController extends GetxController {
   var shortsList = <ShortsModel>[].obs;
@@ -46,10 +48,17 @@ class ShortsController extends GetxController {
   Set<String> trackedViews = {};
   Timer? _viewTimer;
 
+  // Content Details State
+  var isLoadingDetails = false.obs;
+  var currentContentDetails = Rxn<ContentDetailsModel>();
+  var episodes = <EpisodeModel>[].obs;
+  var selectedSeasonId = ''.obs;
+
   // Use Cases
   late final GetShortsUseCase _getShortsUseCase;
   late final TrackShortViewUseCase _trackShortViewUseCase;
   late final AddToCollectionUseCase _addToCollectionUseCase;
+  late final ContentDetailsRepository _contentDetailsRepository;
 
   void showMoreDetailsBottomSheet() {
     pauseCurrentVideo();
@@ -73,6 +82,7 @@ class ShortsController extends GetxController {
     _getShortsUseCase = GetShortsUseCase(repository);
     _trackShortViewUseCase = TrackShortViewUseCase(repository);
     _addToCollectionUseCase = AddToCollectionUseCase(repository);
+    _contentDetailsRepository = Get.find<ContentDetailsRepository>();
 
     if (Get.arguments != null && Get.arguments is Map && (Get.arguments as Map).containsKey('playbackUrl')) {
       handleArguments(Get.arguments);
@@ -80,10 +90,11 @@ class ShortsController extends GetxController {
       fetchShorts();
     }
 
-    // Listen to index changes to trigger view tracking
+    // Listen to index changes to trigger view tracking and details fetching
     ever(currentIndex, (int index) {
       if (shortsList.isNotEmpty && index < shortsList.length) {
         _startViewTracking(shortsList[index].id);
+        fetchSeriesDetails(shortsList[index].id);
         
         // Trigger load more if we are nearing the end
         if (index >= shortsList.length - 2) {
@@ -118,6 +129,7 @@ class ShortsController extends GetxController {
       isInitialLoading(false);
       
       _startViewTracking(contentId);
+      fetchSeriesDetails(contentId);
     }
   }
 
@@ -138,11 +150,44 @@ class ShortsController extends GetxController {
       }
       if (shortsList.isNotEmpty) {
         _startViewTracking(shortsList.first.id);
+        fetchSeriesDetails(shortsList.first.id);
       }
     } catch (e) {
       debugPrint("Error fetching shorts: $e");
     } finally {
       isInitialLoading(false);
+    }
+  }
+
+  Future<void> fetchSeriesDetails(String shortId) async {
+    try {
+      isLoadingDetails.value = true;
+      final response = await _contentDetailsRepository.getContentDetails(shortId);
+      if (response.isSuccess && response.data != null) {
+        currentContentDetails.value = response.data;
+        if (currentContentDetails.value!.type == 'SERIES' && currentContentDetails.value!.seasons.isNotEmpty) {
+          selectSeason(currentContentDetails.value!.seasons.first.id);
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching series details: $e");
+    } finally {
+      isLoadingDetails.value = false;
+    }
+  }
+
+  void selectSeason(String seasonId) {
+    if (selectedSeasonId.value == seasonId) return;
+    selectedSeasonId.value = seasonId;
+    fetchEpisodes(seasonId);
+  }
+
+  Future<void> fetchEpisodes(String seasonId) async {
+    final response = await _contentDetailsRepository.getSeasonEpisodes(seasonId);
+    if (response.isSuccess && response.data != null) {
+      episodes.assignAll(response.data!);
+    } else {
+      episodes.clear();
     }
   }
 
@@ -236,9 +281,59 @@ class ShortsController extends GetxController {
     return [];
   }
 
-  void selectEpisode(int episode) {
-    currentEpisode.value = episode;
+  void selectEpisode(EpisodeModel episode) {
+    if (episode.requiredCoin > 0) {
+      Get.snackbar(
+        "Locked",
+        "This episode requires ${episode.requiredCoin} coins to unlock",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    if (episode.videoUrl.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Video not available for this episode",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    currentEpisode.value = episode.episodeNumber;
     showEpisodePopup.value = false;
+
+    if (shortsList.isEmpty) return;
+
+    // Pause current playing video
+    pauseCurrentVideo();
+
+    final currentIndexValue = currentIndex.value;
+    final currentShort = shortsList[currentIndexValue];
+
+    // Create new ShortsModel for this episode
+    final newShort = ShortsModel(
+      id: episode.id,
+      videoUrl: episode.videoUrl,
+      posterUrl: episode.thumbnailUrl.isNotEmpty ? episode.thumbnailUrl : currentShort.posterUrl,
+      title: episode.title.isNotEmpty ? episode.title : currentShort.title,
+      description: episode.description.isNotEmpty ? episode.description : currentShort.description,
+      episode: episode.episodeNumber.toString(),
+      season: episode.seasonNumber.toString(),
+      profileImage: currentShort.profileImage,
+      tags: currentShort.tags,
+    );
+
+    // Replace in list to trigger video change
+    shortsList[currentIndexValue] = newShort;
+    shortsList.refresh();
+
+    // Start view tracking for new episode
+    _startViewTracking(episode.id);
   }
 
   void toggleDescription() {
