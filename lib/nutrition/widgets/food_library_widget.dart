@@ -190,9 +190,12 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          _phaseLabels[_selectedPhase]!,
-                          style: TextStyle(fontSize: 14, color: isDark ? Colors.white : const Color(0xFF3A2E28)),
+                        Expanded(
+                          child: Text(
+                            _phaseLabels[_selectedPhase]!,
+                            style: TextStyle(fontSize: 14, color: isDark ? Colors.white : const Color(0xFF3A2E28)),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         Icon(Icons.keyboard_arrow_down_rounded, color: isDark ? Colors.white : const Color(0xFF3A2E28)),
                       ],
@@ -215,9 +218,12 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          _categoryLabels[_selectedCategory]!,
-                          style: TextStyle(fontSize: 14, color: isDark ? Colors.white : const Color(0xFF3A2E28)),
+                        Expanded(
+                          child: Text(
+                            _categoryLabels[_selectedCategory]!,
+                            style: TextStyle(fontSize: 14, color: isDark ? Colors.white : const Color(0xFF3A2E28)),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         Icon(Icons.keyboard_arrow_down_rounded, color: isDark ? Colors.white : const Color(0xFF3A2E28)),
                       ],
@@ -295,10 +301,14 @@ class _FoodLibraryWidgetState extends State<FoodLibraryWidget> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                food['name'] ?? '',
-                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF2D2420)),
+                              Expanded(
+                                child: Text(
+                                  food['name'] ?? '',
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF2D2420)),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
+                              const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(

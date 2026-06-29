@@ -160,6 +160,7 @@ class _NutritionScreenState extends State<NutritionScreen> with SingleTickerProv
                         ),
                         child: TabBar(
                           controller: _tabController,
+                          labelPadding: const EdgeInsets.symmetric(horizontal: 4),
                           labelColor: isDark ? Colors.white : const Color(0xFF2D2420),
                           unselectedLabelColor: isDark ? Colors.grey[400] : Colors.grey[600],
                           labelStyle: const TextStyle(fontWeight: FontWeight.bold),

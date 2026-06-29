@@ -184,7 +184,7 @@ class _MacroCalculatorWidgetState extends State<MacroCalculatorWidget> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Target Daily Calories', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                      const Expanded(child: Text('Target Daily Calories', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500))),
                       Text(
                         '${_calculateTargetCalories(tdee)}',
                         style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF8B7355)),
